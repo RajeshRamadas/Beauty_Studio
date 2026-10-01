@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Beauty Studio — Luxury 12-Screen Interactive Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink: #df3975;
+  --pink-dark: #b82258;
+  --pink-light: #fff0f5;
+  --pink-glow: rgba(223, 57, 117, 0.35);
+  --gold: #d4af37;
+  --ink: #18131a;
+  --ink-light: #3d3542;
+  --muted: #827887;
+  --line: #ede4e9;
+  --bg: #f9f5f7;
+  --card-bg: #ffffff;
+  --card-radius: 20px;
+  --shadow-sm: 0 4px 14px rgba(223, 57, 117, 0.06);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 20px 40px rgba(223, 57, 117, 0.18);
+  --glass: rgba(255, 255, 255, 0.85);
+  --font: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', sans-serif;
+}
+
+[data-theme="dark"] {
+  --ink: #f5edef;
+  --ink-light: #d8ccd2;
+  --muted: #9e8e98;
+  --line: #332730;
+  --bg: #120c11;
+  --card-bg: #1e151d;
+  --glass: rgba(30, 21, 29, 0.85);
+  --pink-light: rgba(223, 57, 117, 0.15);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+* { box-sizing: border-box; transition: background-color 0.25s, border-color 0.25s; }
+body {
+  margin: 0;
+  background: #0d070b;
+  background-image: radial-gradient(circle at 50% 0%, #3a1223 0%, #0d070b 70%);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Quick Screen Jumper Toolbar for Reviewers */
+.reviewer-bar {
+  width: 100%;
+  background: rgba(15, 10, 14, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(223, 57, 117, 0.2);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  z-index: 1000;
+  position: sticky;
+  top: 0;
+  flex-wrap: wrap;
+}
+.reviewer-label { color: #fff; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+.reviewer-select {
+  background: #251823;
+  color: #ffaed0;
+  border: 1px solid var(--pink);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+}
+.reviewer-theme-btn {
+  background: rgba(223, 57, 117, 0.2);
+  color: #fff;
+  border: 1px solid var(--pink);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Phone Mockup Wrapper */
+.phone-outer-wrapper {
+  padding: 24px 0 40px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.app-frame {
+  width: 100%;
+  max-width: 430px;
+  min-height: 880px;
+  background: var(--bg);
+  border-radius: 46px;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6), 0 0 0 12px #211620, 0 0 0 14px rgba(223, 57, 117, 0.3);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Status Bar */
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px 6px;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--card-bg);
+  color: var(--ink);
+}
+.dynamic-island {
+  width: 110px;
+  height: 25px;
+  background: #000;
+  border-radius: 20px;
+  margin: 0 auto;
+}
+
+/* App Header */
+.app-header {
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.app-title { font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--ink); letter-spacing: -0.3px; }
+.app-title span { color: var(--pink); }
+.header-actions { display: flex; gap: 10px; align-items: center; }
+.icon-btn {
+  background: var(--pink-light);
+  border: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--pink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+.icon-btn:hover { transform: scale(1.05); }
+
+/* Screens View Engine */
+.screen { display: none; padding: 18px; flex: 1; padding-bottom: 90px; animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+.screen.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Bottom Navigation Bar */
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0 18px;
+  z-index: 60;
+}
+.nav-item {
+  border: 0;
+  background: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  gap: 3px;
+}
+.nav-item.active { color: var(--pink); }
+.nav-item svg { width: 22px; height: 22px; fill: currentColor; }
+
+/* Reusable UI Components */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--card-radius);
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.btn {
+  width: 100%;
+  border: 0;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  color: white;
+  font-weight: 700;
+  padding: 15px;
+  font-family: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 0 8px 20px var(--pink-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn:hover { opacity: 0.95; transform: translateY(-1px); }
+.btn-outline {
+  background: transparent;
+  color: var(--pink);
+  border: 2px solid var(--pink);
+  box-shadow: none;
+}
+.btn-secondary {
+  background: var(--pink-light);
+  color: var(--pink);
+  box-shadow: none;
+}
+
+/* Filter Chips */
+.chips-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 14px; scrollbar-width: none; }
+.chips-scroll::-webkit-scrollbar { display: none; }
+.chip {
+  padding: 9px 18px;
+  border-radius: 30px;
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.chip.active {
+  background: var(--pink);
+  color: white;
+  border-color: var(--pink);
+  box-shadow: 0 4px 12px var(--pink-glow);
+}
+
+/* Grids */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+/* Preset Cards */
+.preset-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+.preset-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.preset-card img { width: 100%; height: 135px; object-fit: cover; display: block; }
+.preset-card .title { padding: 10px; font-size: 12px; font-weight: 700; color: var(--ink); text-align: center; }
+.preset-card .badge { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); color: #fff; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 10px; }
+
+/* Interactive Before / After Slider */
+.slider-container {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  border-radius: 20px;
+  overflow: hidden;
+  user-select: none;
+  background: #000;
+  box-shadow: var(--shadow-md);
+}
+.slider-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+.slider-before-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 50%;
+  overflow: hidden;
+  border-right: 3px solid #fff;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+}
+.slider-before-box img { width: 100%; height: 100%; object-fit: cover; }
+.slider-handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 42px;
+  height: 42px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pink);
+  font-weight: 900;
+  font-size: 16px;
+  cursor: ew-resize;
+  z-index: 10;
+}
+.slider-tag {
+  position: absolute;
+  bottom: 12px;
+  padding: 4px 12px;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  color: white;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Upload Tips */
+.tip-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 13px; color: var(--ink); }
+.tip-check { color: #10b981; font-weight: bold; font-size: 16px; }
+
+/* Rating & Heart icons */
+.fav-btn {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(255,255,255,0.85);
+  border: 0;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  cursor: pointer;
+}
+</style>
+</head>
+<body data-theme="light">
+
+<!-- Reviewer Quick Jumper Toolbar -->
+<div class="reviewer-bar">
+  <span class="reviewer-label">✨ Jump Screen:</span>
+  <select class="reviewer-select" onchange="showScreen(this.value)" id="screen-selector-dropdown">
+    <option value="screen-1">1: Onboarding / Splash</option>
+    <option value="screen-2" selected>2: Home Feed</option>
+    <option value="screen-3">3: Category Hub</option>
+    <option value="screen-4">4: Hairstyles Gallery</option>
+    <option value="screen-5">5: Style Detail & Angles</option>
+    <option value="screen-6">6: Try-On Before/After Result</option>
+    <option value="screen-7">7: Dual Photo Upload</option>
+    <option value="screen-8">8: Makeup Looks</option>
+    <option value="screen-9">9: Nail Art Gallery</option>
+    <option value="screen-10">10: Full Looks Runway</option>
+    <option value="screen-11">11: My Creations History</option>
+    <option value="screen-12">12: Profile & VIP Credits</option>
+  </select>
+  <button class="reviewer-theme-btn" onclick="toggleTheme()">🌗 Dark/Light</button>
+</div>
+
+<div class="phone-outer-wrapper">
+  <div class="app-frame">
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div>9:41</div>
+      <div class="dynamic-island"></div>
+      <div>📶 🔋</div>
+    </div>
+
+    <!-- App Header -->
+    <div class="app-header" id="global-header">
+      <button class="icon-btn" onclick="goBack()">‹</button>
+      <div class="app-title">GLOW <span>AI</span></div>
+      <div class="header-actions">
+        <button class="icon-btn" onclick="showScreen('screen-12')">👑</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 1: Onboarding -->
+    <div class="screen" id="screen-1" style="text-align:center; padding-top:20px;">
+      <div style="display:inline-block; padding:5px 14px; background:var(--pink-light); color:var(--pink); border-radius:20px; font-size:11px; letter-spacing:1.5px; font-weight:800; margin-bottom:12px;">HAUT COUTURE AI</div>
+      <h1 style="font-family:var(--font-display); font-size:32px; font-weight:800; margin:0 0 10px; line-height:1.15;">Redefine Your Beauty Style</h1>
+      <div style="color:var(--muted); font-size:14px; margin-bottom:24px; padding:0 10px;">Instantly transfer hairstyles, makeup, and high-fashion looks onto your face with sub-pixel precision.</div>
+      <div style="height:350px; border-radius:28px; overflow:hidden; margin-bottom:28px; box-shadow:var(--shadow-lg); position:relative;">
+        <img src="ref.jpeg" style="width:100%; height:100%; object-fit:cover;" alt="Model Preview">
+        <div style="position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent, rgba(0,0,0,0.85)); padding:20px; color:#fff; text-align:left;">
+          <div style="font-size:12px; opacity:0.8; font-weight:600;">STYLE REFERENCE MATCH</div>
+          <div style="font-size:18px; font-weight:700;">Smoky Glam & Beach Waves</div>
+        </div>
+      </div>
+      <button class="btn" onclick="showScreen('screen-2')">Explore Studio ⚡</button>
+    </div>
+
+    <!-- SCREEN 2: Home Feed -->
+    <div class="screen active" id="screen-2">
+      <!-- Search Bar -->
+      <div style="position:relative; margin-bottom:16px;">
+        <input type="text" placeholder="Search hairstyles, makeup, celebrity looks..." style="width:100%; padding:14px 16px 14px 42px; border-radius:16px; border:1px solid var(--line); background:var(--card-bg); color:var(--ink); font-family:inherit; font-size:13px; outline:none;">
+        <span style="position:absolute; left:14px; top:14px; opacity:0.5;">🔍</span>
+      </div>
+
+      <!-- Hero Banner -->
+      <div class="card" style="background: linear-gradient(135deg, #df3975 0%, #7e123d 100%); color:white; padding:22px; position:relative; overflow:hidden; border:0;">
+        <div style="position:absolute; right:-20px; bottom:-20px; font-size:100px; opacity:0.15;">✨</div>
+        <span style="background:rgba(255,255,255,0.25); font-size:10px; font-weight:800; padding:4px 10px; border-radius:12px; letter-spacing:1px; text-transform:uppercase;">NEW FEATURE</span>
+        <h2 style="margin:10px 0 6px; font-family:var(--font-display); font-size:24px; font-weight:800;">Double Reference Transfer</h2>
+        <div style="font-size:13px; opacity:0.9; margin-bottom:16px; max-width:85%;">Mix your favorite haircut reference with a separate makeup look instantly.</div>
+        <button class="btn" style="background:white; color:var(--pink); width:auto; padding:10px 22px; font-size:13px;" onclick="showScreen('screen-7')">Try Dual Generator ›</button>
+      </div>
+
+      <!-- Categories -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 style="margin:0; font-family:var(--font-display); font-size:18px;">Categories</h3>
+        <span style="color:var(--pink); font-size:12px; font-weight:700; cursor:pointer;" onclick="showScreen('screen-3')">View All (4)</span>
+      </div>
+      <div class="grid-2" style="margin-bottom:20px;">
+        <div class="card" style="margin:0; text-align:center; cursor:pointer;" onclick="showScreen('screen-4')">
+          <div style="font-size:36px; margin-bottom:4px;">💇‍♀️</div>
+          <div style="font-weight:700;">Hairstyles</div>
+          <div style="font-size:11px; color:var(--muted);">120+ Styles</div>
+        </div>
+        <div class="card" style="margin:0; text-align:center; cursor:pointer;" onclick="showScreen('screen-8')">
+          <div style="font-size:36px; margin-bottom:4px;">💄</div>
+          <div style="font-weight:700;">Makeup</div>
+          <div style="font-size:11px; color:var(--muted);">85+ Looks</div>
+        </div>
+        <div class="card" style="margin:0; text-align:center; cursor:pointer;" onclick="showScreen('screen-9')">
+          <div style="font-size:36px; margin-bottom:4px;">💅</div>
+          <div style="font-weight:700;">Nail Art</div>
+          <div style="font-size:11px; color:var(--muted);">60+ Designs</div>
+        </div>
+        <div class="card" style="margin:0; text-align:center; cursor:pointer;" onclick="showScreen('screen-10')">
+          <div style="font-size:36px; margin-bottom:4px;">✨</div>
+          <div style="font-weight:700;">Full Looks</div>
+          <div style="font-size:11px; color:var(--muted);">Runway Ready</div>
+        </div>
+      </div>
+
+      <!-- Popular Styles Carousel -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 style="margin:0; font-family:var(--font-display); font-size:18px;">Trending Styles</h3>
+        <span style="color:var(--pink); font-size:12px; font-weight:700; cursor:pointer;" onclick="showScreen('screen-4')">See All</span>
+      </div>
+      <div class="chips-scroll">
+        <div class="preset-card" style="width:140px; flex-shrink:0;" onclick="selectStyle('Glamour Waves')">
+          <button class="fav-btn">❤️</button>
+          <img src="sample_glamour_waves.jpg" alt="Glamour Waves">
+          <div class="title">Glamour Waves</div>
+        </div>
+        <div class="preset-card" style="width:140px; flex-shrink:0;" onclick="selectStyle('Beach Waves')">
+          <button class="fav-btn">🤍</button>
+          <img src="sample_beach_waves.jpg" alt="Beach Waves">
+          <div class="title">Beach Waves</div>
+        </div>
+        <div class="preset-card" style="width:140px; flex-shrink:0;" onclick="selectStyle('Short Bob')">
+          <button class="fav-btn">❤️</button>
+          <img src="sample_short_bob.jpg" alt="Short Bob">
+          <div class="title">Short Bob</div>
+        </div>
+        <div class="preset-card" style="width:140px; flex-shrink:0;" onclick="selectStyle('Braided Updo')">
+          <button class="fav-btn">❤️</button>
+          <img src="sample_braided_updo.jpg" alt="Braided Updo">
+          <div class="title">Braided Updo</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: Category Hub -->
+    <div class="screen" id="screen-3">
+      <h2 style="font-family:var(--font-display); margin:0 0 6px;">Select Beauty Category</h2>
+      <div style="color:var(--muted); font-size:13px; margin-bottom:16px;">Pick a category to explore style reference templates.</div>
+      <div class="grid-2">
+        <div class="preset-card" onclick="showScreen('screen-4')">
+          <span class="badge">120 STYLES</span>
+          <img src="sample_glamour_waves.jpg" alt="Hairstyles">
+          <div class="title" style="color:var(--pink); font-size:14px;">💇‍♀️ Hairstyles</div>
+        </div>
+        <div class="preset-card" onclick="showScreen('screen-8')">
+          <span class="badge">85 LOOKS</span>
+          <img src="sample_beach_waves.jpg" alt="Makeup">
+          <div class="title" style="font-size:14px;">💄 Makeup</div>
+        </div>
+        <div class="preset-card" onclick="showScreen('screen-9')">
+          <span class="badge">60 ART</span>
+          <img src="sample_short_bob.jpg" alt="Nail Art">
+          <div class="title" style="font-size:14px;">💅 Nail Art</div>
+        </div>
+        <div class="preset-card" onclick="showScreen('screen-10')">
+          <span class="badge">RUNWAY</span>
+          <img src="sample_braided_updo.jpg" alt="Full Looks">
+          <div class="title" style="font-size:14px;">✨ Full Looks</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 4: Hairstyles Gallery -->
+    <div class="screen" id="screen-4">
+      <h2 style="font-family:var(--font-display); margin:0 0 10px;">Hairstyles Gallery</h2>
+      <div class="chips-scroll">
+        <div class="chip active">All Styles</div>
+        <div class="chip">Long Layers</div>
+        <div class="chip">Curly & Waves</div>
+        <div class="chip">Short Bob</div>
+        <div class="chip">Braids & Updo</div>
+      </div>
+      <div class="grid-3">
+        <div class="preset-card" onclick="selectStyle('Glamour Waves')"><img src="sample_glamour_waves.jpg"><div class="title">Glamour Waves</div></div>
+        <div class="preset-card" onclick="selectStyle('Beach Waves')"><img src="sample_beach_waves.jpg"><div class="title">Beach Waves</div></div>
+        <div class="preset-card" onclick="selectStyle('Short Bob')"><img src="sample_short_bob.jpg"><div class="title">Short Bob</div></div>
+        <div class="preset-card" onclick="selectStyle('Braided Updo')"><img src="sample_braided_updo.jpg"><div class="title">Braided Updo</div></div>
+        <div class="preset-card" onclick="selectStyle('Curtain Bangs')"><img src="sample_short_bob.jpg"><div class="title">Curtain Bangs</div></div>
+        <div class="preset-card" onclick="selectStyle('Volumetric Curls')"><img src="sample_glamour_waves.jpg"><div class="title">Volumetric Curls</div></div>
+      </div>
+    </div>
+
+    <!-- SCREEN 5: Style Detail & Angle View -->
+    <div class="screen" id="screen-5">
+      <div style="position:relative; height:320px; border-radius:22px; overflow:hidden; margin-bottom:14px; box-shadow:var(--shadow-md);">
+        <img id="detail-hero-img" src="ref.jpeg" style="width:100%; height:100%; object-fit:cover;" alt="Style Detail">
+        <div style="position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); color:#ffd700; padding:6px 12px; border-radius:20px; font-weight:800; font-size:12px;">★ 98% Face Match</div>
+      </div>
+      <h2 id="detail-title" style="font-family:var(--font-display); margin:0 0 6px;">Long Layers & Soft Curls</h2>
+      <div class="chips-scroll" style="margin-bottom:10px;">
+        <span class="chip active" style="font-size:11px; padding:5px 12px;">Volume +30%</span>
+        <span class="chip" style="font-size:11px; padding:5px 12px;">Oval / Heart Face</span>
+        <span class="chip" style="font-size:11px; padding:5px 12px;">Natural Finish</span>
+      </div>
+      <div style="font-size:13px; color:var(--muted); margin-bottom:16px;">
+        Multi-dimensional face-framing layers crafted to enhance cheekbone definition while preserving natural hair texture.
+      </div>
+      <div style="font-weight:700; font-size:13px; margin-bottom:10px;">3D Angle Preview</div>
+      <div class="grid-3" style="margin-bottom:20px;">
+        <div class="preset-card"><img src="ref.jpeg"><div class="title">Front Angle</div></div>
+        <div class="preset-card"><img src="ref.jpeg"><div class="title">Side Profile</div></div>
+        <div class="preset-card"><img src="ref.jpeg"><div class="title">Back View</div></div>
+      </div>
+      <button class="btn" onclick="showScreen('screen-7')">Try On This Look Now ⚡</button>
+    </div>
+
+    <!-- SCREEN 6: Try-On Before/After Result Slider -->
+    <div class="screen" id="screen-6">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div style="font-family:var(--font-display); font-size:18px; font-weight:800;">AI Transformation</div>
+        <span style="background:#10b981; color:white; font-size:10px; font-weight:800; padding:3px 10px; border-radius:12px;">HD GENERATED</span>
+      </div>
+
+      <!-- Thumbnails Bar -->
+      <div class="grid-2" style="margin-bottom:14px;">
+        <div class="card" style="margin:0; padding:10px; display:flex; align-items:center; gap:10px;">
+          <img id="thumb-before" src="my.jpeg" style="width:48px; height:48px; border-radius:12px; object-fit:cover; border:2px solid var(--pink);">
+          <div>
+            <div style="font-size:10px; color:var(--muted); font-weight:700;">YOUR FACE</div>
+            <div style="font-size:12px; font-weight:700;">Source Image</div>
+          </div>
+        </div>
+        <div class="card" style="margin:0; padding:10px; display:flex; align-items:center; gap:10px;">
+          <img id="thumb-after" src="ref.jpeg" style="width:48px; height:48px; border-radius:12px; object-fit:cover; border:2px solid var(--line);">
+          <div>
+            <div style="font-size:10px; color:var(--muted); font-weight:700;">STYLE APPLIED</div>
+            <div style="font-size:12px; font-weight:700;">Glamour Waves</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drag Compare Slider -->
+      <div class="card" style="padding:8px; margin-bottom:16px;">
+        <div class="slider-container" id="proto-slider-box">
+          <img id="proto-after-img" class="slider-img" src="ref.jpeg" alt="Result Image">
+          <div class="slider-tag" style="right:12px;">AFTER (AI GLOW)</div>
+          <div class="slider-before-box" id="proto-slider-before">
+            <img id="proto-before-img" src="my.jpeg" alt="Target Image">
+            <div class="slider-tag" style="left:12px;">BEFORE</div>
+          </div>
+          <div class="slider-handle" id="proto-slider-handle">↔</div>
+        </div>
+        <div style="text-align:center; font-size:11px; color:var(--muted); margin-top:8px;">Drag center line to compare original face vs AI style</div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="grid-2" style="margin-bottom:12px;">
+        <button class="btn btn-outline" onclick="alert('HD Image saved to gallery!')">📥 Save HD</button>
+        <button class="btn btn-outline" onclick="alert('Share link copied to clipboard!')">🔗 Share Look</button>
+      </div>
+      <button class="btn" onclick="showScreen('screen-4')">Try Another Style 🔄</button>
+    </div>
+
+    <!-- SCREEN 7: Dual Photo Upload (Target + Style Ref) -->
+    <div class="screen" id="screen-7">
+      <h2 style="font-family:var(--font-display); margin:0 0 4px;">Upload & Match Photos</h2>
+      <div style="font-size:13px; color:var(--muted); margin-bottom:16px;">Provide your face photo and optional custom style reference.</div>
+
+      <!-- Dropzone 1: Target Photo -->
+      <div style="font-size:12px; font-weight:800; color:var(--pink); margin-bottom:6px; letter-spacing:0.5px;">STEP 1: YOUR FACE PHOTO</div>
+      <div class="card" style="border:2px dashed var(--pink); text-align:center; padding:24px 16px; cursor:pointer; background:var(--pink-light);" onclick="$('photo-file-input').click()">
+        <div style="font-size:36px; color:var(--pink);">📸</div>
+        <div style="font-weight:700; margin-top:6px; font-size:14px;">Select Front Facing Photo</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:2px;">PNG, JPG, WEBP (Min 256x256)</div>
+        <input id="photo-file-input" type="file" accept="image/*" style="display:none;" onchange="handlePhotoSelect(event)">
+      </div>
+
+      <!-- Upload Preview Slot -->
+      <div id="target-upload-preview" style="display:none; text-align:center; margin-bottom:16px;">
+        <div style="position:relative; display:inline-block;">
+          <img id="uploaded-target-img" src="" style="max-height:160px; border-radius:16px; border:2px solid var(--pink);">
+          <span style="position:absolute; top:6px; right:6px; background:#10b981; color:white; font-weight:bold; font-size:10px; padding:3px 8px; border-radius:10px;">✓ VALIDATED</span>
+        </div>
+      </div>
+
+      <!-- Dropzone 2: Custom Style Reference (Optional) -->
+      <div style="font-size:12px; font-weight:800; color:var(--muted); margin-bottom:6px; letter-spacing:0.5px;">STEP 2: STYLE REFERENCE PHOTO (OPTIONAL)</div>
+      <div class="card" style="border:1px dashed var(--line); text-align:center; padding:16px; margin-bottom:16px; cursor:pointer;" onclick="alert('Using selected style preset (Glamour Waves)')">
+        <div style="font-size:13px; font-weight:700; color:var(--ink);">Selected: Glamour Waves</div>
+        <div style="font-size:11px; color:var(--pink); margin-top:2px;">Tap to change custom reference image</div>
+      </div>
+
+      <!-- Guidelines -->
+      <div class="card">
+        <div style="font-weight:700; margin-bottom:8px; font-size:13px;">Photo Quality Checklist</div>
+        <div class="tip-item"><span class="tip-check">✓</span> Good ambient lighting</div>
+        <div class="tip-item"><span class="tip-check">✓</span> Direct camera eye contact</div>
+        <div class="tip-item"><span class="tip-check">✓</span> No hair obstructing eyes or forehead</div>
+      </div>
+
+      <button class="btn" onclick="submitPrototypeGeneration()">Generate Transformation (1 Credit) ⚡</button>
+    </div>
+
+    <!-- SCREEN 8: Makeup Gallery -->
+    <div class="screen" id="screen-8">
+      <h2 style="font-family:var(--font-display); margin:0 0 10px;">Makeup Studio</h2>
+      <div class="chips-scroll">
+        <div class="chip active">All Looks</div>
+        <div class="chip">Soft Glam</div>
+        <div class="chip">Smoky Eye</div>
+        <div class="chip">Bridal Glow</div>
+        <div class="chip">Bold Lips</div>
+      </div>
+      <div class="grid-3">
+        <div class="preset-card" onclick="selectStyle('Natural Glow')"><img src="ref.jpeg"><div class="title">Natural Glow</div></div>
+        <div class="preset-card" onclick="selectStyle('Soft Glam')"><img src="ref.jpeg"><div class="title">Soft Glam</div></div>
+        <div class="preset-card" onclick="selectStyle('Bold Crimson')"><img src="ref.jpeg"><div class="title">Bold Crimson</div></div>
+        <div class="preset-card" onclick="selectStyle('Nude Elegance')"><img src="ref.jpeg"><div class="title">Nude Elegance</div></div>
+        <div class="preset-card" onclick="selectStyle('Party Bronze')"><img src="ref.jpeg"><div class="title">Party Bronze</div></div>
+        <div class="preset-card" onclick="selectStyle('Bridal Velvet')"><img src="ref.jpeg"><div class="title">Bridal Velvet</div></div>
+      </div>
+    </div>
+
+    <!-- SCREEN 9: Nail Art Gallery -->
+    <div class="screen" id="screen-9">
+      <h2 style="font-family:var(--font-display); margin:0 0 10px;">Nail Couture</h2>
+      <div class="chips-scroll">
+        <div class="chip active">All Finishes</div>
+        <div class="chip">French Manicure</div>
+        <div class="chip">Glitter Chrome</div>
+        <div class="chip">Minimalist Art</div>
+      </div>
+      <div class="grid-3">
+        <div class="preset-card" onclick="selectStyle('Classic Nude')"><img src="ref.jpeg"><div class="title">Classic Nude</div></div>
+        <div class="preset-card" onclick="selectStyle('French Ombre')"><img src="ref.jpeg"><div class="title">French Ombre</div></div>
+        <div class="preset-card" onclick="selectStyle('Rose Gold Metallic')"><img src="ref.jpeg"><div class="title">Rose Gold</div></div>
+        <div class="preset-card" onclick="selectStyle('Botanical Leaf')"><img src="ref.jpeg"><div class="title">Botanical Leaf</div></div>
+        <div class="preset-card" onclick="selectStyle('Matte Velvet')"><img src="ref.jpeg"><div class="title">Matte Velvet</div></div>
+        <div class="preset-card" onclick="selectStyle('Glaze Chrome')"><img src="ref.jpeg"><div class="title">Glaze Chrome</div></div>
+      </div>
+    </div>
+
+    <!-- SCREEN 10: Full Looks Runway -->
+    <div class="screen" id="screen-10">
+      <h2 style="font-family:var(--font-display); margin:0 0 10px;">Full Look Collections</h2>
+      <div class="chips-scroll">
+        <div class="chip active">All Trends</div>
+        <div class="chip">Red Carpet</div>
+        <div class="chip">Autumn '26</div>
+        <div class="chip">Minimalist Chic</div>
+      </div>
+      <div class="grid-3">
+        <div class="preset-card" onclick="selectStyle('Casual Chic')"><img src="ref.jpeg"><div class="title">Casual Chic</div></div>
+        <div class="preset-card" onclick="selectStyle('Evening Gala')"><img src="ref.jpeg"><div class="title">Evening Gala</div></div>
+        <div class="preset-card" onclick="selectStyle('Royal Bridal')"><img src="ref.jpeg"><div class="title">Royal Bridal</div></div>
+        <div class="preset-card" onclick="selectStyle('Korean Glass Skin')"><img src="ref.jpeg"><div class="title">Glass Skin</div></div>
+        <div class="preset-card" onclick="selectStyle('Corporate Executive')"><img src="ref.jpeg"><div class="title">Executive</div></div>
+        <div class="preset-card" onclick="selectStyle('Boho Festival')"><img src="ref.jpeg"><div class="title">Boho Festival</div></div>
+      </div>
+    </div>
+
+    <!-- SCREEN 11: My Creations History -->
+    <div class="screen" id="screen-11">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h2 style="font-family:var(--font-display); margin:0;">My Creations</h2>
+        <span style="font-size:12px; color:var(--pink); font-weight:700;">3 Saved</span>
+      </div>
+      <div class="chips-scroll">
+        <div class="chip active">All Saved</div>
+        <div class="chip">Hairstyles</div>
+        <div class="chip">Makeup</div>
+      </div>
+      <div class="grid-2">
+        <div class="preset-card" onclick="showScreen('screen-6')">
+          <img src="ref.jpeg">
+          <div class="title">Glamour Waves<br><span style="font-size:10px; color:var(--muted); font-weight:normal;">2 mins ago</span></div>
+        </div>
+        <div class="preset-card" onclick="showScreen('screen-6')">
+          <img src="ref.jpeg">
+          <div class="title">Soft Glam<br><span style="font-size:10px; color:var(--muted); font-weight:normal;">2 days ago</span></div>
+        </div>
+        <div class="preset-card" onclick="showScreen('screen-6')">
+          <img src="ref.jpeg">
+          <div class="title">Beach Waves<br><span style="font-size:10px; color:var(--muted); font-weight:normal;">1 week ago</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 12: Profile & VIP Credits -->
+    <div class="screen" id="screen-12">
+      <div class="card" style="display:flex; align-items:center; gap:16px;">
+        <div style="width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg, var(--pink), var(--pink-dark)); color:white; display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:800; box-shadow:0 6px 16px var(--pink-glow);">PS</div>
+        <div>
+          <h3 style="margin:0; font-family:var(--font-display); font-size:18px;">Priya Sharma</h3>
+          <div style="font-size:12px; color:var(--muted);">priya.sharma@example.com</div>
+          <div style="margin-top:4px;"><span style="background:var(--pink-light); color:var(--pink); font-size:10px; font-weight:800; padding:2px 8px; border-radius:10px;">PRO VIP MEMBER</span></div>
+        </div>
+      </div>
+
+      <!-- Credits Gauge -->
+      <div class="card" style="background: linear-gradient(135deg, #251722, #120b11); color:white; border-color:var(--pink);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <div>
+            <div style="font-weight:800; color:#ffd700; font-size:14px;">👑 120 / 150 Credits Available</div>
+            <div style="font-size:11px; opacity:0.8;">Refills automatically on Oct 15, 2026</div>
+          </div>
+        </div>
+        <div style="width:100%; height:8px; background:rgba(255,255,255,0.15); border-radius:10px; overflow:hidden;">
+          <div style="width:80%; height:100%; background:linear-gradient(90deg, var(--pink), #ffd700);"></div>
+        </div>
+      </div>
+
+      <!-- Settings Menu -->
+      <div class="card" style="padding:4px 18px;">
+        <div style="padding:14px 0; border-bottom:1px solid var(--line); font-weight:700; display:flex; justify-content:space-between; cursor:pointer;" onclick="showScreen('screen-11')">
+          <span>🖼 My Generation History</span> <span>›</span>
+        </div>
+        <div style="padding:14px 0; border-bottom:1px solid var(--line); font-weight:700; display:flex; justify-content:space-between; cursor:pointer;">
+          <span>❤️ Saved Favorite Looks</span> <span>›</span>
+        </div>
+        <div style="padding:14px 0; border-bottom:1px solid var(--line); font-weight:700; display:flex; justify-content:space-between; cursor:pointer;">
+          <span>⚙️ Preferences & API Key</span> <span>›</span>
+        </div>
+        <div style="padding:14px 0; border-bottom:1px solid var(--line); font-weight:700; display:flex; justify-content:space-between; cursor:pointer;">
+          <span>🛡 Privacy & Data Ownership</span> <span>›</span>
+        </div>
+        <div style="padding:14px 0; font-weight:700; display:flex; justify-content:space-between; cursor:pointer; color:#ef4444;">
+          <span>🚪 Sign Out</span> <span>›</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav">
+      <button class="nav-item active" id="nav-home" onclick="showScreen('screen-2')">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        Home
+      </button>
+      <button class="nav-item" id="nav-styles" onclick="showScreen('screen-3')">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Styles
+      </button>
+      <button class="nav-item" id="nav-tryon" onclick="showScreen('screen-7')">
+        <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
+        Try On
+      </button>
+      <button class="nav-item" id="nav-history" onclick="showScreen('screen-11')">
+        <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+        History
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let screenHistory=['screen-2'];
+
+function showScreen(screenId){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const target=$(screenId);
+  if(target){
+    target.classList.add('active');
+    screenHistory.push(screenId);
+    window.scrollTo(0,0);
+  }
+  // Sync dropdown selector
+  const dropdown=$('screen-selector-dropdown');
+  if(dropdown) dropdown.value=screenId;
+
+  // Highlight bottom nav items
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(screenId==='screen-2') $('nav-home').classList.add('active');
+  if(screenId==='screen-3'||screenId==='screen-4'||screenId==='screen-8'||screenId==='screen-9'||screenId==='screen-10') $('nav-styles').classList.add('active');
+  if(screenId==='screen-7'||screenId==='screen-5'||screenId==='screen-6') $('nav-tryon').classList.add('active');
+  if(screenId==='screen-11') $('nav-history').classList.add('active');
+}
+
+function goBack(){
+  if(screenHistory.length>1){
+    screenHistory.pop();
+    const prev=screenHistory[screenHistory.length-1];
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    const target=$(prev);
+    if(target) target.classList.add('active');
+  } else {
+    showScreen('screen-2');
+  }
+}
+
+function toggleTheme(){
+  const body=document.body;
+  const current=body.getAttribute('data-theme');
+  body.setAttribute('data-theme', current==='dark'?'light':'dark');
+}
+
+function selectStyle(name){
+  const titleElem=$('detail-title');
+  if(titleElem) titleElem.textContent=name;
+  showScreen('screen-5');
+}
+
+function handlePhotoSelect(e){
+  const file=e.target.files[0];
+  if(file){
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      $('uploaded-target-img').src=ev.target.result;
+      $('proto-before-img').src=ev.target.result;
+      $('thumb-before').src=ev.target.result;
+      $('target-upload-preview').style.display='block';
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function submitPrototypeGeneration(){
+  showScreen('screen-6');
+}
+
+/* Interactive Slider Drag Logic */
+const sliderBox=$('proto-slider-box'), sliderBefore=$('proto-slider-before'), sliderHandle=$('proto-slider-handle');
+let isDragging=false;
+function updateSlider(x){
+  if(!sliderBox) return;
+  const rect=sliderBox.getBoundingClientRect();
+  let pct=((x-rect.left)/rect.width)*100;
+  pct=Math.max(0, Math.min(100, pct));
+  if(sliderBefore) sliderBefore.style.width=pct+'%';
+  if(sliderHandle) sliderHandle.style.left=pct+'%';
+}
+if(sliderBox){
+  sliderBox.addEventListener('mousedown', e=>{ isDragging=true; updateSlider(e.clientX); });
+  window.addEventListener('mousemove', e=>{ if(isDragging) updateSlider(e.clientX); });
+  window.addEventListener('mouseup', ()=>{ isDragging=false; });
+  sliderBox.addEventListener('touchstart', e=>{ isDragging=true; updateSlider(e.touches[0].clientX); });
+  window.addEventListener('touchmove', e=>{ if(isDragging) updateSlider(e.touches[0].clientX); });
+  window.addEventListener('touchend', ()=>{ isDragging=false; });
+}
+</script>
+</body>
+</html>
