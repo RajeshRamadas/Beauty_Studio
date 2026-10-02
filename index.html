@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Glow AI — Beauty Studio</title>
-  <meta name="description" content="AI-powered beauty studio for hairstyle try-on, face analysis, salon discovery and beauty products.">
+  <meta name="description" content="AI-powered beauty studio for hairstyle, makeup and nail-art try-on with face analysis.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -42,29 +42,9 @@
     /* ── Screens ──────────────────────────────────────── */
     .screen { display: none; padding: 20px 16px 20px; }
     .screen.active { display: block; animation: fadeIn .15s ease; }
+    #screen-1.active { display: flex; flex-direction: column; justify-content: center; min-height: 80vh; text-align: center; }
+    body.on-splash .bottom-nav { display: none; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    /* ── Dev toolbar ──────────────────────────────────── */
-    .dev-bar {
-      background: #000;
-      border-bottom: 1px solid var(--border);
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    .dev-bar label { font-size: 11px; color: var(--text2); }
-    .dev-bar select {
-      background: var(--surface);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 5px 10px;
-      font-size: 11px;
-      font-family: inherit;
-      outline: none;
-    }
 
     /* ── Top bar ──────────────────────────────────────── */
     .top-bar {
@@ -261,38 +241,6 @@
     .swatch-label { font-size: 10px; color: var(--text2); text-align: center; margin-top: 3px; }
     .swatch-wrap { flex-shrink: 0; text-align: center; cursor: pointer; }
 
-    /* ── Salon map ────────────────────────────────────── */
-    .map-box {
-      border-radius: 12px;
-      overflow: hidden;
-      background: var(--surface);
-      height: 200px;
-      margin-bottom: 16px;
-    }
-
-    /* ── Mode switch ──────────────────────────────────── */
-    .mode-sw {
-      display: flex;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 3px;
-    }
-    .mode-opt {
-      flex: 1;
-      text-align: center;
-      padding: 8px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text2);
-      cursor: pointer;
-      border-radius: 6px;
-      border: none;
-      background: none;
-      font-family: inherit;
-    }
-    .mode-opt.active { background: var(--bg); color: var(--text); }
-
     /* ── Status msg ───────────────────────────────────── */
     .msg {
       padding: 10px 14px;
@@ -305,58 +253,6 @@
     }
     .msg.err { border-color: rgba(226,92,92,.4); color: var(--err); }
     .msg.ok { border-color: rgba(92,181,99,.4); color: var(--ok); }
-
-    /* ── Product card ─────────────────────────────────── */
-    .prod-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    .prod-card img { width: 100%; height: 120px; object-fit: cover; display: block; }
-    .prod-card-body { padding: 12px; }
-    .prod-price { font-size: 15px; font-weight: 600; color: var(--accent); margin: 4px 0 8px; }
-    .prod-add {
-      width: 100%;
-      padding: 7px;
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      font-family: inherit;
-      transition: border-color .15s ease;
-    }
-    .prod-add:hover { border-color: var(--accent); color: var(--accent); }
-
-    /* ── Salon card ───────────────────────────────────── */
-    .salon-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 16px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      margin-bottom: 10px;
-    }
-    .salon-dot {
-      width: 40px; height: 40px;
-      border-radius: 10px;
-      background: var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      flex-shrink: 0;
-      color: var(--text2);
-    }
-    .salon-detail { flex: 1; min-width: 0; }
-    .salon-name { font-size: 14px; font-weight: 500; }
-    .salon-meta { font-size: 11px; color: var(--text2); margin-top: 2px; }
-    .salon-meta b { color: var(--accent); font-weight: 500; }
 
     /* ── Badge ────────────────────────────────────────── */
     .badge {
@@ -385,48 +281,24 @@
 </head>
 <body>
 
-<!-- Dev toolbar -->
-<div class="dev-bar">
-  <label>Screen:</label>
-  <select id="screen-jump" onchange="showScreen(this.value)">
-    <option value="screen-1">1 Splash</option>
-    <option value="screen-2">2 Home</option>
-    <option value="screen-3">3 Categories</option>
-    <option value="screen-4">4 Hairstyles</option>
-    <option value="screen-5">5 Detail</option>
-    <option value="screen-6">6 Result</option>
-    <option value="screen-7">7 Generator</option>
-    <option value="screen-8">8 Makeup</option>
-    <option value="screen-9">9 Nails</option>
-    <option value="screen-10">10 Full Looks</option>
-    <option value="screen-11">11 History</option>
-    <option value="screen-12">12 Profile</option>
-    <option value="screen-13">13 Salons</option>
-    <option value="screen-14">14 Store</option>
-  </select>
-</div>
-
 <div id="app">
 
   <!-- ════ SCREEN 1: SPLASH ══════════════════════════════════ -->
-  <div id="screen-1" class="screen active" style="display:flex;flex-direction:column;justify-content:center;min-height:80vh;text-align:center;">
+  <div id="screen-1" class="screen">
     <div style="font-size:36px;font-weight:600;letter-spacing:-1px;margin-bottom:4px;">GLOW<b style="color:var(--accent)">AI</b></div>
     <p class="caption mb-24">Professional AI Beauty Studio</p>
     <div style="height:280px;border-radius:12px;overflow:hidden;margin-bottom:24px;">
       <img src="sample_glamour_waves.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Featured">
     </div>
-    <button class="btn btn-p" onclick="showScreen('screen-2')">Get Started</button>
+    <button class="btn btn-p" onclick="screenStack = []; showScreen('screen-2')">Get Started</button>
   </div>
 
   <!-- ════ SCREEN 2: HOME ════════════════════════════════════ -->
   <div id="screen-2" class="screen">
     <div class="top-bar">
       <div class="logo">GLOW<b>AI</b></div>
-      <div style="flex:1"></div>
-      <button class="btn-link" onclick="showScreen('screen-12')">Account</button>
     </div>
 
-    <input type="text" placeholder="Search styles, salons, products..." class="mb-20">
 
     <div class="row mb-12">
       <h2>Categories</h2>
@@ -452,7 +324,7 @@
     </div>
 
     <h2 class="mb-12">Trending</h2>
-    <div class="scroll-row mb-24">
+    <div class="scroll-row">
       <div class="scroll-item" onclick="selectPreset('Hairstyle','Glamour Waves','sample_glamour_waves.jpg')">
         <img src="sample_glamour_waves.jpg" alt="Glamour Waves">
         <p>Glamour Waves</p>
@@ -474,11 +346,6 @@
         <p class="caption">Hairstyle</p>
       </div>
     </div>
-
-    <div class="g2">
-      <button class="btn btn-s" onclick="showScreen('screen-13')">Find Salons</button>
-      <button class="btn btn-s" onclick="showScreen('screen-14')">Shop Products</button>
-    </div>
   </div>
 
   <!-- ════ SCREEN 3: CATEGORIES ══════════════════════════════ -->
@@ -498,14 +365,6 @@
     <div class="top-bar">
       <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
       <h2>Hairstyles</h2>
-    </div>
-    <div class="chips mb-16">
-      <div class="chip active">All</div>
-      <div class="chip">Short</div>
-      <div class="chip">Long</div>
-      <div class="chip">Curly</div>
-      <div class="chip">Braids</div>
-      <div class="chip">Updo</div>
     </div>
     <div class="g2">
       <div class="img-card" onclick="selectPreset('Hairstyle','Glamour Waves','sample_glamour_waves.jpg')"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><p>Glamour Waves</p></div></div>
@@ -528,12 +387,6 @@
     </div>
     <h1 id="detail-title" class="mb-8">Glamour Waves</h1>
     <p class="caption mb-20">Face-framing layers with volumetric waves and soft natural highlights.</p>
-    <h2 class="mb-12">Angles</h2>
-    <div class="g3 mb-20">
-      <div class="img-card"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><span>Front</span></div></div>
-      <div class="img-card"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><span>Side</span></div></div>
-      <div class="img-card"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><span>Back</span></div></div>
-    </div>
     <button class="btn btn-p mb-12" onclick="showScreen('screen-7')">Try On This Look</button>
   </div>
 
@@ -555,10 +408,9 @@
       </div>
     </div>
     <p class="caption mb-16" style="text-align:center;">Drag to compare</p>
-    <div id="cost-badge" style="display:none;" class="card mb-12"><p class="caption"></p></div>
     <div class="g2 mb-12">
       <button id="download-btn" class="btn btn-s" onclick="downloadResultImage()">Download</button>
-      <button class="btn btn-s" onclick="alert('Link copied!')">Share</button>
+      <button id="share-btn" class="btn btn-s" onclick="shareResultImage()">Share</button>
     </div>
     <button class="btn btn-p" onclick="showScreen('screen-7')">Create Another</button>
   </div>
@@ -577,8 +429,7 @@
       </div>
       <input id="camera-capture" type="file" accept="image/*" capture="user" style="display:none;" onchange="handleTargetInput(event)">
       <input id="person-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleTargetInput(event)">
-      <p id="person-status" class="caption mb-12">No photo selected</p>
-      <button class="btn btn-s btn-sm" onclick="runFaceAnalysis()">Analyze Face</button>
+      <p id="person-status" class="caption">No photo selected</p>
       <div id="face-analysis-panel" class="mt-12" style="display:none;padding-top:12px;border-top:1px solid var(--border);">
         <p class="caption mb-8">Detected profile:</p>
         <div style="display:flex;gap:8px;margin-bottom:8px;">
@@ -643,7 +494,6 @@
       <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
       <h2>Makeup</h2>
     </div>
-    <div class="chips mb-16"><div class="chip active">All</div><div class="chip">Natural</div><div class="chip">Glam</div><div class="chip">Editorial</div></div>
     <div class="g3">
       <div class="img-card" onclick="selectPreset('Makeup','Natural Glow')"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><p>Natural</p></div></div>
       <div class="img-card" onclick="selectPreset('Makeup','Soft Glam')"><img src="sample_beach_waves.jpg"><div class="img-card-info"><p>Soft Glam</p></div></div>
@@ -660,7 +510,6 @@
       <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
       <h2>Nail Art</h2>
     </div>
-    <div class="chips mb-16"><div class="chip active">All</div><div class="chip">French</div><div class="chip">Chrome</div><div class="chip">Matte</div></div>
     <div class="g3">
       <div class="img-card" onclick="selectPreset('Nail art','French Ombre')"><img src="sample_beach_waves.jpg"><div class="img-card-info"><p>French</p></div></div>
       <div class="img-card" onclick="selectPreset('Nail art','Rose Gold Chrome')"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><p>Rose Gold</p></div></div>
@@ -694,12 +543,6 @@
   <div id="screen-12" class="screen">
     <div class="top-bar"><h2>Profile</h2></div>
 
-    <div class="mode-sw mb-16">
-      <button id="pill-individual" class="mode-opt active" onclick="switchMode('individual')">Individual</button>
-      <button id="pill-salon" class="mode-opt" onclick="switchMode('salon')">Salon Pro</button>
-    </div>
-    <p id="mode-desc" class="caption mb-20" style="text-align:center;">Personal AI try-on and face analysis</p>
-
     <div id="auth-box" class="card">
       <h3 id="auth-heading" class="mb-4">Sign In</h3>
       <p id="auth-subhead" class="caption mb-16">Access your saved looks and history.</p>
@@ -708,57 +551,6 @@
       <button id="auth-action-btn" class="btn btn-p mb-8" onclick="doAuth()">Sign In</button>
       <button id="auth-toggle" class="btn-link" onclick="flipAuthMode()" style="display:block;text-align:center;width:100%;padding:8px;">Need an account? Register</button>
       <div id="auth-msg" style="display:none;" class="msg mt-8"></div>
-    </div>
-    <button class="btn btn-s mt-16" onclick="doLogout()">Log Out</button>
-  </div>
-
-  <!-- ════ SCREEN 13: SALONS ═════════════════════════════════ -->
-  <div id="screen-13" class="screen">
-    <div class="top-bar">
-      <h2>Salons</h2>
-      <div style="flex:1"></div>
-      <span class="badge">4 nearby</span>
-    </div>
-
-    <div class="map-box mb-16">
-      <svg width="100%" height="100%" viewBox="0 0 448 200" style="background:#141414;">
-        <pattern id="mgrid" width="40" height="40" patternUnits="userSpaceOnUse">
-          <path d="M40 0L0 0 0 40" fill="none" stroke="#222" stroke-width=".5"/>
-        </pattern>
-        <rect width="100%" height="100%" fill="url(#mgrid)"/>
-        <path d="M0 100Q160 130 448 80" fill="none" stroke="#333" stroke-width="6" stroke-linecap="round"/>
-        <path d="M180 0Q200 100 160 200" fill="none" stroke="#333" stroke-width="6" stroke-linecap="round"/>
-        <circle cx="200" cy="105" r="8" fill="rgba(232,131,107,.2)"/><circle cx="200" cy="105" r="4" fill="var(--accent)"/>
-        <text x="200" y="124" fill="#888" font-size="9" font-weight="500" text-anchor="middle" font-family="Inter">You</text>
-        <circle cx="110" cy="65" r="5" fill="var(--accent)"/>
-        <text x="110" y="55" fill="#aaa" font-size="9" font-weight="500" text-anchor="middle" font-family="Inter">Maison</text>
-        <circle cx="300" cy="75" r="5" fill="var(--accent)"/>
-        <text x="300" y="65" fill="#aaa" font-size="9" font-weight="500" text-anchor="middle" font-family="Inter">The Parlor</text>
-        <circle cx="130" cy="162" r="5" fill="var(--accent)"/>
-        <text x="130" y="152" fill="#aaa" font-size="9" font-weight="500" text-anchor="middle" font-family="Inter">Aura</text>
-        <circle cx="340" cy="145" r="5" fill="var(--accent)"/>
-        <text x="340" y="135" fill="#aaa" font-size="9" font-weight="500" text-anchor="middle" font-family="Inter">EDIT Lab</text>
-      </svg>
-    </div>
-
-    <div class="salon-row"><div class="salon-dot">M</div><div class="salon-detail"><div class="salon-name">Maison de Beaute</div><div class="salon-meta"><b>4.9</b> · 1.2k reviews · 0.4 mi</div></div><button class="btn btn-s btn-sm" onclick="openSalonBooking('Maison de Beaute')">Book</button></div>
-    <div class="salon-row"><div class="salon-dot">P</div><div class="salon-detail"><div class="salon-name">The Parlor Soho</div><div class="salon-meta"><b>4.8</b> · 950 reviews · 0.8 mi</div></div><button class="btn btn-s btn-sm" onclick="openSalonBooking('The Parlor Soho')">Book</button></div>
-    <div class="salon-row"><div class="salon-dot">A</div><div class="salon-detail"><div class="salon-name">Aura Luxury Lounge</div><div class="salon-meta"><b>4.9</b> · 820 reviews · 1.2 mi</div></div><button class="btn btn-s btn-sm" onclick="openSalonBooking('Aura Luxury Lounge')">Book</button></div>
-    <div class="salon-row"><div class="salon-dot">E</div><div class="salon-detail"><div class="salon-name">EDIT Beauty Lab</div><div class="salon-meta"><b>4.7</b> · 640 reviews · 1.8 mi</div></div><button class="btn btn-s btn-sm" onclick="openSalonBooking('EDIT Beauty Lab')">Book</button></div>
-  </div>
-
-  <!-- ════ SCREEN 14: STORE ══════════════════════════════════ -->
-  <div id="screen-14" class="screen">
-    <div class="row mb-16">
-      <h2>Products</h2>
-      <button class="btn-link" id="cart-badge" onclick="viewCart()">Cart (<span id="cart-count">0</span>)</button>
-    </div>
-    <div class="chips mb-16"><div class="chip active">All</div><div class="chip">Hair Care</div><div class="chip">Color</div><div class="chip">Tools</div></div>
-    <div class="g2">
-      <div class="prod-card"><img src="sample_glamour_waves.jpg"><div class="prod-card-body"><h3 class="mb-4">Gold Lust Repair Oil</h3><p class="caption">Oribe</p><div class="prod-price">$56</div><button class="prod-add" onclick="addToCart('Oribe Gold Lust Oil',56)">Add to bag</button></div></div>
-      <div class="prod-card"><img src="sample_beach_waves.jpg"><div class="prod-card-body"><h3 class="mb-4">Hair Rituel Serum</h3><p class="caption">Sisley Paris</p><div class="prod-price">$195</div><button class="prod-add" onclick="addToCart('Sisley Hair Serum',195)">Add to bag</button></div></div>
-      <div class="prod-card"><img src="sample_short_bob.jpg"><div class="prod-card-body"><h3 class="mb-4">Gloss+ Color Treatment</h3><p class="caption">dpHUE</p><div class="prod-price">$37</div><button class="prod-add" onclick="addToCart('dpHUE Gloss',37)">Add to bag</button></div></div>
-      <div class="prod-card"><img src="sample_braided_updo.jpg"><div class="prod-card-body"><h3 class="mb-4">Airwrap Multi-Styler</h3><p class="caption">Dyson</p><div class="prod-price">$499</div><button class="prod-add" onclick="addToCart('Dyson Airwrap',499)">Add to bag</button></div></div>
     </div>
   </div>
 
@@ -776,13 +568,13 @@
       <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
       Create
     </button>
-    <button id="nav-salons" class="nav-btn" onclick="showScreen('screen-13')">
-      <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      Salons
+    <button id="nav-history" class="nav-btn" onclick="showScreen('screen-11')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+      History
     </button>
-    <button id="nav-store" class="nav-btn" onclick="showScreen('screen-14')">
-      <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-      Store
+    <button id="nav-profile" class="nav-btn" onclick="showScreen('screen-12')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>
+      Profile
     </button>
   </nav>
 
@@ -793,8 +585,6 @@ const $g = id => document.getElementById(id);
 let screenStack = ['screen-2'];
 let authToken = localStorage.getItem('glow_auth_token') || null;
 let isRegMode = false;
-let appMode = 'individual';
-let cartItems = [];
 let resultDataUrl = null, targetDataUrl = null, selectedTargetFile = null;
 
 /* ── Navigation ───────────────────────────────────── */
@@ -806,11 +596,10 @@ function showScreen(id) {
     screenStack.push(id);
     window.scrollTo(0, 0);
   }
-  const j = $g('screen-jump');
-  if (j) j.value = id;
+  document.body.classList.toggle('on-splash', id === 'screen-1');
 
   document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
-  const m = { 'screen-2':'nav-home','screen-3':'nav-styles','screen-4':'nav-styles','screen-8':'nav-styles','screen-9':'nav-styles','screen-10':'nav-styles','screen-5':'nav-tryon','screen-6':'nav-tryon','screen-7':'nav-tryon','screen-13':'nav-salons','screen-14':'nav-store' };
+  const m = { 'screen-2':'nav-home','screen-3':'nav-styles','screen-4':'nav-styles','screen-8':'nav-styles','screen-9':'nav-styles','screen-10':'nav-styles','screen-5':'nav-tryon','screen-6':'nav-tryon','screen-7':'nav-tryon','screen-11':'nav-history','screen-12':'nav-profile' };
   if (m[id]) $g(m[id]).classList.add('active');
 
   if (id === 'screen-11') loadHistory();
@@ -947,7 +736,6 @@ async function submitGeneration() {
         resultDataUrl = 'data:image/png;base64,' + job.result_image_b64;
         $g('compare-after-img').src = resultDataUrl;
         if (targetDataUrl) $g('compare-before-img').src = targetDataUrl;
-        if (job.cost_formatted) { const cb = $g('cost-badge'); cb.style.display = 'block'; cb.querySelector('p').textContent = job.cost_formatted + ' (' + (job.model||'gpt-image-2.5-flare') + ')'; }
         showScreen('screen-6');
       } else if (job.status === 'failed') { done = true; throw new Error(job.error_message || 'Generation failed.'); }
       else { st.textContent = 'Processing: ' + job.status + ' (' + (attempts*2) + 's)'; }
@@ -956,34 +744,17 @@ async function submitGeneration() {
   finally { btn.disabled = false; btn.textContent = 'Generate'; }
 }
 
+async function shareResultImage() {
+  if (!resultDataUrl) return;
+  const blob = await (await fetch(resultDataUrl)).blob();
+  const file = new File([blob], 'glow-ai-result.png', { type: 'image/png' });
+  try { await navigator.share({ files: [file], title: 'My Glow AI look' }); }
+  catch (e) { if (e.name !== 'AbortError') downloadResultImage(); }
+}
+
 function downloadResultImage() {
   if (!resultDataUrl) return;
   const a = document.createElement('a'); a.href = resultDataUrl; a.download = 'glow-ai-result.png'; a.click();
-}
-
-/* ── Mode switch ──────────────────────────────────── */
-function switchMode(mode) {
-  appMode = mode;
-  $g('pill-individual').classList.toggle('active', mode === 'individual');
-  $g('pill-salon').classList.toggle('active', mode === 'salon');
-  $g('mode-desc').textContent = mode === 'individual' ? 'Personal AI try-on and face analysis' : 'Client consultations and stylist tools';
-}
-
-/* ── Salon booking ────────────────────────────────── */
-function openSalonBooking(name) {
-  alert('Book at ' + name + '\n\n1. Haircut & Blow-dry\n2. Balayage & Highlights\n3. AI Consultation\n4. Bridal Package');
-}
-
-/* ── Cart ─────────────────────────────────────────── */
-function addToCart(name, price) {
-  cartItems.push({ name, price });
-  $g('cart-count').textContent = cartItems.length;
-}
-
-function viewCart() {
-  if (!cartItems.length) { alert('Cart is empty.'); return; }
-  const total = cartItems.reduce((a, b) => a + b.price, 0).toFixed(2);
-  alert('Cart\n\n' + cartItems.map(i => i.name + ' — $' + i.price.toFixed(2)).join('\n') + '\n\nTotal: $' + total);
 }
 
 /* ── Auth ─────────────────────────────────────────── */
@@ -1071,7 +842,9 @@ if (cBox) {
 
 /* ── Init ─────────────────────────────────────────── */
 if (authToken) refreshAuthUI();
-showScreen('screen-2');
+if (!(navigator.canShare && navigator.canShare({ files: [new File([''], 'x.png', { type: 'image/png' })] }))) $g('share-btn').style.display = 'none';
+showScreen('screen-1');
+screenStack = [];
 </script>
 </body>
 </html>
