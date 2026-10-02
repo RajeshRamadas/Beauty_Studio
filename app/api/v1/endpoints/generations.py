@@ -226,3 +226,21 @@ async def analyze_face(
         raise HTTPException(503, str(exc))
     except FaceAnalysisFailed as exc:
         raise HTTPException(502, str(exc))
+
+
+@router.post("/check-photo")
+async def check_photo(
+    request: Request,
+    face_image: UploadFile = File(...),
+    current_user: Optional[UserModel] = Depends(get_current_user_optional),
+):
+    """Check a face photo is complete and clear: one face, face and hair in frame, sharp, well lit."""
+    from app.services.photo_check import check_photo as run_check
+
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    rate_key = "photo-check:" + (current_user.id if current_user else f"ip:{client_ip}")
+    rate_limiter.check_rate_limit(rate_key, settings.PHOTO_CHECK_LIMIT_PER_DAY, label="photo check")
+
+    raw = await read_limited_image(face_image, "Photo")
+    img_bytes, mime, _ext, _size = process_image(raw, "Photo")
+    return await run_in_threadpool(run_check, img_bytes, mime)

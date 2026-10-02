@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     # Vision model for face analysis (face shape, skin tone, hair type, recommendations)
     OPENAI_VISION_MODEL: str = os.getenv("OPENAI_VISION_MODEL", "gpt-5-mini")
     ANALYSIS_LIMIT_PER_DAY: int = int(os.getenv("ANALYSIS_LIMIT_PER_DAY", "30"))
+    PHOTO_CHECK_LIMIT_PER_DAY: int = int(os.getenv("PHOTO_CHECK_LIMIT_PER_DAY", "100"))
     CUSTOM_IMAGE_COST_USD: str = os.getenv("CUSTOM_IMAGE_COST_USD", "")
     INPUT_TOKEN_RATE_PER_M: float = float(os.getenv("INPUT_TOKEN_RATE_PER_M", "8.00"))
     OUTPUT_TOKEN_RATE_PER_M: float = float(os.getenv("OUTPUT_TOKEN_RATE_PER_M", "30.00"))

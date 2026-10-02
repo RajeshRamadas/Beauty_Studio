@@ -23,6 +23,13 @@ Open http://127.0.0.1:8000. Upload both images and click **Apply style to my pho
 - Results are generative and may not preserve identity or reproduce the reference precisely. Use clear, well-lit images and test with representative examples.
 - This is a local development prototype. Before deployment, add authentication, quotas/rate limits, timeouts, secure storage/retention, monitoring, and abuse controls.
 
+## Photo check and guided camera
+Before a photo is used for try-on or face analysis it is checked by `POST /api/v1/check-photo`:
+- **Always (free, local):** too small (< 400 px), too dark, too bright, blurry.
+- **With `OPENAI_API_KEY` (vision model, low detail):** no face, more than one face, face or hair cut off, face covered, too far away, not facing the camera, heavy filters.
+
+If anything fails, the app lists what's wrong and offers **Retake photo** or **Upload another**; Generate and Analyse stay locked until the photo passes. **Camera** opens an in-app camera with a face-and-hair outline to frame the whole head (needs HTTPS or localhost; otherwise it falls back to the phone's camera app). Limit: `PHOTO_CHECK_LIMIT_PER_DAY` (default 100).
+
 ## Face analysis
 **Analyse my face** (Home screen, or the link under "1. Your Photo" in the generator) sends the photo to an OpenAI vision model (`OPENAI_VISION_MODEL`, default `gpt-5-mini`) and returns face shape, skin tone, undertone, hair texture/length/thickness/colour, recommended hairstyles, makeup and full looks from the app's catalogue, flattering hair colours and tips. "Try on" opens the style with the same photo already selected. It uses the same `OPENAI_API_KEY` as image generation, is limited to `ANALYSIS_LIMIT_PER_DAY` (default 30) per user or IP, and the photo is not stored. The model is told not to infer age, gender, ethnicity or health.
 

@@ -123,19 +123,31 @@
     pick(ev) {
       const f = ev.target.files && ev.target.files[0];
       ev.target.value = '';
-      if (!f) return;
-      photo = f;
+      if (f) FaceAnalysis.pickFile(f);
+    },
+
+    pickFile(f) {
+      photo = null;  // only set once the photo passes the check
       const url = URL.createObjectURL(f);
       $('fa-preview').src = url;
       $('fa-preview').style.display = 'block';
       $('fa-placeholder').style.display = 'none';
-      $('fa-run').disabled = false;
+      $('fa-run').disabled = true;
       $('fa-results').replaceChildren();
       setStatus('');
+      window.PhotoCheck.check(f, $('fa-check'), {
+        onResult: ok => { photo = ok ? f : null; $('fa-run').disabled = !ok; },
+        retake: () => FaceAnalysis.openCamera(),
+        upload: () => $('fa-file').click()
+      });
+    },
+
+    openCamera() {
+      window.GuidedCamera.open(f => FaceAnalysis.pickFile(f), $('fa-camera'));
     },
 
     async run() {
-      if (!photo) { setStatus('Add a photo first.', 'err'); return; }
+      if (!photo) { setStatus('Add a clear, complete photo first.', 'err'); return; }
       const btn = $('fa-run');
       btn.disabled = true;
       btn.textContent = 'Analysing…';

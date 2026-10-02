@@ -404,6 +404,35 @@
     .area-chip.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
     #generate-btn:disabled { background: var(--surface-2); color: var(--text2); cursor: not-allowed; opacity: 1; }
 
+    /* ── Photo check ──────────────────────────────────── */
+    .photo-check:empty { display: none; }
+    .photo-check { border-radius: 16px; padding: 12px 14px; margin-bottom: 12px; font-size: 13px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .photo-check.checking { background: var(--surface); color: var(--text2); }
+    .photo-check.ok { background: rgba(143,212,168,.12); color: var(--ok); font-weight: 700; }
+    .photo-check.bad { background: rgba(242,153,140,.10); border: 1px solid rgba(242,153,140,.45); display: block; }
+    .pc-title { color: var(--err); font-weight: 700; margin-bottom: 6px; }
+    .pc-list { padding-left: 18px; color: var(--text); line-height: 1.5; margin-bottom: 10px; }
+    .pc-actions { display: flex; gap: 8px; }
+    .pc-actions .btn { flex: 1; }
+    .pc-spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--accent); animation: pcspin .8s linear infinite; }
+    @keyframes pcspin { to { transform: rotate(360deg); } }
+
+    /* ── Guided camera ────────────────────────────────── */
+    body.cam-open { overflow: hidden; }
+    .cam-modal { position: fixed; inset: 0; z-index: 1000; background: #000; display: flex; flex-direction: column; }
+    .cam-modal[hidden] { display: none; }
+    .cam-modal video, .cam-guide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .cam-modal video.mirror { transform: scaleX(-1); }
+    .cam-top { position: relative; padding: 24px 20px; text-align: center; }
+    .cam-tip { font-size: 16px; color: #fff; }
+    .cam-tip b { color: var(--accent); }
+    .cam-sub { font-size: 12px; color: #d8d2c8; margin-top: 6px; position: relative; text-align: center; }
+    .cam-bar { position: relative; margin-top: auto; padding: 16px 32px 12px; display: flex; align-items: center; justify-content: space-between; }
+    .cam-shutter { width: 76px; height: 76px; border-radius: 50%; background: #fff; border: 5px solid var(--accent); cursor: pointer; }
+    .cam-round { width: 52px; height: 52px; border-radius: 50%; background: rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.3); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .cam-round svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .cam-alt { position: relative; background: none; border: none; color: var(--accent); font: inherit; font-size: 13px; font-weight: 700; padding: 8px 0 24px; cursor: pointer; }
+
     /* ── Spacing helpers ──────────────────────────────── */
     .mb-4 { margin-bottom: 4px; }
     .mb-8 { margin-bottom: 8px; }
@@ -564,7 +593,7 @@
         <button type="button" id="gen-target" class="gen-slot" onclick="$g('person-file').click()" aria-label="Choose your photo"></button>
         <p id="person-status" class="gen-label">Your photo</p>
         <div class="gen-actions">
-          <button type="button" class="btn btn-s btn-sm" onclick="$g('camera-capture').click()">Camera</button>
+          <button type="button" class="btn btn-s btn-sm" onclick="Generator.openCamera()">Camera</button>
           <button type="button" class="btn btn-s btn-sm" onclick="$g('person-file').click()">Upload</button>
         </div>
       </div>
@@ -577,8 +606,9 @@
         </div>
       </div>
     </div>
+    <div id="gen-target-check" class="photo-check" aria-live="polite"></div>
     <template id="gen-target-empty">
-      <span class="gen-empty"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><b>Your photo</b><small>Front-facing, good light</small></span>
+      <span class="gen-empty"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><b>Your photo</b><small>Whole face and hair, good light</small></span>
     </template>
     <template id="gen-ref-empty">
       <span class="gen-empty"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/></svg><b>Style</b><small>Upload a photo or browse styles</small></span>
@@ -700,9 +730,10 @@
       </div>
     </div>
     <div class="g2 mb-12" style="gap:8px;">
-      <button type="button" class="btn btn-s btn-sm" onclick="$g('fa-camera').click()">Camera</button>
+      <button type="button" class="btn btn-s btn-sm" onclick="FaceAnalysis.openCamera()">Camera</button>
       <button type="button" class="btn btn-s btn-sm" onclick="$g('fa-file').click()">Upload</button>
     </div>
+    <div id="fa-check" class="photo-check mb-12" aria-live="polite"></div>
     <input id="fa-camera" type="file" accept="image/*" capture="user" style="display:none;" onchange="FaceAnalysis.pick(event)">
     <input id="fa-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="FaceAnalysis.pick(event)">
     <p class="caption mb-8">Recommend styles for</p>
@@ -715,6 +746,27 @@
     <p class="caption mt-8" style="text-align:center;">Your photo is sent to our AI provider for this analysis and is not saved.</p>
     <div id="fa-status" class="msg" style="display:none;"></div>
     <div id="fa-results" class="mt-16"></div>
+  </div>
+
+  <!-- ════ GUIDED CAMERA ═════════════════════════════════════ -->
+  <div id="cam-modal" class="cam-modal" hidden role="dialog" aria-modal="true" aria-label="Take a photo">
+    <video id="cam-video" playsinline muted autoplay></video>
+    <svg class="cam-guide" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs><mask id="cam-hole"><rect width="300" height="400" fill="white"/><ellipse cx="150" cy="185" rx="92" ry="128" fill="black"/></mask></defs>
+      <rect width="300" height="400" fill="rgba(0,0,0,.55)" mask="url(#cam-hole)"/>
+      <ellipse cx="150" cy="185" rx="92" ry="128" fill="none" stroke="#D9B66F" stroke-width="2.5" stroke-dasharray="8 6"/>
+    </svg>
+    <div class="cam-top">
+      <p class="cam-tip">Fit your <b>whole face and hair</b> inside the outline</p>
+      <p class="cam-sub">Face a window or light · Look straight ahead · No sunglasses or filters</p>
+    </div>
+    <div class="cam-bar">
+      <button type="button" class="cam-round" onclick="GuidedCamera.close()" aria-label="Close camera"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button type="button" class="cam-shutter" onclick="GuidedCamera.capture()" aria-label="Take photo"></button>
+      <button type="button" class="cam-round" onclick="GuidedCamera.flip()" aria-label="Switch camera"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><path d="M9 13a3 3 0 015-2.2M15 13a3 3 0 01-5 2.2"/></svg></button>
+    </div>
+    <button type="button" class="cam-alt" onclick="GuidedCamera.useDeviceCamera()">Use my phone’s camera app instead</button>
+    <p id="cam-error" class="cam-sub" hidden></p>
   </div>
 
   <!-- ════ BOTTOM NAV ════════════════════════════════════════ -->
@@ -745,6 +797,7 @@
 
 <script src="shop-data.js"></script>
 <script src="shop.js"></script>
+<script src="photo-check.js"></script>
 <script src="styles.js"></script>
 <script src="generator.js"></script>
 <script src="salons.js"></script>

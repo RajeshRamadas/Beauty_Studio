@@ -19,6 +19,7 @@
   };
 
   let selected = ['Hairstyle'];
+  let targetState = 'none';  // none | checking | ok | bad
   let refStyle = null;      // catalogue style used without a reference image
   let urls = {};
 
@@ -62,16 +63,16 @@
     updateReady();
   }
 
-  function hasTarget() {
-    return !!(($('person-file').files || [])[0] || ($('camera-capture').files || [])[0]);
-  }
+  function hasTarget() { return targetState === 'ok'; }
   function hasReference() { return !!(($('reference-file').files || [])[0]) || !!refStyle; }
 
   function updateReady() {
     const btn = $('generate-btn');
     if (!btn || btn.dataset.busy === '1') return;
     const missing = [];
-    if (!hasTarget()) missing.push('add your photo');
+    if (targetState === 'none') missing.push('add your photo');
+    else if (targetState === 'checking') missing.push('wait while we check your photo');
+    else if (targetState === 'bad') missing.push('retake or choose a clear, complete photo');
     if (!hasReference()) missing.push('add a style (upload one or browse styles)');
     if (!selected.length) missing.push('choose what to change');
     btn.disabled = missing.length > 0;
@@ -96,7 +97,17 @@
     setTarget(file) {
       showImage('gen-target', file);
       $('person-status').textContent = 'Your photo';
+      targetState = 'checking';
       updateReady();
+      window.PhotoCheck.check(file, $('gen-target-check'), {
+        onResult: ok => { targetState = ok ? 'ok' : 'bad'; updateReady(); },
+        retake: () => Generator.openCamera(),
+        upload: () => $('person-file').click()
+      });
+    },
+
+    openCamera() {
+      window.GuidedCamera.open(f => window.setTargetPhoto(f), $('camera-capture'));
     },
 
     /* A reference image, from upload or a catalogue style's sample photo. */
