@@ -3,17 +3,20 @@ from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
 from app.api.v1.endpoints import generations
+from app.core.config import settings
 from app.main import app
-from app.services.prompt_builder import build_prompt, parse_areas
-from app.services.style_catalogue import get_style
+from app.services import catalog
+from app.services.prompt_builder import build_prompt, compose_prompt, parse_areas
 from tests.test_styles import _jpeg
 
 client = TestClient(app)
+CONSENT = {"consent_version": settings.PHOTO_CONSENT_VERSION}
 
 
 def test_parse_areas_validates_and_dedupes():
     assert parse_areas("Hairstyle, Makeup,Hairstyle") == ["Hairstyle", "Makeup"]
     assert parse_areas("Overall beauty look,Makeup") == ["Makeup"]
+    assert parse_areas("", required=False) == []
     with pytest.raises(HTTPException):
         parse_areas("")
     with pytest.raises(HTTPException):
@@ -39,20 +42,31 @@ def test_hair_colour_area_drops_keep_colour_rule():
     assert "Hair colour:" in p and "natural hair colour" not in p
 
 
-def test_text_only_prompt_uses_catalogue_description():
-    style = get_style("Classic Fade")
-    p = build_prompt(["Hairstyle"], False, style, style="Classic Fade", notes="shorter on top")
-    assert "IMAGE 2" not in p and style["description"] in p
-    assert "Additional style description" not in p  # the style name alone is not repeated
-    assert "User notes: shorter on top." in p
+def test_template_prompt_uses_server_text_and_area_rules():
+    hair = catalog.get("hair_men_classic_taper")
+    colour = catalog.get("colour_men_salt_and_pepper")
+    p = compose_prompt([{"area": "Hairstyle", "source": "template", "template": hair},
+                        {"area": "Hair colour", "source": "template", "template": colour}], "bold", True, "shorter on top")
+    assert hair["prompt"] in p and colour["prompt"] in p
+    assert "visible hairline" in p and "do not recolour skin, eyebrows" in p
+    assert "roots" in p and "bold" in p and "User notes: shorter on top." in p
+    assert "Keep unchanged:" in p and "the person's makeup" in p and "natural hair colour" not in p
 
 
-def test_generation_accepts_multiple_areas(monkeypatch):
+def test_subtle_and_medium_intensity():
+    t = catalog.get("makeup_soft_glam")
+    spec = [{"area": "Makeup", "source": "template", "template": t}]
+    assert "subtle" in compose_prompt(spec, "subtle")
+    assert "subtle" not in compose_prompt(spec, "medium") and "bold" not in compose_prompt(spec, "medium")
+    assert "skin texture and skin tone" in compose_prompt(spec)
+
+
+def test_generation_accepts_multiple_reference_areas(monkeypatch):
     captured = {}
     monkeypatch.setattr(generations, "process_generation_background_job", lambda *a, **k: captured.update(args=a))
     r = client.post("/api/v1/generations",
                     files={"target_image": ("me.jpg", _jpeg(), "image/jpeg"), "reference_image": ("ref.jpg", _jpeg(), "image/jpeg")},
-                    data={"category": "Hairstyle,Hair colour,Makeup"})
+                    data=dict(CONSENT, category="Hairstyle,Hair colour,Makeup"))
     assert r.status_code == 202, r.text
     assert r.json()["category"] == "Hairstyle, Hair colour, Makeup"
     prompt = captured["args"][9]
@@ -63,5 +77,5 @@ def test_generation_rejects_empty_areas(monkeypatch):
     monkeypatch.setattr(generations, "process_generation_background_job", lambda *a, **k: None)
     r = client.post("/api/v1/generations",
                     files={"target_image": ("me.jpg", _jpeg(), "image/jpeg"), "reference_image": ("ref.jpg", _jpeg(), "image/jpeg")},
-                    data={"category": " , "})
+                    data=dict(CONSENT, category=" , "))
     assert r.status_code == 400

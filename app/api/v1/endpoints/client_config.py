@@ -13,6 +13,10 @@ def client_config():
     """
     key = settings.GOOGLE_MAPS_API_KEY
     return {
+        "privacy": {
+            "photo_consent_version": settings.PHOTO_CONSENT_VERSION,
+            "retention_days": settings.RETENTION_DAYS,
+        },
         "maps": {
             "provider": "google" if key else "osm",
             "google_api_key": key or None,

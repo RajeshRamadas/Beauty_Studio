@@ -84,13 +84,15 @@ def test_vision():
 
     img, mime, _ext, _size = process_image(open("sample_glamour_waves.jpg", "rb").read(), "Your photo")
     try:
-        r = analyze_face(img, mime, "auto")
+        r = analyze_face(img, mime, "women")
     except FaceAnalysisFailed as exc:
         line(BAD, f"Face analysis ({settings.OPENAI_VISION_MODEL}): {exc} (see the server log line above for the reason)")
         return False
-    recs = [h["name"] for h in r["recommendations"]["hairstyles"]]
-    line(OK, f"Face analysis: face shape {r['face_shape']}, skin tone {r['skin_tone']}, hair {r['hair']['texture']}; "
-             f"suggests {', '.join(recs) or 'nothing'}")
+    fs, ut = r["face_shape"], r["undertone"]
+    recs = [h["name"] for h in (r.get("catalogue") or {}).get("hairstyles", [])[:3]]
+    ideas = [h["name"] for h in r["ideas"]["hairstyles"]]
+    line(OK, f"Face analysis: face shape {fs['value']} ({fs['confidence']}), undertone {ut['value']} ({ut['confidence']}), "
+             f"hair {r['hair']['texture']}; catalogue: {', '.join(recs) or 'nothing'}; new ideas: {', '.join(ideas) or 'none'}")
     return True
 
 

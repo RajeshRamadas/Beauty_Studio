@@ -35,6 +35,8 @@ class GenerationStatusResponse(BaseModel):
     accuracy: Optional[int] = Field(None, description="AI-estimated accuracy 0-100 (lowest of the criteria)")
     accuracy_breakdown: Optional[Dict[str, int]] = None
     attempts: Optional[int] = None
+    selections: List[Dict[str, Any]] = Field([], description="Per area: template ID and version, custom style or reference photo")
+    intensity: Optional[str] = None
 
 class GenerationResponse(BaseModel):
     request_id: str

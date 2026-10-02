@@ -47,3 +47,26 @@ def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return current_user
+
+
+def is_admin(user: Optional[UserModel]) -> bool:
+    if not user:
+        return False
+    admins = {e.strip().lower() for e in settings.ADMIN_EMAILS.split(",") if e.strip()}
+    return user.role == "admin" or (bool(user.email) and user.email.lower() in admins)
+
+
+def get_admin_user(current_user: UserModel = Depends(get_current_user)) -> UserModel:
+    if not is_admin(current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Catalogue management needs an admin account.")
+    return current_user
+
+
+def require_photo_consent(consent_version: str) -> str:
+    """Photos are processed only after the user accepted the current consent text in the app."""
+    if (consent_version or "").strip() != settings.PHOTO_CONSENT_VERSION:
+        raise HTTPException(
+            status_code=status.HTTP_428_PRECONDITION_REQUIRED,
+            detail="Please review and accept how your photo is used before continuing.",
+        )
+    return settings.PHOTO_CONSENT_VERSION

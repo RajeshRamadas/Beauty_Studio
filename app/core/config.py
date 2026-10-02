@@ -56,6 +56,13 @@ class Settings(BaseSettings):
     GOOGLE_MAPS_API_KEY: str = os.getenv("GOOGLE_MAPS_API_KEY", "")
     GOOGLE_MAPS_MAP_ID: str = os.getenv("GOOGLE_MAPS_MAP_ID", "DEMO_MAP_ID")
 
+    # Privacy. Photos are only processed after the user accepts this consent version in the app;
+    # bump it when the consent text changes. Anonymous results are deleted after RETENTION_DAYS.
+    PHOTO_CONSENT_VERSION: str = os.getenv("PHOTO_CONSENT_VERSION", "photo-2026-10")
+    RETENTION_DAYS: int = int(os.getenv("RETENTION_DAYS", "30"))
+    # Comma-separated emails that get the admin role (catalogue management) when they register or sign in.
+    ADMIN_EMAILS: str = os.getenv("ADMIN_EMAILS", "")
+
     # Rate Limiting & Quotas
     RATE_LIMIT_PER_DAY: int = int(os.getenv("RATE_LIMIT_PER_DAY", "10"))
 

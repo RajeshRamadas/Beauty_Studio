@@ -373,15 +373,9 @@
     .fa-rec { display: flex; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 10px; }
     .fa-rec-img { width: 88px; height: 104px; object-fit: cover; border-radius: 14px; flex-shrink: 0; font-size: 10px; }
     .fa-rec-img svg { width: 26px; height: 26px; }
-    .fa-banner { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; background: var(--surface-2); border-radius: 16px; padding: 12px 14px; margin: 16px 0; font-size: 13px; }
     .fa-rec-body { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
     .fa-rec-body .btn { margin-top: auto; }
     .fa-desc { font-size: 12px; color: var(--text); line-height: 1.4; }
-    .fa-avoid { display: flex; flex-direction: column; gap: 8px; }
-    .fa-avoid li { list-style: none; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 10px 12px; font-size: 13px; }
-    .fa-avoid li b { color: var(--err); display: block; margin-bottom: 2px; }
-    .fa-colour { display: flex; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 12px; }
-    .fa-swatch { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; border: 2px solid var(--border); }
     .fa-tips { padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 1.45; }
 
     /* ── Styles: audience toggle, tiles ───────────────── */
@@ -394,7 +388,10 @@
     .scroll-img { width: 140px; height: 180px; object-fit: cover; border-radius: 18px; display: block; }
     .img-card-img { width: 100%; height: 170px; object-fit: cover; display: block; }
     .style-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: var(--surface-2); color: var(--accent); text-align: center; padding: 12px; font-size: 13px; font-weight: 700; }
-    .style-tile svg { width: 34px; height: 34px; stroke: currentColor; stroke-width: 1.6; fill: none; stroke-linecap: round; }
+    .style-tile svg { width: 34px; height: 34px; stroke: currentColor; stroke-width: 1.6; fill: none; stroke-linecap: round; flex-shrink: 0; }
+    div.style-tile { display: flex; background: linear-gradient(160deg, #2A2620, var(--surface-2) 60%); }
+    .tile-note { font-size: 10.5px; font-weight: 600; color: var(--text2); letter-spacing: .02em; }
+    .look-thumb .tile-note, .fa-rec-img .tile-note, .scroll-img .tile-note { display: none; }
     .detail-hero { border-radius: 24px; overflow: hidden; margin-bottom: 16px; height: 300px; }
     .detail-hero img, .detail-tile { width: 100%; height: 100%; object-fit: cover; display: block; }
 
@@ -467,6 +464,85 @@
     .acc-bar { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
     .acc-bar i { display: block; height: 100%; background: var(--accent); }
 
+    /* ── Catalogue gallery ────────────────────────────── */
+    .tpl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .tpl-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+    .tpl-card.selected { border-color: var(--accent); }
+    .tpl-pic { all: unset; display: block; position: relative; cursor: pointer; }
+    .tpl-img { width: 100%; height: 150px; display: block; }
+    .tpl-body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .tpl-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; }
+    .tpl-name { all: unset; cursor: pointer; font-size: 14px; font-weight: 700; line-height: 1.3; }
+    .tpl-name:focus-visible { outline: 2px solid var(--accent); }
+    .tpl-desc { font-size: 12px; line-height: 1.35; color: var(--text); }
+    .tpl-try { margin-top: auto; width: 100%; min-height: 36px; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 6px; }
+    .tag { font-size: 10.5px; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--text2); }
+    .in-look { position: absolute; left: 8px; bottom: 8px; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--accent); color: var(--on-accent); }
+    .pic-wrap { position: relative; overflow: hidden; }
+    .pic-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ref-badge { position: absolute; top: 8px; left: 8px; font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 7px; border-radius: 999px; background: rgba(12,12,12,.75); color: var(--text); }
+    .swatch-tile { background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.28), transparent 45%), linear-gradient(160deg, var(--sw), color-mix(in srgb, var(--sw) 65%, #000)); }
+    .fav-btn { flex-shrink: 0; width: 32px; height: 32px; margin: -4px -6px 0 0; border: none; background: none; color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .fav-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.8; fill: none; }
+    .fav-btn.on { color: var(--accent); }
+    .fav-btn.on svg { fill: currentColor; }
+    .search-input { border-radius: 999px; margin-bottom: 10px; }
+    .filter-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; margin-bottom: 8px; }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .filter-select { width: auto; flex-shrink: 0; padding: 7px 28px 7px 12px; border-radius: 999px; font-size: 13px; min-height: 36px; }
+    .filter-select.on { border-color: var(--accent); color: var(--accent); }
+    .filter-active { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }
+    .chip.removable { padding: 5px 12px; font-size: 12px; }
+    .aud-toggle.three button { font-size: 13px; }
+
+    /* ── Template detail ─────────────────────────────── */
+    .detail-views { display: flex; gap: 8px; margin: -6px 0 14px; }
+    .view-thumb { background: none; border: 1px solid var(--border); border-radius: 12px; padding: 4px; cursor: pointer; color: var(--text); display: flex; flex-direction: column; align-items: center; gap: 2px; font-family: inherit; }
+    .view-thumb img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; }
+    .meta { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .meta-row { display: grid; grid-template-columns: 120px 1fr; gap: 8px; font-size: 13px; }
+    .detail-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+
+    /* ── Look builder ────────────────────────────────── */
+    .look-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--border); }
+    .look-row:first-child { border-top: none; }
+    .look-thumb { width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0; overflow: hidden; }
+    .look-thumb.style-tile { padding: 6px; }
+    .look-thumb svg { width: 22px; height: 22px; }
+    .look-thumb .ref-badge { display: none; }
+    .look-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+    .look-text b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .look-keep { font-size: 13px; color: var(--text2); }
+    .look-actions { display: flex; align-items: center; gap: 4px; }
+    .look-remove { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: none; color: var(--text2); font-size: 18px; cursor: pointer; }
+    .seg { display: flex; background: var(--surface-2); border-radius: 999px; padding: 3px; }
+    .seg button { flex: 1; min-height: 36px; padding: 0 8px; white-space: nowrap; border: none; border-radius: 999px; background: none; color: var(--text2); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .seg button.active { background: var(--text); color: var(--bg); }
+    .check-row { display: flex; gap: 10px; align-items: center; font-size: 13px; margin-top: 12px; cursor: pointer; }
+    .check-row input { width: 18px; height: 18px; accent-color: var(--accent); }
+    .sel-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .sel-chip { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); color: var(--text); }
+    .sel-chip span { color: var(--text2); }
+
+    /* ── Face analysis extras ────────────────────────── */
+    .conf { font-size: 11px; color: var(--text2); }
+    .conf-high { color: var(--ok); }
+    .conf-low { color: var(--err); }
+    .rec-label { font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--text2); }
+    .rec-label.on { color: var(--accent); }
+    .pref-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    /* ── Consent ─────────────────────────────────────── */
+    .sheet { position: fixed; inset: 0; z-index: 1100; background: rgba(0,0,0,.7); display: flex; align-items: flex-end; justify-content: center; }
+    .sheet[hidden] { display: none; }
+    .sheet-body { background: var(--surface); border: 1px solid var(--border); border-radius: 26px 26px 0 0; padding: 22px 20px 28px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; }
+    .sheet-body ul { padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.45; margin: 12px 0 18px; }
+
+    /* ── History ─────────────────────────────────────── */
+    .hist-row { display: flex; gap: 12px; align-items: center; }
+    .hist-img { width: 64px; height: 80px; object-fit: cover; border-radius: 12px; background: var(--surface-2); flex-shrink: 0; }
+
     /* ── Spacing helpers ──────────────────────────────── */
     .mb-4 { margin-bottom: 4px; }
     .mb-8 { margin-bottom: 8px; }
@@ -503,13 +579,14 @@
         <div class="logo">GLOW<b>AI</b></div>
       </div>
       <div style="flex:1"></div>
-      <button class="icon-btn" onclick="showScreen('screen-11')" aria-label="My history"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></button>
+      <button class="icon-btn" onclick="showScreen('screen-11')" aria-label="My looks"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></button>
       <button class="icon-btn" onclick="showScreen('screen-15')" aria-label="Shopping bag"><svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 016 0"/></svg><span class="bag-count" style="display:none">0</span></button>
     </div>
 
-    <div class="aud-toggle" role="group" aria-label="Show styles for">
+    <div class="aud-toggle three" data-kind="audience" role="group" aria-label="Show styles for">
       <button type="button" data-aud="women" onclick="Styles.setAudience('women')">Women</button>
       <button type="button" data-aud="men" onclick="Styles.setAudience('men')">Men</button>
+      <button type="button" data-aud="all" onclick="Styles.setAudience('all')">All styles</button>
     </div>
 
     <div class="hero">
@@ -521,7 +598,7 @@
       </div>
       <div class="hero-body">
         <h1 style="font-size:20px;">See any style on your own photo</h1>
-        <p class="caption" style="font-size:13px;">Upload a selfie and a reference. We keep your face and change only the look.</p>
+        <p class="caption" style="font-size:13px;">Pick a hairstyle, colour and makeup from the catalogue. We keep your face and change only the look.</p>
         <button class="btn btn-p" onclick="showScreen('screen-7')">Start a new look</button>
       </div>
     </div>
@@ -534,7 +611,7 @@
           <h3 id="fa-feature-title">Not sure what suits you?</h3>
         </div>
       </div>
-      <p class="caption">Get your face shape, skin tone and hair type, plus the styles, makeup and grooming picked for you.</p>
+      <p class="caption">Get estimates of your face shape, undertone and hair, then catalogue styles matched to them and new ideas.</p>
       <button type="button" class="btn btn-p fa-cta" onclick="showScreen('screen-16')"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="5"/><path d="M4 21a8 8 0 0116 0"/><path d="M3 7V4h3M21 7V4h-3"/></svg>Analyse my face</button>
     </section>
 
@@ -545,8 +622,16 @@
     </div>
     <div id="home-cats" class="g2 mb-24"></div>
 
-    <h2 class="mb-12">Trending</h2>
-    <div id="home-trending" class="scroll-row"></div>
+    <div id="home-favs-box" style="display:none;">
+      <div class="row mb-12">
+        <h2>Your favourites</h2>
+        <button class="btn-link" onclick="Styles.openFavourites()">See all</button>
+      </div>
+      <div id="home-favs" class="scroll-row mb-24"></div>
+    </div>
+
+    <h2 class="mb-12">Featured</h2>
+    <div id="home-featured" class="scroll-row"></div>
   </div>
 
   <!-- ════ SCREEN 3: CATEGORIES ══════════════════════════════ -->
@@ -555,9 +640,10 @@
       <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
       <h2>Categories</h2>
     </div>
-    <div class="aud-toggle" role="group" aria-label="Show styles for">
+    <div class="aud-toggle three" data-kind="audience" role="group" aria-label="Show styles for">
       <button type="button" data-aud="women" onclick="Styles.setAudience('women')">Women</button>
       <button type="button" data-aud="men" onclick="Styles.setAudience('men')">Men</button>
+      <button type="button" data-aud="all" onclick="Styles.setAudience('all')">All styles</button>
     </div>
     <div id="cat-list"></div>
   </div>
@@ -567,26 +653,50 @@
     <div class="top-bar">
       <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
       <h2 id="style-title">Hairstyles</h2>
+      <div style="flex:1"></div>
+      <span id="style-count" class="caption"></span>
     </div>
-    <div class="aud-toggle" role="group" aria-label="Show styles for">
+    <div id="list-aud" class="aud-toggle three" data-kind="audience" role="group" aria-label="Show styles for">
       <button type="button" data-aud="women" onclick="Styles.setAudience('women')">Women</button>
       <button type="button" data-aud="men" onclick="Styles.setAudience('men')">Men</button>
+      <button type="button" data-aud="all" onclick="Styles.setAudience('all')">All styles</button>
     </div>
-    <div id="style-grid" class="g2"></div>
+    <p id="style-for-all" class="caption mb-12" style="display:none;">Makeup templates are for everyone.</p>
+    <input id="style-search" class="search-input" type="search" placeholder="Search by name or tag, e.g. fade, layers" aria-label="Search styles" oninput="Styles.search(this.value)">
+    <div id="filter-bar" class="filter-bar" role="group" aria-label="Filters"></div>
+    <div id="filter-active" class="filter-active" style="display:none;"></div>
+    <div id="style-grid" class="tpl-grid"></div>
   </div>
 
   <!-- ════ SCREEN 5: STYLE DETAIL ════════════════════════════ -->
   <div id="screen-5" class="screen">
     <div class="top-bar">
       <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <h2>Style Detail</h2>
+      <h2>Style</h2>
     </div>
-    <div id="detail-hero" class="detail-hero">
-      <img id="detail-hero-img" src="sample_glamour_waves.jpg" alt="Style">
+    <div id="detail-hero" class="detail-hero"></div>
+    <div id="detail-views" class="detail-views"></div>
+    <div class="row" style="align-items:flex-start;">
+      <h1 id="detail-title" class="mb-4"></h1>
+      <span id="detail-fav"></span>
     </div>
-    <h1 id="detail-title" class="mb-8">Glamour Waves</h1>
-    <p id="detail-desc" class="caption mb-20"></p>
-    <button class="btn btn-p mb-12" onclick="showScreen('screen-7')">Try On This Look</button>
+    <p id="detail-kind" class="caption mb-12"></p>
+    <p id="detail-desc" class="mb-16" style="font-size:15px;line-height:1.5;"></p>
+    <div id="detail-meta" class="meta"></div>
+    <div id="detail-tags" class="tag-row mb-16"></div>
+    <div id="detail-parts" style="display:none;" class="mb-16">
+      <h2 class="mb-12">This look combines</h2>
+      <div id="detail-parts-list" class="scroll-row"></div>
+    </div>
+    <div class="detail-actions">
+      <button id="detail-add" class="btn btn-s" onclick="Styles.addCurrent()">Add to my look</button>
+      <button class="btn btn-p" onclick="Styles.tryCurrent()">Try this style</button>
+    </div>
+    <p id="detail-note" class="caption mb-20"></p>
+    <div id="detail-related-box">
+      <h2 class="mb-12">Related styles</h2>
+      <div id="detail-related" class="scroll-row"></div>
+    </div>
   </div>
 
   <!-- ════ SCREEN 6: AI RESULT ═══════════════════════════════ -->
@@ -595,8 +705,9 @@
       <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
       <h2>Result</h2>
       <div style="flex:1"></div>
-      <span class="badge" style="background:rgba(143,212,168,.14);color:var(--ok);">Generated</span>
+      <span class="badge" style="background:rgba(217,182,111,.14);color:var(--accent);">AI-generated preview</span>
     </div>
+    <div id="result-selections" class="sel-chips"></div>
     <details id="accuracy" class="accuracy mb-12" style="display:none;"></details>
     <div id="demo-banner" class="msg err mb-12" style="display:none;">Demo result: no AI was used. The server is in DEMO_MODE, so it only blended the two photos. Turn DEMO_MODE off and set OPENAI_API_KEY for real results.</div>
     <div id="compare-box" class="compare-box mb-8">
@@ -608,13 +719,33 @@
         <svg width="14" height="14" viewBox="0 0 24 24" stroke="#1A1408" stroke-width="2.5" fill="none"><path d="M8 9l-3 3 3 3M16 9l3 3-3 3"/></svg>
       </div>
     </div>
-    <p class="caption mb-16" style="text-align:center;">Drag to compare</p>
+    <div class="row mb-16">
+      <p class="caption">Drag to compare</p>
+      <div class="seg" id="compare-mode" role="group" aria-label="Show" style="width:250px;">
+        <button type="button" data-v="original" onclick="setCompareMode('original')">Original</button>
+        <button type="button" data-v="compare" class="active" onclick="setCompareMode('compare')">Compare</button>
+        <button type="button" data-v="result" onclick="setCompareMode('result')">AI result</button>
+      </div>
+    </div>
+    <div class="card mb-12">
+      <h3 class="mb-8">Adjust intensity</h3>
+      <div class="seg mb-12" id="result-intensity" role="group" aria-label="Intensity">
+        <button type="button" data-v="subtle" onclick="pickRegenIntensity('subtle')">Subtle</button>
+        <button type="button" data-v="medium" onclick="pickRegenIntensity('medium')">Medium</button>
+        <button type="button" data-v="bold" onclick="pickRegenIntensity('bold')">Bold</button>
+      </div>
+      <button id="regen-btn" class="btn btn-s" onclick="regenerate()">Regenerate</button>
+    </div>
     <div class="g2 mb-12">
       <button id="download-btn" class="btn btn-s" onclick="downloadResultImage()">Download</button>
       <button id="share-btn" class="btn btn-s" onclick="shareResultImage()">Share</button>
     </div>
     <button class="btn btn-p mb-12" onclick="showScreen('screen-13')">Find a salon for this look</button>
-    <button class="btn btn-s" onclick="showScreen('screen-7')">Create Another</button>
+    <div class="g2">
+      <button class="btn btn-s" onclick="showScreen('screen-7')">Try another style</button>
+      <button class="btn btn-s" onclick="deleteCurrentResult()">Delete</button>
+    </div>
+    <p class="caption mt-12" style="text-align:center;">AI previews are approximations. Saved to My looks when you’re signed in.</p>
     <div id="shop-look" class="mt-16" style="display:none;">
       <div class="row mb-12"><h2>Shop this look</h2><button class="btn-link" onclick="showScreen('screen-14')">Shop all</button></div>
       <div id="shop-look-grid" class="g2"></div>
@@ -624,7 +755,7 @@
   <!-- ════ SCREEN 7: AI GENERATOR ════════════════════════════ -->
   <div id="screen-7" class="screen">
     <div class="top-bar">
-      <h2>AI Generator</h2>
+      <h2>Create a look</h2>
     </div>
 
     <div class="gen-pair">
@@ -637,11 +768,11 @@
         </div>
       </div>
       <div class="gen-col">
-        <button type="button" id="gen-ref" class="gen-slot" onclick="$g('reference-file').click()" aria-label="Choose a style reference"></button>
-        <p id="reference-status" class="gen-label">Style</p>
+        <button type="button" id="gen-ref" class="gen-slot" onclick="$g('reference-file').click()" aria-label="Choose a reference photo (optional)"></button>
+        <p id="reference-status" class="gen-label">Reference (optional)</p>
         <div class="gen-actions">
-          <button type="button" class="btn btn-s btn-sm" onclick="showScreen('screen-3')">Browse</button>
           <button type="button" class="btn btn-s btn-sm" onclick="$g('reference-file').click()">Upload</button>
+          <button type="button" id="ref-clear" class="btn btn-s btn-sm" onclick="Generator.clearReference()" style="display:none;">Remove</button>
         </div>
       </div>
     </div>
@@ -650,23 +781,42 @@
       <span class="gen-empty"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><b>Your photo</b><small>Whole face and hair, good light</small></span>
     </template>
     <template id="gen-ref-empty">
-      <span class="gen-empty"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/></svg><b>Style</b><small>Upload a photo or browse styles</small></span>
+      <span class="gen-empty"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/></svg><b>Reference</b><small>Optional: a photo of a style you like</small></span>
     </template>
     <input id="camera-capture" type="file" accept="image/*" capture="user" style="display:none;" onchange="handleTargetInput(event)">
     <input id="person-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleTargetInput(event)">
     <input id="reference-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="Generator.onReferenceInput(event)">
-    <input id="style-name" type="hidden">
+
+    <div class="card mb-12">
+      <div class="row mb-4">
+        <h3>Your look</h3>
+        <button type="button" class="btn-link" onclick="Styles.openCategory('Overall beauty look')">Start from a complete look</button>
+      </div>
+      <p class="caption mb-8">Choose a style for any area. Everything you don’t choose stays as in your photo.</p>
+      <div id="look-rows"></div>
+    </div>
+
+    <div id="ref-areas" class="card mb-12" style="display:none;">
+      <h3 class="mb-4">Use the reference photo for</h3>
+      <p class="caption mb-12">Only areas without a chosen style.</p>
+      <div id="ref-chips" class="area-chips" role="group" aria-label="Use the reference photo for"></div>
+    </div>
+
+    <div class="card mb-12">
+      <h3 class="mb-8">Intensity <span class="caption">for hair colour and makeup</span></h3>
+      <div class="seg" id="intensity" role="group" aria-label="Intensity">
+        <button type="button" data-v="subtle" onclick="Generator.setIntensity('subtle')">Subtle</button>
+        <button type="button" data-v="medium" onclick="Generator.setIntensity('medium')">Medium</button>
+        <button type="button" data-v="bold" onclick="Generator.setIntensity('bold')">Bold</button>
+      </div>
+      <label id="roots-row" class="check-row" style="display:none;"><input id="keep-roots" type="checkbox" onchange="Generator.setKeepRoots(this.checked)">Keep my natural roots</label>
+      <label for="custom-notes" class="caption" style="display:block;margin:16px 0 6px;">Notes (optional)</label>
+      <input id="custom-notes" placeholder="e.g. a little shorter, softer lip colour">
+    </div>
+
     <div class="fa-inline mb-16">
       <span class="caption">Not sure what suits you?</span>
       <button type="button" class="btn btn-sm fa-outline" onclick="showScreen('screen-16')"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="5"/><path d="M4 21a8 8 0 0116 0"/><path d="M3 7V4h3M21 7V4h-3"/></svg>Analyse my face</button>
-    </div>
-
-    <div class="card mb-16">
-      <h3 class="mb-4">What should we change?</h3>
-      <p class="caption mb-12">Choose one or more. Everything else stays as in your photo.</p>
-      <div id="area-chips" class="area-chips" role="group" aria-label="What should we change"></div>
-      <label for="custom-notes" class="caption" style="display:block;margin:16px 0 6px;">Notes (optional)</label>
-      <input id="custom-notes" placeholder="e.g. a little shorter, softer lip colour">
     </div>
 
     <button id="generate-btn" class="btn btn-p" onclick="submitGeneration()" disabled>Generate</button>
@@ -677,9 +827,19 @@
   <div id="screen-11" class="screen">
     <div class="top-bar">
       <button class="back-btn" onclick="goBack()" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <h2>My History</h2>
+      <h2>My looks</h2>
     </div>
-    <div id="history-list"><p class="caption">Sign in to view your saved history.</p></div>
+    <div id="history-list"><p class="caption">Sign in to see your saved looks.</p></div>
+  </div>
+
+  <!-- ════ SCREEN 17: FAVOURITES ═════════════════════════════ -->
+  <div id="screen-17" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goBack()" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <h2>Favourites</h2>
+    </div>
+    <p id="fav-empty" class="caption">Tap the heart on any style to save it here. Favourites are kept on this device.</p>
+    <div id="fav-grid" class="tpl-grid"></div>
   </div>
 
   <!-- ════ SCREEN 12: PROFILE & AUTH ═════════════════════════ -->
@@ -695,7 +855,10 @@
       <button id="auth-toggle" class="btn-link" onclick="flipAuthMode()" style="display:block;text-align:center;width:100%;padding:8px;">Need an account? Register</button>
       <div id="auth-msg" style="display:none;" class="msg mt-8"></div>
     </div>
-    <button class="btn btn-s mt-16" onclick="showScreen('screen-11')">My history</button>
+    <button class="btn btn-s mt-16" onclick="showScreen('screen-11')">My looks</button>
+    <button class="btn btn-s mt-8" onclick="Styles.openFavourites()">Favourites</button>
+    <button class="btn btn-s mt-8" onclick="Consent.review()">Photo privacy</button>
+    <a id="admin-link" class="btn btn-s mt-8" href="/admin" style="display:none;text-decoration:none;">Manage catalogue</a>
   </div>
 
   <!-- ════ SCREEN 13: SALONS ═════════════════════════════════ -->
@@ -763,7 +926,7 @@
       <button class="back-btn" onclick="goBack()" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
       <h2>Analyse my face</h2>
     </div>
-    <p class="caption mb-16" style="font-size:13px;">Get your face shape, skin tone, undertone and hair type, then styles and makeup picked for you.</p>
+    <p class="caption mb-16" style="font-size:13px;">Get estimates of your face shape, undertone and visible hair, catalogue styles matched to them, and new ideas. Suggestions are optional.</p>
     <div class="fa-photo mb-12">
       <img id="fa-preview" alt="Your photo" style="display:none;">
       <div id="fa-placeholder" class="fa-placeholder">
@@ -778,14 +941,14 @@
     <div id="fa-check" class="photo-check mb-12" aria-live="polite"></div>
     <input id="fa-camera" type="file" accept="image/*" capture="user" style="display:none;" onchange="FaceAnalysis.pick(event)">
     <input id="fa-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="FaceAnalysis.pick(event)">
-    <p class="caption mb-8">Recommend styles for</p>
-    <div id="fa-section" class="aud-toggle" role="group" aria-label="Recommend styles for">
-      <button type="button" data-sec="auto" class="active" aria-pressed="true" onclick="FaceAnalysis.setSection('auto')">Auto</button>
-      <button type="button" data-sec="women" aria-pressed="false" onclick="FaceAnalysis.setSection('women')">Women</button>
-      <button type="button" data-sec="men" aria-pressed="false" onclick="FaceAnalysis.setSection('men')">Men</button>
+    <p class="caption mb-8">Suggest styles from</p>
+    <div id="fa-group" class="aud-toggle three" role="group" aria-label="Suggest styles from">
+      <button type="button" data-g="women" onclick="FaceAnalysis.setGroup('women')">Women’s</button>
+      <button type="button" data-g="men" onclick="FaceAnalysis.setGroup('men')">Men’s</button>
+      <button type="button" data-g="all" onclick="FaceAnalysis.setGroup('all')">All styles</button>
     </div>
     <button id="fa-run" type="button" class="btn btn-p" onclick="FaceAnalysis.run()" disabled>Analyse my face</button>
-    <p class="caption mt-8" style="text-align:center;">Your photo is sent to our AI provider for this analysis and is not saved.</p>
+    <p class="caption mt-8" style="text-align:center;">Your photo is sent to our AI provider for this analysis and is not saved. We never guess gender, age or ethnicity.</p>
     <div id="fa-status" class="msg" style="display:none;"></div>
     <div id="fa-results" class="mt-16"></div>
   </div>
@@ -809,6 +972,22 @@
     </div>
     <button type="button" class="cam-alt" onclick="GuidedCamera.useDeviceCamera()">Use my phone’s camera app instead</button>
     <p id="cam-error" class="cam-sub" hidden></p>
+  </div>
+
+  <!-- ════ PHOTO CONSENT ═══════════════════════════════════ -->
+  <div id="consent-modal" class="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="consent-title">
+    <div class="sheet-body">
+      <h2 id="consent-title">Before we use your photo</h2>
+      <ul>
+        <li>Your photo is sent to our AI provider to check it, estimate visible features (face shape, undertone, hair) and create previews.</li>
+        <li>It is not used to train AI models.</li>
+        <li>We never guess sensitive things like gender, age or ethnicity. You choose which styles to see.</li>
+        <li>Results are stored privately. Signed in, they’re in My looks until you delete them; otherwise they’re deleted after <b id="consent-retention">30</b> days. You can delete any result at any time.</li>
+        <li>Previews are AI-generated approximations and are labelled as such.</li>
+      </ul>
+      <button type="button" class="btn btn-p mb-8" onclick="Consent.accept()">I agree</button>
+      <button type="button" class="btn btn-s" onclick="Consent.decline()">Not now</button>
+    </div>
   </div>
 
   <!-- ════ BOTTOM NAV ════════════════════════════════════════ -->
@@ -839,6 +1018,7 @@
 
 <script src="shop-data.js"></script>
 <script src="shop.js"></script>
+<script src="consent.js"></script>
 <script src="photo-check.js"></script>
 <script src="styles.js"></script>
 <script src="generator.js"></script>
@@ -863,7 +1043,7 @@ function showScreen(id) {
   document.body.classList.toggle('on-splash', id === 'screen-1');
 
   document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
-  const m = { 'screen-2':'nav-home','screen-3':'nav-home','screen-4':'nav-home','screen-11':'nav-profile','screen-5':'nav-tryon','screen-6':'nav-tryon','screen-7':'nav-tryon','screen-12':'nav-profile','screen-13':'nav-salons','screen-14':'nav-shop','screen-15':'nav-shop','screen-16':'nav-home' };
+  const m = { 'screen-2':'nav-home','screen-3':'nav-home','screen-4':'nav-home','screen-11':'nav-profile','screen-17':'nav-profile','screen-5':'nav-tryon','screen-6':'nav-tryon','screen-7':'nav-tryon','screen-12':'nav-profile','screen-13':'nav-salons','screen-14':'nav-shop','screen-15':'nav-shop','screen-16':'nav-home' };
   if (m[id]) $g(m[id]).classList.add('active');
 
   if (id === 'screen-11') loadHistory();
@@ -872,6 +1052,7 @@ function showScreen(id) {
   if (id === 'screen-15') Shop.openBag();
   if (id === 'screen-6') Shop.showLook();
   if (id === 'screen-12') refreshAuthUI();
+  if (id === 'screen-16') FaceAnalysis.renderGroup();
 }
 
 function goBack() {
@@ -883,50 +1064,15 @@ function goBack() {
   } else { showScreen('screen-2'); }
 }
 
-/* ── Preset selection ─────────────────────────────── */
-async function selectPreset(category, name, imageUrl, description) {
-  // A catalogue style, or a personalised one (e.g. from face analysis) described in words.
-  const style = Styles.find(name) || (description ? { name, category, description, image: null, custom: true } : null);
-  Generator.preselect(category);
-  $g('style-name').value = name;
-  $g('detail-title').textContent = name;
-  const d = style ? style.description.trim() : '';
-  $g('detail-desc').textContent = d ? d.charAt(0).toUpperCase() + d.slice(1) + (/[.!?]$/.test(d) ? '' : '.') : '';
-  const hero = $g('detail-hero');
-  if (imageUrl) {
-    hero.replaceChildren(Object.assign(document.createElement('img'), { id: 'detail-hero-img', src: imageUrl, alt: name }));
-    autoAttachReference(imageUrl, name);
-  } else {
-    hero.replaceChildren(Styles.picture(style || { name, category }, 'detail-tile'));
-    if (style) Generator.setReferenceStyle(style);
-  }
-  showScreen('screen-5');
-}
-
-async function autoAttachReference(url, name) {
-  try {
-    const res = await fetch(url);
-    const blob = await res.blob();
-    const file = new File([blob], url, { type: blob.type || 'image/jpeg' });
-    const dt = new DataTransfer();
-    dt.items.add(file);
-    const inp = $g('reference-file');
-    if (inp) {
-      inp.files = dt.files;
-      Generator.setReferenceFile(file, name, true);
-    }
-  } catch(e) { console.error('Auto-attach failed', e); }
-}
-
 /* ── Target photo ─────────────────────────────────── */
-function handleTargetInput(e) {
+async function handleTargetInput(e) {
   const file = e.target.files[0];
   if (!file) return;
+  if (!(await Generator.setTarget(file))) return;  // declined consent
   selectedTargetFile = file;
   const r = new FileReader();
   r.onload = ev => { targetDataUrl = ev.target.result; $g('compare-before-img').src = targetDataUrl; };
   r.readAsDataURL(file);
-  Generator.setTarget(file);
 }
 
 /* Used by face analysis: reuse the analysed photo as the try-on photo. */
@@ -939,28 +1085,16 @@ function setTargetPhoto(file) {
 }
 
 /* ── Generation ───────────────────────────────────── */
+let currentResultId = null;
+let regenIntensity = 'medium';
+
 async function submitGeneration() {
   const personInp = $g('person-file');
   const camInp = $g('camera-capture');
-  const refInp = $g('reference-file');
   const person = (personInp && personInp.files[0]) || (camInp && camInp.files[0]);
-  const reference = refInp && refInp.files[0];
   const st = $g('gen-status');
-
-  const catalogueStyle = Styles.find($g('style-name').value.trim());
-  const customStyle = Generator.customStyle();
   if (!person) { st.className = 'msg err'; st.textContent = 'Add your photo first.'; return; }
-  if (!reference && !catalogueStyle && !customStyle) { st.className = 'msg err'; st.textContent = 'Upload a style reference, or pick a style from Styles.'; return; }
-  const areas = Generator.areas();
-  if (!areas.length) { st.className = 'msg err'; st.textContent = 'Choose at least one thing to change.'; return; }
-
-  const fd = new FormData();
-  fd.append('target_image', person);
-  if (reference) fd.append('reference_image', reference);
-  fd.append('category', areas.join(','));
-  fd.append('style', $g('style-name').value.trim());
-  if (!reference && customStyle) fd.append('style_description', customStyle.description);
-  fd.append('notes', $g('custom-notes').value.trim());
+  if (!Consent.version() && !(await Consent.ensure())) { st.className = 'msg err'; st.textContent = 'Agree to how your photo is used to continue.'; return; }
 
   const headers = {};
   if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
@@ -970,9 +1104,9 @@ async function submitGeneration() {
   st.className = 'msg'; st.textContent = 'Uploading and queuing...';
 
   try {
-    const res = await fetch('/api/v1/generations', { method: 'POST', headers, body: fd });
+    const res = await fetch('/api/v1/generations', { method: 'POST', headers, body: Generator.form(person) });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || data.error?.message || 'Failed');
+    if (!res.ok) throw new Error(typeof data.detail === 'string' ? data.detail : (data.error?.message || 'Failed'));
 
     const statusUrl = data.status_url || ('/api/v1/generations/' + data.request_id);
     let attempts = 0, done = false;
@@ -983,18 +1117,71 @@ async function submitGeneration() {
       const job = await pollRes.json();
       if (job.status === 'succeeded') {
         done = true;
-        resultDataUrl = 'data:image/png;base64,' + job.result_image_b64;
-        $g('compare-after-img').src = resultDataUrl;
-        if (targetDataUrl) $g('compare-before-img').src = targetDataUrl;
-        $g('demo-banner').style.display = (job.model || '').startsWith('demo') ? 'block' : 'none';
-        showAccuracy(job);
-        showScreen('screen-6');
+        showResult(job);
       } else if (job.status === 'failed') { done = true; throw new Error(job.error_message || 'Generation failed.'); }
       else { st.textContent = 'Creating your look and checking its accuracy… (' + (attempts*2) + 's)'; }
     }
-    if (!done) throw new Error('This is taking longer than usual. Check My history in a few minutes.');
+    if (!done) throw new Error('This is taking longer than usual. Check My looks in a few minutes.');
   } catch(e) { st.className = 'msg err'; st.textContent = 'Error: ' + e.message; }
   finally { delete btn.dataset.busy; btn.textContent = 'Generate'; Generator.updateReady({ keepStatus: true }); }
+}
+
+function showResult(job) {
+  currentResultId = job.request_id;
+  resultDataUrl = 'data:image/png;base64,' + job.result_image_b64;
+  $g('compare-after-img').src = resultDataUrl;
+  if (targetDataUrl) $g('compare-before-img').src = targetDataUrl;
+  $g('demo-banner').style.display = (job.model || '').startsWith('demo') ? 'block' : 'none';
+  Generator.setResultSelections(job.selections);
+  $g('result-selections').replaceChildren(...(job.selections || []).map(sel => {
+    const c = document.createElement('span');
+    c.className = 'sel-chip';
+    const area = document.createElement('span');
+    area.textContent = Styles.short(sel.area) + ' · ';
+    c.append(area, document.createTextNode(sel.name || ''));
+    return c;
+  }));
+  pickRegenIntensity(job.intensity || Generator.intensity());
+  setCompareMode('compare');
+  showAccuracy(job);
+  showScreen('screen-6');
+}
+
+function setCompareMode(mode) {
+  document.querySelectorAll('#compare-mode button').forEach(b => {
+    const on = b.dataset.v === mode;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', on);
+  });
+  updateSlider(null, mode === 'original' ? 100 : mode === 'result' ? 0 : 50);
+}
+
+function pickRegenIntensity(v) {
+  regenIntensity = v;
+  document.querySelectorAll('#result-intensity button').forEach(b => {
+    const on = b.dataset.v === v;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', on);
+  });
+}
+
+/* Same look and photo again, at the chosen intensity. */
+async function regenerate() {
+  Generator.setIntensity(regenIntensity);
+  showScreen('screen-7');
+  await submitGeneration();
+}
+
+async function deleteCurrentResult() {
+  if (!currentResultId || !confirm('Delete this result and its photos?')) return;
+  const headers = authToken ? { 'Authorization': 'Bearer ' + authToken } : {};
+  try {
+    const r = await fetch('/api/v1/generations/' + currentResultId, { method: 'DELETE', headers });
+    if (!r.ok && r.status !== 404) throw new Error();
+    currentResultId = null; resultDataUrl = null;
+    showScreen('screen-7');
+    const st = $g('gen-status'); st.className = 'msg ok'; st.textContent = 'Result deleted.';
+  } catch (e) { alert('Couldn’t delete it. Please try again.'); }
 }
 
 async function shareResultImage() {
@@ -1052,6 +1239,10 @@ function flipAuthMode() {
 function refreshAuthUI() {
   if (authToken) {
     $g('auth-box').innerHTML = '<h3 class="mb-4">Signed In</h3><p class="caption mb-12">Active session</p><button class="btn btn-s" onclick="doLogout()">Sign Out</button>';
+    fetch('/api/v1/auth/me', { headers: { 'Authorization': 'Bearer ' + authToken } })
+      .then(r => r.ok ? r.json() : null)
+      .then(me => { $g('admin-link').style.display = me && me.role === 'admin' ? '' : 'none'; })
+      .catch(() => {});
   }
 }
 
@@ -1078,23 +1269,42 @@ function doLogout() { authToken = null; localStorage.removeItem('glow_auth_token
 /* ── History ──────────────────────────────────────── */
 async function loadHistory() {
   const c = $g('history-list');
-  if (!authToken) { c.innerHTML = '<div class="card" style="text-align:center;padding:24px;"><p class="caption mb-12">Sign in to view history</p><button class="btn btn-s btn-sm" onclick="showScreen(\'screen-12\')">Sign In</button></div>'; return; }
+  if (!authToken) { c.innerHTML = '<div class="card" style="text-align:center;padding:24px;"><p class="caption mb-12">Sign in to keep your looks</p><button class="btn btn-s btn-sm" onclick="showScreen(\'screen-12\')">Sign In</button></div>'; return; }
   c.textContent = 'Loading...';
   try {
     const res = await fetch('/api/v1/generations', { headers: { 'Authorization': 'Bearer ' + authToken } });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || 'Load failed');
-    if (!data.length) { c.textContent = 'No history yet.'; return; }
-    c.innerHTML = data.map(item => `
-      <div class="card" style="padding:12px;">
-        <div class="row"><div><p style="font-weight:500;font-size:13px;color:var(--accent);">${item.category}</p><p class="caption">${item.created_at.slice(0,19).replace('T',' ')} · ${item.status}</p></div>
-        <button class="btn btn-s btn-sm" onclick="deleteItem('${item.request_id}')">Delete</button></div>
-      </div>`).join('');
+    if (!data.length) { c.textContent = 'No looks yet.'; return; }
+    c.replaceChildren(...data.map(item => {
+      const card = document.createElement('div');
+      card.className = 'card hist-row';
+      const result = (item.assets || []).find(a => a.role === 'result');
+      const img = document.createElement(result ? 'img' : 'div');
+      img.className = 'hist-img';
+      if (result) { img.src = result.url; img.alt = 'AI-generated preview'; }
+      const info = document.createElement('div');
+      info.style.flex = '1';
+      const names = (item.selections || []).map(sel => sel.name).filter(Boolean).join(' + ') || item.category;
+      const title = document.createElement('p');
+      title.style.cssText = 'font-weight:700;font-size:14px;';
+      title.textContent = names;
+      const meta = document.createElement('p');
+      meta.className = 'caption';
+      meta.textContent = item.created_at.slice(0, 16).replace('T', ' ') + ' · ' + (item.status === 'succeeded' ? 'AI-generated preview' : item.status);
+      info.append(title, meta);
+      const del = document.createElement('button');
+      del.className = 'btn btn-s btn-sm';
+      del.textContent = 'Delete';
+      del.onclick = () => deleteItem(item.request_id);
+      card.append(img, info, del);
+      return card;
+    }));
   } catch(e) { c.textContent = 'Error: ' + e.message; }
 }
 
 async function deleteItem(id) {
-  if (!confirm('Delete this?')) return;
+  if (!confirm('Delete this look and its photos?')) return;
   try { await fetch('/api/v1/generations/' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + authToken } }); loadHistory(); }
   catch(e) { alert('Failed.'); }
 }
@@ -1104,11 +1314,13 @@ async function deleteItem(id) {
 /* ── Compare slider ───────────────────────────────── */
 const cBox = $g('compare-box'), cClip = $g('compare-before-clip'), cHandle = $g('compare-handle');
 let dragging = false;
-function updateSlider(x) {
+function updateSlider(x, setPct) {
   if (!cBox) return;
-  const rect = cBox.getBoundingClientRect();
-  let pct = ((x - rect.left) / rect.width) * 100;
-  pct = Math.max(2, Math.min(98, pct));
+  let pct = setPct;
+  if (pct == null) {
+    const rect = cBox.getBoundingClientRect();
+    pct = Math.max(2, Math.min(98, ((x - rect.left) / rect.width) * 100));
+  }
   if (cClip) cClip.style.width = pct + '%';
   if (cHandle) cHandle.style.left = pct + '%';
 }
@@ -1123,6 +1335,7 @@ if (cBox) {
 
 /* ── Init ─────────────────────────────────────────── */
 if (authToken) refreshAuthUI();
+Consent.init();
 Shop.init();
 Generator.init();
 Styles.load();

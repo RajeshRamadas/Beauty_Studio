@@ -44,6 +44,8 @@ class GenerationRequestModel(Base):
     assets: Mapped[List["ImageAssetModel"]] = relationship("ImageAssetModel", back_populates="request", cascade="all, delete-orphan")
     quality_check: Mapped[Optional["QualityCheckModel"]] = relationship(
         "QualityCheckModel", uselist=False, cascade="all, delete-orphan")
+    selections: Mapped[List["GenerationSelectionModel"]] = relationship(
+        "GenerationSelectionModel", cascade="all, delete-orphan")
 
 class ImageAssetModel(Base):
     __tablename__ = "image_assets"
@@ -90,3 +92,37 @@ class QualityCheckModel(Base):
     issues_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
     attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class StyleTemplateModel(Base):
+    """A catalogue template (hairstyle, hair colour, makeup, beard, nails or a look preset).
+
+    Metadata that varies by category (face-shape tags, lengths, undertones, images...) lives in data_json.
+    """
+    __tablename__ = "style_templates"
+
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    category: Mapped[str] = mapped_column(String(50), index=True, nullable=False)
+    catalog_group: Mapped[str] = mapped_column(String(10), index=True, nullable=False)  # women | men | all
+    name: Mapped[str] = mapped_column(String(80), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), index=True, nullable=False, default="draft")  # draft | published | archived
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    featured: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=1000)
+    data_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
+
+
+class GenerationSelectionModel(Base):
+    """What a try-on applied to each area: a catalogue template (with its version), a custom style or the reference photo."""
+    __tablename__ = "generation_selections"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    request_id: Mapped[str] = mapped_column(String(36), ForeignKey("generation_requests.id"), index=True, nullable=False)
+    area: Mapped[str] = mapped_column(String(50), nullable=False)
+    source: Mapped[str] = mapped_column(String(20), nullable=False)  # template | custom | reference
+    template_id: Mapped[Optional[str]] = mapped_column(String(80), nullable=True, index=True)
+    template_version: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    name: Mapped[Optional[str]] = mapped_column(String(80), nullable=True)
+    intensity: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)

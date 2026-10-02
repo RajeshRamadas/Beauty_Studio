@@ -108,8 +108,9 @@
   function renderLook() {
     const box = $('shop-look');
     if (!box) return;
-    const style = ($('style-name') && $('style-name').value.trim()) || '';
-    const matches = data.products.filter(p => (p.forStyles || []).includes(style)).slice(0, 4);
+    const ids = window.Generator ? window.Generator.resultTemplateIds() : [];
+    const suits = pattern => ids.some(id => pattern.endsWith('*') ? id.startsWith(pattern.slice(0, -1)) : id === pattern);
+    const matches = data.products.filter(p => (p.forTemplates || []).some(suits)).slice(0, 4);
     box.style.display = matches.length ? 'block' : 'none';
     $('shop-look-grid').replaceChildren(...matches.map(card));
   }

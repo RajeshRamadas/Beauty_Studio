@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db, get_current_user
+from app.api.deps import get_db, get_current_user, is_admin
 from app.core.security import create_access_token, get_password_hash, verify_password
 from app.db.models import UserModel
 from app.schemas.auth import TokenResponse, UserRegister, UserResponse
@@ -65,6 +65,6 @@ def read_current_user_profile(current_user: UserModel = Depends(get_current_user
     return {
         "id": current_user.id,
         "email": current_user.email,
-        "role": current_user.role,
+        "role": "admin" if is_admin(current_user) else current_user.role,
         "created_at": current_user.created_at.isoformat() if current_user.created_at else "",
     }

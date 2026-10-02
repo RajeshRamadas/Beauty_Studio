@@ -41,7 +41,7 @@ The server log also says at start-up whether image generation uses OpenAI (and w
 
 ## Notes
 - Each image must be JPG, PNG, or WEBP, at least 256×256 pixels, and no larger than 12 MB.
-- Both images are sent to the configured provider. Get consent before using another person's photo; review privacy/retention obligations before production use.
+- Photos are sent to the configured provider only after the user agrees in the app (see Privacy). Get consent before using another person's photo.
 - Results are generative and may not preserve identity or reproduce the reference precisely. Use clear, well-lit images and test with representative examples.
 - This is a local development prototype. Before deployment, add authentication, quotas/rate limits, timeouts, secure storage/retention, monitoring, and abuse controls.
 
@@ -52,13 +52,52 @@ Before a photo is used for try-on or face analysis it is checked by `POST /api/v
 
 If anything fails, the app lists what's wrong and offers **Retake photo** or **Upload another**; Generate and Analyse stay locked until the photo passes. **Camera** opens an in-app camera with a face-and-hair outline to frame the whole head (needs HTTPS or localhost; otherwise it falls back to the phone's camera app). Limit: `PHOTO_CHECK_LIMIT_PER_DAY` (default 100).
 
+## Style catalogue
+The catalogue follows the requirements doc v1.0 ("Men's and Women's Style Catalog"). Templates are stored in the
+`style_templates` table; seed templates in `app/services/catalog_seed.py` are added on start-up when their ID is missing
+(admin edits are never overwritten):
+- **Hairstyles:** 29 men's and 36 women's, each with face-shape tags, lengths, textures, finish, maintenance, occasions and cut/styling features.
+- **Hair colours:** 17 women's and 14 men's, with undertone tags, colour family, technique and a swatch colour.
+- **Makeup:** 25 templates (natural, everyday, glam, occasion, eye, lip, finish), **for everyone**, never filtered by gender.
+- **Beard & grooming** (6), **nail art** (4) and **complete looks** (8). A look is a preset of template IDs (for example Beach Waves + Honey Blonde + Natural Glow), not a template of its own.
+
+Browse with **Women / Men / All styles** on Home, search by name or tag, and use filters that can each be removed. Each card has a favourite heart (saved on the device) and **Try this style**; the detail page shows front/side/back photos when available, tags, maintenance, related styles and **Add to my look**. Photos are labelled **Reference**; generated results are labelled **AI-generated preview**. Templates without a photo are tried on from their server-side instruction.
+
+`GET /api/v1/styles?group=men&category=Hairstyle` lists published templates (the try-on instructions stay on the server); `GET /api/v1/styles/{id}` returns one.
+
+## Composing a look
+The generator ("Create a look") combines one choice per area: hairstyle + hair colour + makeup (+ beard, nails), each from the catalogue or a personalised idea from face analysis, plus an optional reference photo for other areas, **intensity** (subtle / medium / bold) and **Keep my natural roots** for colour. `POST /api/v1/generations` takes:
+- `templates`: comma-separated template IDs, one per area;
+- `custom_styles`: JSON list of personalised styles `[{"area", "name", "description"}]`;
+- `reference_image` + `category`: the areas the reference photo changes;
+- `intensity`, `keep_roots`, `notes`, `consent_version`.
+
+Each area is passed to the image model separately, with rules for that area (hair colour only on visible hair, makeup without changing skin tone, and so on). When a chosen template has a reference photo, it is sent as IMAGE 2 for that area only. The result keeps the template IDs and versions it used (`selections` in `GET /api/v1/generations/{id}`, `generation_selections` table). The result screen has before/after, Original / Compare / AI result, Regenerate at another intensity, Download, Share, Delete and Shop this look.
+
 ## Face analysis
-**Analyse my face** (Home screen, or the link under "1. Your Photo" in the generator) sends the photo to an OpenAI vision model (`OPENAI_VISION_MODEL`, default `gpt-5-mini`) and returns face shape, skin tone, undertone, hair texture/length/thickness/colour, recommended hairstyles, makeup and full looks from the app's catalogue, flattering hair colours and tips. "Try on" opens the style with the same photo already selected. It uses the same `OPENAI_API_KEY` as image generation, is limited to `ANALYSIS_LIMIT_PER_DAY` (default 30) per user or IP, and the photo is not stored. The model is told not to infer age, gender, ethnicity or health.
+**Analyse my face** sends the photo to an OpenAI vision model (`OPENAI_VISION_MODEL`, default `gpt-5-mini`). It returns **estimates with a confidence** (high / medium / low): face shape and undertone (both may be **Uncertain**), skin tone, visible hair length, texture and colour, and image quality. The user chooses **Women's / Men's / All styles**; the app never infers gender, age or ethnicity.
 
-## Women's and men's styles
-Styles come from `app/services/style_catalogue.py` (served at `/api/v1/styles`). A **Women / Men** switch on Home, Categories and the style lists picks which set is shown and is remembered on the device. Men get hairstyles, a **Beard & grooming** category and full looks; women get hairstyles, makeup, nail art and full looks. Face analysis suggests the section from visible styling cues (facial hair, haircut, makeup) unless the user picks one, and recommends only from that section; the user can switch with one tap.
+Suggestions come in two kinds:
+- **From our catalogue:** templates ranked by `app/services/recommender.py`. The method is documented in that file: filter by the user's preferences, then score face-shape tags (weighted by confidence), texture, current length and undertone. Results are labelled *Suggested*, *Another option* or *Matches your selected preference*, with short reasons. Uncertain estimates are ignored, and if the undertone is uncertain no colour is singled out. Changing the preferences re-ranks with `POST /api/v1/recommendations`, with no new AI call.
+- **New ideas for you:** styles the model designs for this person, each linked to the closest catalogue template.
 
-Men's styles have no sample photos yet, so they are tried on from their written description (no reference image needed). To add a photo, put the image in the project root and set `"image"` for that style in the catalogue.
+Nothing is hidden or called unsuitable: every template stays available. Limit: `ANALYSIS_LIMIT_PER_DAY` (default 30); the photo is not stored.
+
+## Privacy
+- **Consent:** before any photo is checked, analysed or tried on, the app explains how it's used and asks for agreement. The server refuses photos without the current `PHOTO_CONSENT_VERSION` (HTTP 428). Profile → Photo privacy shows the text again.
+- **Signed links:** stored images are only reachable through short-lived signed URLs.
+- **Deletion:** deleting a result removes its source, reference and result images. Anonymous results are deleted after `RETENTION_DAYS` (default 30).
+- Photos are never used for training. Keys stay on the server.
+
+## Catalogue admin
+Set `ADMIN_EMAILS=you@example.com` and sign in at **/admin** (Profile shows **Manage catalogue** for admins). Admins can:
+- create templates (saved as drafts);
+- edit any field, including the try-on instruction (each save raises the version);
+- upload front/side/back reference photos (only ones you have the rights to use);
+- publish, archive or feature templates;
+- see try-ons and success rate per template.
+
+API: `/api/v1/admin/catalog*`.
 
 ## Salons and Shop
 - **Salon map search** (`salons.js`) uses **Google Maps + Places** when `GOOGLE_MAPS_API_KEY` is set, showing Google ratings, review counts, today's opening hours, phone and website. Without a key it falls back to free OpenStreetMap services (Leaflet tiles, Nominatim place search, Overpass API), which have fair-use limits. If Google rejects the key, the app switches to OpenStreetMap automatically.

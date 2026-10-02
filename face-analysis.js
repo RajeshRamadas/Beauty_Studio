@@ -1,13 +1,23 @@
 /*
- * Face analysis screen: upload or take a photo, get face shape, skin tone,
- * undertone and hair profile, plus recommended hairstyles, makeup, full looks,
- * hair colours and tips. Each recommendation can be tried on with the same photo.
+ * Face analysis screen (requirements 8): estimates of visible characteristics,
+ * each with a confidence or "Uncertain", catalogue templates ranked for them
+ * (re-ranked without the AI when preferences change), and new personalised
+ * ideas. Suggestions are optional: every style stays available to browse.
+ * The user chooses which catalogue to get suggestions from; nothing is inferred.
  * Results come from an AI model and are rendered with textContent only.
  */
 (function () {
   const $ = id => document.getElementById(id);
   let photo = null;
-  let chosenSection = 'auto';  // auto | women | men
+  let chosenGroup = null;  // women | men | all; defaults to the Home choice
+  let lastAnalysis = null;
+  let prefs = {};
+
+  const PREFS = [
+    ['length', 'Length', ['very short', 'short', 'medium', 'long']],
+    ['maintenance', 'Maintenance', ['low', 'medium', 'high']],
+    ['occasion', 'Occasion', ['everyday', 'professional', 'formal', 'occasion', 'evening', 'party', 'creative']]
+  ];
 
   function el(tag, cls, text) {
     const e = document.createElement(tag);
@@ -16,6 +26,9 @@
     return e;
   }
 
+  const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+  const group = () => chosenGroup || (window.Styles ? window.Styles.audience() : 'all');
+
   function setStatus(text, kind) {
     const s = $('fa-status');
     s.textContent = text || '';
@@ -23,98 +36,157 @@
     s.style.display = text ? 'block' : 'none';
   }
 
-  function chip(label, value) {
+  /* An estimate chip: value plus how sure the model is. */
+  function chip(label, est) {
+    const c = el('div', 'fa-chip');
+    const uncertain = !est || est.value === 'Uncertain';
+    c.append(el('span', 'caption', label), el('b', null, uncertain ? 'Uncertain' : est.value));
+    if (!uncertain) c.append(el('span', 'conf conf-' + est.confidence, est.confidence + ' confidence'));
+    return c;
+  }
+
+  function plainChip(label, value) {
     const c = el('div', 'fa-chip');
     c.append(el('span', 'caption', label), el('b', null, value));
     return c;
   }
 
-  function recCard(item) {
-    const c = el('div', 'fa-rec');
-    const img = window.Styles.picture({ name: item.name, category: item.category, image: item.image_url }, 'fa-rec-img');
-    const body = el('div', 'fa-rec-body');
-    const btn = el('button', 'btn btn-p btn-sm', 'Try on');
-    btn.type = 'button';
-    btn.onclick = () => FaceAnalysis.tryOn(item);
-    body.append(el('p', 'salon-name', item.name), el('p', 'fa-desc', item.description || ''), el('p', 'caption', item.reason), btn);
-    c.append(img, body);
-    return c;
-  }
-
-  function section(title, nodes) {
-    if (!nodes.length) return null;
+  function section(title, nodes, browse) {
     const s = el('section', 'mb-20');
-    s.append(el('h2', 'mb-12', title));
+    const head = el('div', 'row mb-12');
+    head.append(el('h2', null, title));
+    if (browse) {
+      const b = el('button', 'btn-link', 'Browse all');
+      b.type = 'button';
+      b.onclick = () => window.Styles.openCategory(browse);
+      head.append(b);
+    }
+    s.append(head);
     const list = el('div', 'fa-list');
     list.append(...nodes);
     s.append(list);
     return s;
   }
 
-  function sectionBanner(d) {
-    const other = d.style_section === 'men' ? 'women' : 'men';
-    const why = d.style_section_source === 'photo' ? ' (suggested from your photo)' : d.style_section_source === 'you' ? ' (your choice)' : '';
-    const b = el('div', 'fa-banner');
-    b.append(el('span', null, 'Showing ' + (d.style_section === 'men' ? 'men’s' : 'women’s') + ' styles' + why + '.'));
-    const sw = el('button', 'btn-link', 'Show ' + (other === 'men' ? 'men’s' : 'women’s') + ' styles instead');
-    sw.type = 'button';
-    sw.onclick = () => { FaceAnalysis.setSection(other); FaceAnalysis.run(); };
-    b.append(sw);
-    return b;
+  /* A catalogue template with its label and the reasons it was suggested. */
+  function templateCard(t) {
+    const c = el('div', 'fa-rec');
+    const pic = window.Styles.picture(t, 'fa-rec-img');
+    const body = el('div', 'fa-rec-body');
+    body.append(el('span', 'rec-label' + (t.label === 'Suggested' ? ' on' : ''), t.label));
+    const name = el('button', 'tpl-name', t.name);
+    name.type = 'button';
+    name.onclick = () => window.Styles.openDetail(t.id);
+    body.append(name, el('p', 'fa-desc', t.description));
+    if ((t.reasons || []).length) body.append(el('p', 'caption', t.reasons.join(' · ')));
+    const btn = el('button', 'btn btn-p btn-sm', 'Try this style');
+    btn.type = 'button';
+    btn.onclick = () => FaceAnalysis.tryTemplate(t.id);
+    body.append(btn);
+    c.append(pic, body);
+    return c;
+  }
+
+  function ideaCard(item) {
+    const c = el('div', 'fa-rec');
+    const tile = el('div', 'fa-rec-img style-tile');
+    tile.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 3l2 5 5 .7-3.7 3.5.9 5.3L12 15l-4.2 2.5.9-5.3L5 8.7 10 8z"/></svg>';
+    const body = el('div', 'fa-rec-body');
+    body.append(el('p', 'salon-name', item.name), el('p', 'fa-desc', item.description), el('p', 'caption', item.reason));
+    const actions = el('div', 'row gap-8');
+    const btn = el('button', 'btn btn-p btn-sm', 'Try on');
+    btn.type = 'button';
+    btn.onclick = () => FaceAnalysis.tryIdea(item);
+    actions.append(btn);
+    if (item.closest_template) {
+      const sim = el('button', 'btn-link', 'Similar: ' + item.closest_template.name);
+      sim.type = 'button';
+      sim.onclick = () => window.Styles.openDetail(item.closest_template.id);
+      actions.append(sim);
+    }
+    body.append(actions);
+    c.append(tile, body);
+    return c;
+  }
+
+  function prefsCard() {
+    const card = el('div', 'card');
+    card.append(el('h3', 'mb-4', 'Your preferences (optional)'), el('p', 'caption mb-12', 'Narrow the catalogue suggestions. Remove any time.'));
+    const row = el('div', 'pref-row');
+    PREFS.forEach(([key, label, opts]) => {
+      const s = el('select', 'filter-select' + (prefs[key] ? ' on' : ''));
+      s.setAttribute('aria-label', label);
+      s.append(Object.assign(el('option', null, label + ': any'), { value: '' }));
+      opts.forEach(o => s.append(Object.assign(el('option', null, cap(o)), { value: o })));
+      s.value = prefs[key] || '';
+      s.onchange = () => { if (s.value) prefs[key] = s.value; else delete prefs[key]; FaceAnalysis.rerank(); };
+      row.append(s);
+    });
+    card.append(row);
+    return card;
+  }
+
+  function renderCatalogue(cat) {
+    const box = $('fa-catalogue');
+    box.replaceChildren();
+    if (!cat) return;
+    box.append(el('h2', 'mb-4', 'From our catalogue'),
+               el('p', 'caption mb-12', 'Ranked by matching each style’s tags with your estimates. Every style stays available.'),
+               prefsCard());
+    if (cat.hairstyles.length) box.append(section('Hairstyles', cat.hairstyles.map(templateCard), 'Hairstyle'));
+    else box.append(el('p', 'caption mb-20', 'No hairstyles match these preferences. Remove one to see more.'));
+    if (cat.hair_colour_note) {
+      const s = section('Hair colours', [el('p', 'caption', cat.hair_colour_note)], 'Hair colour');
+      box.append(s);
+    } else if (cat.hair_colours.length) {
+      box.append(section('Hair colours', cat.hair_colours.map(templateCard), 'Hair colour'));
+    }
+    if (cat.makeup.length) box.append(section('Makeup', cat.makeup.map(templateCard), 'Makeup'));
+    if (cat.beard.length) box.append(section('Beard & grooming', cat.beard.map(templateCard), 'Beard & grooming'));
   }
 
   function render(d) {
     const out = $('fa-results');
     out.replaceChildren();
+    lastAnalysis = d;
     if (!d.face_detected) {
       setStatus((d.issue || 'We couldn’t see one clear face.') + ' Try a well-lit, front-facing photo with only you in it.', 'err');
       return;
     }
     setStatus('');
-    if (d.style_section === 'women' || d.style_section === 'men') window.Styles.setAudience(d.style_section);
 
     const profile = el('div', 'card');
-    profile.append(el('h2', 'mb-12', 'Your profile'));
+    profile.append(el('h2', 'mb-4', 'Your profile'),
+                   el('p', 'caption mb-12', 'Estimates from one photo, not facts. Lighting and camera can change them.'));
     const grid = el('div', 'fa-chips');
-    grid.append(chip('Face shape', d.face_shape), chip('Skin tone', d.skin_tone), chip('Undertone', d.undertone));
+    grid.append(chip('Face shape', d.face_shape), chip('Undertone', d.undertone), chip('Skin tone', d.skin_tone));
     const hair = d.hair || {};
-    if (hair.texture && hair.texture !== 'Not visible') grid.append(chip('Hair texture', hair.texture));
-    if (hair.length && hair.length !== 'Not visible') grid.append(chip('Hair length', hair.length));
-    if (hair.thickness && hair.thickness !== 'Not visible') grid.append(chip('Hair thickness', hair.thickness));
-    if (hair.colour) grid.append(chip('Hair colour', hair.colour));
-    if (d.style_section === 'men' && d.facial_hair) grid.append(chip('Facial hair', d.facial_hair));
+    if (hair.visible_length && hair.visible_length !== 'Not visible') grid.append(plainChip('Hair length', hair.visible_length));
+    if (hair.texture && hair.texture !== 'Not visible') grid.append(plainChip('Hair texture', hair.texture));
+    if (hair.natural_color_estimate) grid.append(plainChip('Hair colour', hair.natural_color_estimate));
+    if (d.facial_hair && !/^none$/i.test(d.facial_hair)) grid.append(plainChip('Facial hair', d.facial_hair));
     profile.append(grid);
-    if (d.face_shape_reason) profile.append(el('p', 'caption mt-12', d.face_shape_reason));
+    if (d.face_shape_reason && d.face_shape.value !== 'Uncertain') profile.append(el('p', 'caption mt-12', d.face_shape_reason));
+    const q = d.image_quality || {};
+    if (q.lighting && q.lighting !== 'good') profile.append(el('p', 'msg', 'The lighting looks ' + q.lighting + ', so these estimates are less certain.'));
+    if (q.face_visible && !q.suitable_for_tryon) profile.append(el('p', 'msg', 'This photo may not give a good try-on. A front-facing photo in even light works best.'));
     if (d.summary) profile.append(el('p', 'mt-12 fa-summary', d.summary));
     out.append(profile);
 
-    const r = d.recommendations || {};
-    out.append(sectionBanner(d));
-    [['Hairstyles for you', r.hairstyles], ['Makeup for you', r.makeup], ['Beard & grooming for you', r.grooming], ['Full looks', r.full_looks]].forEach(([t, items]) => {
-      const s = section(t, (items || []).map(recCard));
-      if (s) out.append(s);
-    });
+    const cat = el('div', 'mt-16');
+    cat.id = 'fa-catalogue';
+    out.append(cat);
+    renderCatalogue(d.catalogue);
 
-    if ((d.avoid || []).length) {
-      const av = el('section', 'mb-20');
-      av.append(el('h2', 'mb-12', 'Styles to avoid'));
-      const ul = el('ul', 'fa-avoid');
-      d.avoid.forEach(x => { const li = el('li'); li.append(el('b', null, x.name), el('span', null, x.reason)); ul.append(li); });
-      av.append(ul);
-      out.append(av);
+    const ideas = d.ideas || {};
+    const ideaNodes = [['Hairstyle ideas', ideas.hairstyles], ['Makeup ideas', ideas.makeup], ['Grooming ideas', ideas.grooming]]
+      .filter(([, items]) => (items || []).length)
+      .map(([title, items]) => section(title, items.map(ideaCard)));
+    if (ideaNodes.length) {
+      out.append(el('h2', 'mb-4', 'New ideas for you'),
+                 el('p', 'caption mb-12', 'Designed by AI for your features. They’re not in the catalogue yet; try them on as described.'),
+                 ...ideaNodes);
     }
-
-    const colours = (d.hair_colours || []).filter(c => /^#[0-9A-Fa-f]{6}$/.test(c.hex)).map(c => {
-      const row = el('div', 'fa-colour');
-      const sw = el('span', 'fa-swatch');
-      sw.style.background = c.hex;
-      const txt = el('div');
-      txt.append(el('p', 'salon-name', c.name), el('p', 'caption', c.reason));
-      row.append(sw, txt);
-      return row;
-    });
-    const cs = section('Hair colours that suit you', colours);
-    if (cs) out.append(cs);
 
     if ((d.tips || []).length) {
       const t = el('div', 'card');
@@ -124,8 +196,12 @@
       t.append(ul);
       out.append(t);
     }
-    out.append(el('p', 'caption mt-12', 'Suggestions are AI-generated and approximate. Use them as inspiration.'));
+    out.append(el('p', 'caption mt-12', 'Suggestions are AI-generated and approximate. Choose any style you like.'));
     out.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function useAnalysedPhoto() {
+    if (photo && typeof window.setTargetPhoto === 'function') window.setTargetPhoto(photo);
   }
 
   window.FaceAnalysis = {
@@ -135,8 +211,9 @@
       if (f) FaceAnalysis.pickFile(f);
     },
 
-    pickFile(f) {
+    async pickFile(f) {
       photo = null;  // only set once the photo passes the check
+      if (!(await window.Consent.ensure())) return;
       const url = URL.createObjectURL(f);
       $('fa-preview').src = url;
       $('fa-preview').style.display = 'block';
@@ -162,11 +239,13 @@
       const btn = $('fa-run');
       btn.disabled = true;
       btn.textContent = 'Analysing…';
-      setStatus('Looking at your face shape, skin tone and hair. This takes a few seconds.');
+      setStatus('Looking at your face shape, undertone and hair. This takes a few seconds.');
       $('fa-results').replaceChildren();
       const fd = new FormData();
       fd.append('face_image', photo);
-      fd.append('section', chosenSection);
+      fd.append('group', group());
+      fd.append('consent_version', window.Consent.version());
+      Object.entries(prefs).forEach(([k, v]) => fd.append(k, v));
       const headers = {};
       const token = typeof authToken !== 'undefined' ? authToken : null; // shared global from index.html
       if (token) headers['Authorization'] = 'Bearer ' + token;
@@ -183,18 +262,43 @@
       }
     },
 
-    setSection(value) {
-      chosenSection = ['women', 'men'].includes(value) ? value : 'auto';
-      document.querySelectorAll('#fa-section button').forEach(b => {
-        const on = b.dataset.sec === chosenSection;
+    /* Preferences changed: re-rank the catalogue for the same analysis, without another AI call. */
+    async rerank() {
+      if (!lastAnalysis) return;
+      try {
+        const res = await fetch('/api/v1/recommendations', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ group: lastAnalysis.group, analysis: lastAnalysis, preferences: prefs })
+        });
+        if (res.ok) {
+          lastAnalysis.catalogue = await res.json();
+          renderCatalogue(lastAnalysis.catalogue);
+        }
+      } catch (e) { /* keep the current suggestions */ }
+    },
+
+    setGroup(value) {
+      chosenGroup = ['women', 'men', 'all'].includes(value) ? value : null;
+      FaceAnalysis.renderGroup();
+    },
+
+    renderGroup() {
+      document.querySelectorAll('#fa-group button').forEach(b => {
+        const on = b.dataset.g === group();
         b.classList.toggle('active', on);
         b.setAttribute('aria-pressed', on);
       });
     },
 
-    tryOn(item) {
-      if (photo && typeof window.setTargetPhoto === 'function') window.setTargetPhoto(photo);
-      window.selectPreset(item.category, item.name, item.image_url, item.description);
+    tryTemplate(id) {
+      useAnalysedPhoto();
+      window.Styles.tryOn(id);
+    },
+
+    tryIdea(item) {
+      useAnalysedPhoto();
+      window.Generator.setCustom(item.category, item.name, item.description);
+      window.showScreen('screen-7');
     }
   };
 })();

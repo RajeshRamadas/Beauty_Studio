@@ -38,11 +38,14 @@
       try {
         const fd = new FormData();
         fd.append('face_image', file);
+        fd.append('consent_version', window.Consent ? window.Consent.version() : '');
         const res = await fetch('/api/v1/check-photo', { method: 'POST', body: fd });
         data = await res.json().catch(() => ({}));
         const detail = typeof data.detail === 'string' ? data.detail : '';
         if (res.ok) {
           outcome = data.usable ? 'ok' : 'bad';
+        } else if (res.status === 428) {
+          data = { problems: [{ message: 'Agree to how your photo is used before we can check it.' }] };
         } else if (res.status === 400 || res.status === 413) {
           data = { problems: [{ message: detail || 'This file can’t be used as a photo.' }] };  // the file itself is the problem
         } else {
