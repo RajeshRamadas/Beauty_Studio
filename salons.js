@@ -166,9 +166,10 @@
     async init(el, cfg) {
       await new Promise((resolve, reject) => {
         window.__glowMapsReady = resolve;
-        window.gm_authFailure = () => reject(new Error('Google Maps rejected the API key.'));
+        window.gm_authFailure = () => reject(new Error('Google rejected the API key'));
         loadScript('https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(cfg.google_api_key) +
-          '&v=weekly&loading=async&callback=__glowMapsReady').catch(reject);
+          '&v=weekly&loading=async&callback=__glowMapsReady')
+          .catch(() => reject(new Error('the Google Maps script could not be downloaded; check your connection or ad blocker')));
       });
       const [{ Map, InfoWindow }, { Place, SearchNearbyRankPreference }, { AdvancedMarkerElement }] = await Promise.all([
         google.maps.importLibrary('maps'), google.maps.importLibrary('places'), google.maps.importLibrary('marker')
@@ -249,6 +250,9 @@
   };
 
   /* ── Start-up: pick a provider ───────────────────── */
+  const GOOGLE_KEY_HELP = 'Google Maps rejected the API key. In Google Cloud, check that billing is on, ' +
+    'Maps JavaScript API and Places API (New) are enabled, and the key allows this website (' + location.origin + '/*).';
+
   function freshMapElement() {
     const inner = document.createElement('div');
     inner.style.cssText = 'width:100%;height:100%;';
@@ -280,10 +284,13 @@
           console.warn('Google Maps rejected the API key; switching to OpenStreetMap.');
           salons = []; origin = null;
           $('salon-list').replaceChildren();
-          startPromise = useOsm('Google Maps isn’t available right now, so we’re using OpenStreetMap. Search again to see salons.');
+          startPromise = useOsm(GOOGLE_KEY_HELP + ' Showing OpenStreetMap instead; search again to see salons.');
         };
       } catch (e) {
         console.warn('Google Maps unavailable, using OpenStreetMap instead.', e);
+        await useOsm(/rejected/.test(e.message) ? GOOGLE_KEY_HELP + ' Showing OpenStreetMap instead.'
+          : 'Google Maps could not load (' + e.message + '). Showing OpenStreetMap instead.');
+        return;
       }
     }
     if (!provider) { await useOsm(); return; }
@@ -323,7 +330,10 @@
       render();
     } catch (e) {
       console.warn('Salon search failed', e);
-      setStatus(provider.name === 'osm' && e.message ? e.message : 'Could not load salons. Try again in a moment.', 'err');
+      const msg = provider.name === 'google'
+        ? 'Google salon search failed. Check that Places API (New) is enabled for your key. (' + (e.message || e) + ')'
+        : (e.message || 'Could not load salons. Try again in a moment.');
+      setStatus(msg, 'err');
     }
   }
 
@@ -432,7 +442,9 @@
         searchAt(c);
       } catch (e) {
         console.warn('Place search failed', e);
-        setStatus('Place search failed. Check your connection and try again.', 'err');
+        setStatus(provider.name === 'google'
+          ? 'Google place search failed. Check that Places API (New) is enabled for your key. (' + (e.message || e) + ')'
+          : 'Place search failed. Check your connection and try again.', 'err');
       }
     },
 
