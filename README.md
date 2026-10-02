@@ -12,8 +12,10 @@ export OPENAI_API_KEY="YOUR_API_KEY"
 export OPENAI_IMAGE_MODEL="gpt-image-2.5-flare"  # optional; this is the default
 export OPENAI_IMAGE_QUALITY="medium"             # optional: low | medium | high | auto
 # export OPENAI_INPUT_FIDELITY="high"            # optional; only if your model supports it
-uvicorn app.main:app --host 127.0.0.1 --port 8000
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
+
+`--reload` restarts the server when code changes. Without it, restart the server after every `git pull`, or new features (for example the photo check) return "Not Found".
 
 Open http://127.0.0.1:8000. Upload both images and click **Apply style to my photo**. Default quality is `medium` (set `OPENAI_IMAGE_QUALITY=low` for cheaper tests). Uploads are auto-rotated and downscaled to 1536px, and the output size follows your photo's aspect ratio. Actual API charges depend on image inputs and generated output.
 

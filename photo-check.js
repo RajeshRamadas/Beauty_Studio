@@ -29,22 +29,38 @@
       box.dataset.seq = id;
       box.className = 'photo-check checking';
       box.replaceChildren(el('span', 'pc-spin'), el('span', null, 'Checking your photo…'));
-      let ok = false, data = null;
+      // Outcomes: 'ok', 'bad' (a problem with the photo itself) or
+      // 'unavailable' (the check couldn't run: server or network issue).
+      let outcome = 'bad', data = null, note = '';
       try {
         const fd = new FormData();
         fd.append('face_image', file);
         const res = await fetch('/api/v1/check-photo', { method: 'POST', body: fd });
         data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(typeof data.detail === 'string' ? data.detail : 'We couldn’t check this photo.');
-        ok = !!data.usable;
+        const detail = typeof data.detail === 'string' ? data.detail : '';
+        if (res.ok) {
+          outcome = data.usable ? 'ok' : 'bad';
+        } else if (res.status === 400 || res.status === 413) {
+          data = { problems: [{ message: detail || 'This file can’t be used as a photo.' }] };  // the file itself is the problem
+        } else {
+          outcome = 'unavailable';
+          note = res.status === 404
+            ? 'The photo check isn’t available on this server yet (it may need restarting).'
+            : (detail || 'The photo check isn’t available right now.');
+        }
       } catch (e) {
-        data = { problems: [{ message: e.message }] };
+        outcome = 'unavailable';
+        note = 'We couldn’t reach the server to check this photo.';
       }
-      if (String(id) !== box.dataset.seq) return ok; // a newer photo replaced this one
+      if (String(id) !== box.dataset.seq) return outcome !== 'bad'; // a newer photo replaced this one
+      const ok = outcome !== 'bad';
 
-      if (ok) {
+      if (outcome === 'ok') {
         box.className = 'photo-check ok';
         box.replaceChildren(el('span', 'pc-icon', '✓'), el('span', null, 'Photo looks good'));
+      } else if (outcome === 'unavailable') {
+        box.className = 'photo-check warn';
+        box.replaceChildren(el('span', null, note + ' You can continue, but make sure your whole face and hair are clear and well lit.'));
       } else {
         box.className = 'photo-check bad';
         const title = el('p', 'pc-title', 'Please retake or choose another photo');
@@ -60,7 +76,7 @@
         actions.append(retake, upload);
         box.replaceChildren(title, list, actions);
       }
-      box.setAttribute('role', ok ? 'status' : 'alert');
+      box.setAttribute('role', outcome === 'bad' ? 'alert' : 'status');
       handlers.onResult(ok);
       return ok;
     },
