@@ -293,7 +293,16 @@
         return;
       }
     }
-    if (!provider) { await useOsm(); return; }
+    if (!provider) {
+      await useOsm();
+      const local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+      if (local && cfg.provider !== 'google') {
+        $('salon-credit').textContent = provider.credit +
+          ' Developer note: using OpenStreetMap because the server has no GOOGLE_MAPS_API_KEY ' +
+          '(check ' + location.origin + '/api/v1/client-config). This note only shows on localhost.';
+      }
+      return;
+    }
     $('salon-credit').textContent = provider.credit;
   }
 
@@ -311,7 +320,7 @@
   /* ── Search + render ─────────────────────────────── */
   function showAreaButton() { if (origin) $('salon-area-btn').style.display = 'inline-flex'; }
 
-  async function searchAt(c, radius) {
+  async function searchAt(c, radius, widened) {
     origin = c;
     $('salon-area-btn').style.display = 'none';
     $('salon-list').replaceChildren();
@@ -327,6 +336,11 @@
         s.km = distanceKm(c, s.pos);
         return true;
       }).sort((a, b) => a.km - b.km);
+      const r = Math.min(radius || DEFAULT_RADIUS_M, MAX_RADIUS_M);
+      if (!salons.length && !widened && r < MAX_RADIUS_M) {
+        setStatus('Nothing close by, searching a wider area…');
+        return searchAt(c, MAX_RADIUS_M, true);
+      }
       render();
     } catch (e) {
       console.warn('Salon search failed', e);
