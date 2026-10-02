@@ -27,13 +27,13 @@ MODEL_REPLY = {
     "hair_texture": "Wavy", "hair_length": "Long", "hair_thickness": "Thick", "hair_colour": "Dark brown",
     "summary": "Lovely warm tones.",
     "hairstyles": [
-        {"name": "Curtain Bangs", "reason": "Softens the forehead."},
-        {"name": "Curtain Bangs", "reason": "duplicate"},
-        {"name": "Beach Waves", "reason": "Works with natural waves."},
+        {"name": "Curtain Bangs", "description": "Curtain Bangs styled for this person.", "reason": "Softens the forehead.", "closest_catalogue": "Curtain Bangs"},
+        {"name": "Curtain Bangs", "description": "Curtain Bangs styled for this person.", "reason": "duplicate", "closest_catalogue": "Curtain Bangs"},
+        {"name": "Beach Waves", "description": "Beach Waves styled for this person.", "reason": "Works with natural waves.", "closest_catalogue": "Beach Waves"},
     ],
-    "makeup": [{"name": "Soft Glam", "reason": "Warm shades suit you."}],
-    "grooming": [{"name": "Full Beard", "reason": "should be dropped for women's section"}],
-    "full_looks": [{"name": "Red Carpet", "reason": "Balanced."}],
+    "makeup": [{"name": "Soft Glam", "description": "Soft Glam styled for this person.", "reason": "Warm shades suit you.", "closest_catalogue": "Soft Glam"}],
+    "grooming": [{"name": "Full Beard", "description": "Full Beard styled for this person.", "reason": "should be dropped for women's section", "closest_catalogue": "Full Beard"}],
+    "full_looks": [{"name": "Red Carpet", "description": "Red Carpet styled for this person.", "reason": "Balanced.", "closest_catalogue": "Red Carpet"}],
     "hair_colours": [
         {"name": "Caramel", "hex": "#C68642", "reason": "Warm."},
         {"name": "Bad", "hex": "javascript:1", "reason": "invalid hex dropped"},
@@ -108,10 +108,10 @@ def test_daily_limit(monkeypatch):
 
 
 MEN_REPLY = dict(MODEL_REPLY, style_section="men", facial_hair="Short beard",
-                 hairstyles=[{"name": "Classic Fade", "reason": "Sharp."}, {"name": "Glamour Waves", "reason": "wrong section"}],
-                 makeup=[{"name": "Soft Glam", "reason": "dropped"}],
-                 grooming=[{"name": "Boxed Beard", "reason": "Defines the jaw."}],
-                 full_looks=[{"name": "Groom Look", "reason": "Polished."}])
+                 hairstyles=[{"name": "Classic Fade", "description": "Classic Fade styled for this person.", "reason": "Sharp.", "closest_catalogue": "Classic Fade"}, {"name": "Glamour Waves", "description": "Glamour Waves styled for this person.", "reason": "wrong section", "closest_catalogue": "Glamour Waves"}],
+                 makeup=[{"name": "Soft Glam", "description": "Soft Glam styled for this person.", "reason": "dropped", "closest_catalogue": "Soft Glam"}],
+                 grooming=[{"name": "Boxed Beard", "description": "Boxed Beard styled for this person.", "reason": "Defines the jaw.", "closest_catalogue": "Boxed Beard"}],
+                 full_looks=[{"name": "Groom Look", "description": "Groom Look styled for this person.", "reason": "Polished.", "closest_catalogue": "Groom Look"}])
 
 
 def _fake(monkeypatch, reply, seen=None):
@@ -138,7 +138,8 @@ def test_mens_section_from_photo(monkeypatch):
     data = client.post("/api/v1/analyze-face", files=_photo()).json()
     assert data["style_section"] == "men"
     rec = data["recommendations"]
-    assert [h["name"] for h in rec["hairstyles"]] == ["Classic Fade"]
+    assert [h["name"] for h in rec["hairstyles"]] == ["Classic Fade", "Glamour Waves"]
+    assert rec["hairstyles"][1]["closest_catalogue"] is None  # women's match dropped in the men's section
     assert rec["makeup"] == []
     assert rec["grooming"][0]["name"] == "Boxed Beard" and rec["grooming"][0]["image_url"] is None
     assert rec["full_looks"][0]["name"] == "Groom Look"
@@ -149,5 +150,41 @@ def test_user_choice_overrides_model(monkeypatch):
     _fake(monkeypatch, MEN_REPLY, seen)
     data = client.post("/api/v1/analyze-face", files=_photo(), data={"section": "women"}).json()
     assert data["style_section"] == "women" and data["style_section_source"] == "you"
-    assert [h["name"] for h in data["recommendations"]["hairstyles"]] == ["Glamour Waves"]  # men's pick filtered out
+    names = [h["name"] for h in data["recommendations"]["hairstyles"]]
+    assert names == ["Classic Fade", "Glamour Waves"]  # personalised suggestions are kept...
+    assert data["recommendations"]["hairstyles"][0]["closest_catalogue"] is None  # ...but a men's catalogue match is dropped
     assert "chose the women's section" in seen["instructions"]
+
+
+
+PERSONAL = dict(MODEL_REPLY, style_section="men",
+    hairstyles=[
+        {"name": "Curly taper fade", "description": "Low taper fade at the temples and nape, 5-6 cm defined curls on top.",
+         "reason": "Keeps curl volume while slimming the square jaw.", "closest_catalogue": "Curly Top"},
+        {"name": "Curly taper fade", "description": "duplicate", "reason": "x", "closest_catalogue": "none"},
+        {"name": "Classic Fade", "description": "Exactly the catalogue classic fade.", "reason": "y", "closest_catalogue": "Classic Fade"},
+        {"name": "No description", "description": "", "reason": "dropped", "closest_catalogue": "none"},
+    ],
+    grooming=[{"name": "Short boxed beard", "description": "1 cm boxed beard with a sharp cheek line and a low neckline.",
+               "reason": "Sharpens the jaw.", "closest_catalogue": "Boxed Beard"}],
+    avoid=[{"name": "Heavy fringe", "reason": "Hides the strong brow line."}])
+
+
+def test_personalised_suggestions_keep_description_and_photo_rules(monkeypatch):
+    _fake(monkeypatch, PERSONAL)
+    rec = client.post("/api/v1/analyze-face", files=_photo()).json()
+    data = rec
+    hs = data["recommendations"]["hairstyles"]
+    assert [h["name"] for h in hs] == ["Curly taper fade", "Classic Fade"]  # de-duplicated, empty description dropped
+    assert hs[0]["description"].startswith("Low taper fade") and hs[0]["closest_catalogue"] == "Curly Top"
+    assert hs[0]["image_url"] is None  # a similar style's photo is never shown for a different style
+    assert data["recommendations"]["grooming"][0]["name"] == "Short boxed beard"
+    assert data["avoid"] == [{"name": "Heavy fringe", "reason": "Hides the strong brow line."}]
+
+
+def test_prompt_asks_for_personalised_varied_styles(monkeypatch):
+    seen = {}
+    _fake(monkeypatch, PERSONAL, seen)
+    client.post("/api/v1/analyze-face", files=_photo())
+    assert "NOT limited to the catalogue" in seen["instructions"]
+    assert "Two different people must get different suggestions" in seen["instructions"]

@@ -36,7 +36,7 @@
     const btn = el('button', 'btn btn-p btn-sm', 'Try on');
     btn.type = 'button';
     btn.onclick = () => FaceAnalysis.tryOn(item);
-    body.append(el('p', 'salon-name', item.name), el('p', 'caption', item.reason), btn);
+    body.append(el('p', 'salon-name', item.name), el('p', 'fa-desc', item.description || ''), el('p', 'caption', item.reason), btn);
     c.append(img, body);
     return c;
   }
@@ -94,6 +94,15 @@
       const s = section(t, (items || []).map(recCard));
       if (s) out.append(s);
     });
+
+    if ((d.avoid || []).length) {
+      const av = el('section', 'mb-20');
+      av.append(el('h2', 'mb-12', 'Styles to avoid'));
+      const ul = el('ul', 'fa-avoid');
+      d.avoid.forEach(x => { const li = el('li'); li.append(el('b', null, x.name), el('span', null, x.reason)); ul.append(li); });
+      av.append(ul);
+      out.append(av);
+    }
 
     const colours = (d.hair_colours || []).filter(c => /^#[0-9A-Fa-f]{6}$/.test(c.hex)).map(c => {
       const row = el('div', 'fa-colour');
@@ -185,7 +194,7 @@
 
     tryOn(item) {
       if (photo && typeof window.setTargetPhoto === 'function') window.setTargetPhoto(photo);
-      window.selectPreset(item.category, item.name, item.image_url);
+      window.selectPreset(item.category, item.name, item.image_url, item.description);
     }
   };
 })();

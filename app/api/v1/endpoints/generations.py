@@ -86,6 +86,7 @@ async def create_generation(
     reference_image: Optional[UploadFile] = File(None, description="Style reference image (optional when style names a catalogue style)"),
     category: str = Form(..., description="One or more areas to change, comma-separated, e.g. \"Hairstyle,Makeup\""),
     style: str = Form(""),
+    style_description: str = Form("", description="Describes a personalised style (e.g. from face analysis); used when there is no reference image"),
     notes: str = Form(""),
     consent_version: str = Form("v1.0"),
     db: Session = Depends(get_db),
@@ -104,6 +105,9 @@ async def create_generation(
     person_raw = await read_limited_image(target_image, "Your photo")
     catalogue_style = get_style(style.strip()) if style else None
     has_reference = reference_image is not None and bool(reference_image.filename)
+    if not catalogue_style and style.strip() and len(style_description.strip()) >= 15:
+        # A personalised style described in words, e.g. a face-analysis suggestion.
+        catalogue_style = {"name": style.strip()[:60], "description": style_description.strip()[:400]}
     if not has_reference and not catalogue_style:
         raise HTTPException(400, "Add a style reference image, or choose a style from the catalogue.")
     style_raw = await read_limited_image(reference_image, "The style reference photo") if has_reference else None

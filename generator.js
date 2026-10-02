@@ -124,6 +124,9 @@
     },
 
     /* A catalogue style with no photo: generated from its description. */
+    /** A personalised (non-catalogue) style chosen for try-on without a reference photo, or null. */
+    customStyle: () => (refStyle && refStyle.custom ? refStyle : null),
+
     setReferenceStyle(style) {
       refStyle = style;
       $('reference-file').value = '';

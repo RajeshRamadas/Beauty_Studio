@@ -376,6 +376,10 @@
     .fa-banner { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; background: var(--surface-2); border-radius: 16px; padding: 12px 14px; margin: 16px 0; font-size: 13px; }
     .fa-rec-body { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
     .fa-rec-body .btn { margin-top: auto; }
+    .fa-desc { font-size: 12px; color: var(--text); line-height: 1.4; }
+    .fa-avoid { display: flex; flex-direction: column; gap: 8px; }
+    .fa-avoid li { list-style: none; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 10px 12px; font-size: 13px; }
+    .fa-avoid li b { color: var(--err); display: block; margin-bottom: 2px; }
     .fa-colour { display: flex; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 12px; }
     .fa-swatch { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; border: 2px solid var(--border); }
     .fa-tips { padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 1.45; }
@@ -880,12 +884,14 @@ function goBack() {
 }
 
 /* ── Preset selection ─────────────────────────────── */
-async function selectPreset(category, name, imageUrl) {
-  const style = Styles.find(name);
+async function selectPreset(category, name, imageUrl, description) {
+  // A catalogue style, or a personalised one (e.g. from face analysis) described in words.
+  const style = Styles.find(name) || (description ? { name, category, description, image: null, custom: true } : null);
   Generator.preselect(category);
   $g('style-name').value = name;
   $g('detail-title').textContent = name;
-  $g('detail-desc').textContent = style ? style.description.charAt(0).toUpperCase() + style.description.slice(1) + '.' : '';
+  const d = style ? style.description.trim() : '';
+  $g('detail-desc').textContent = d ? d.charAt(0).toUpperCase() + d.slice(1) + (/[.!?]$/.test(d) ? '' : '.') : '';
   const hero = $g('detail-hero');
   if (imageUrl) {
     hero.replaceChildren(Object.assign(document.createElement('img'), { id: 'detail-hero-img', src: imageUrl, alt: name }));
@@ -942,8 +948,9 @@ async function submitGeneration() {
   const st = $g('gen-status');
 
   const catalogueStyle = Styles.find($g('style-name').value.trim());
+  const customStyle = Generator.customStyle();
   if (!person) { st.className = 'msg err'; st.textContent = 'Add your photo first.'; return; }
-  if (!reference && !catalogueStyle) { st.className = 'msg err'; st.textContent = 'Upload a style reference, or pick a style from Styles.'; return; }
+  if (!reference && !catalogueStyle && !customStyle) { st.className = 'msg err'; st.textContent = 'Upload a style reference, or pick a style from Styles.'; return; }
   const areas = Generator.areas();
   if (!areas.length) { st.className = 'msg err'; st.textContent = 'Choose at least one thing to change.'; return; }
 
@@ -952,6 +959,7 @@ async function submitGeneration() {
   if (reference) fd.append('reference_image', reference);
   fd.append('category', areas.join(','));
   fd.append('style', $g('style-name').value.trim());
+  if (!reference && customStyle) fd.append('style_description', customStyle.description);
   fd.append('notes', $g('custom-notes').value.trim());
 
   const headers = {};

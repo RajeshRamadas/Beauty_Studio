@@ -43,3 +43,22 @@ def test_generation_text_only_for_catalogue_style(monkeypatch):
     style_b, prompt = args[5], args[9]
     assert style_b is None
     assert "Boxed Beard" in prompt and "short boxed beard" in prompt and "IMAGE 2" not in prompt
+
+
+def test_generation_text_only_for_personalised_style(monkeypatch):
+    captured = {}
+    monkeypatch.setattr(generations, "process_generation_background_job", lambda *a, **k: captured.update(args=a, kw=k))
+    r = client.post("/api/v1/generations", files={"target_image": ("me.jpg", _jpeg(), "image/jpeg")},
+                    data={"category": "Hairstyle", "style": "Curly taper fade",
+                          "style_description": "Low taper fade, 5-6 cm defined curls on top."})
+    assert r.status_code == 202, r.text
+    prompt = captured["args"][9]
+    assert "Curly taper fade" in prompt and "5-6 cm defined curls" in prompt and "IMAGE 2" not in prompt
+    assert "Curly taper fade" in captured["kw"]["quality_context"]["style_text"]
+
+
+def test_generation_rejects_too_short_description(monkeypatch):
+    monkeypatch.setattr(generations, "process_generation_background_job", lambda *a, **k: None)
+    r = client.post("/api/v1/generations", files={"target_image": ("me.jpg", _jpeg(), "image/jpeg")},
+                    data={"category": "Hairstyle", "style": "Thing", "style_description": "short"})
+    assert r.status_code == 400

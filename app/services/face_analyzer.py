@@ -35,7 +35,7 @@ NOT_VISIBLE = "Not visible"
 
 # Recommendation groups: response key -> catalogue category, and how many to return.
 GROUPS = {
-    "hairstyles": ("Hairstyle", 3),
+    "hairstyles": ("Hairstyle", 4),
     "makeup": ("Makeup", 3),
     "grooming": ("Beard & grooming", 3),
     "full_looks": ("Overall beauty look", 2),
@@ -47,15 +47,18 @@ def _names(category):
 
 
 def _pick_schema(category):
+    """Personalised suggestions: free-form, with the closest catalogue style (or "none") for reference."""
     return {
         "type": "array",
         "items": {
             "type": "object",
             "additionalProperties": False,
-            "required": ["name", "reason"],
+            "required": ["name", "description", "reason", "closest_catalogue"],
             "properties": {
-                "name": {"type": "string", "enum": _names(category)},
+                "name": {"type": "string"},
+                "description": {"type": "string"},
                 "reason": {"type": "string"},
+                "closest_catalogue": {"type": "string", "enum": _names(category) + ["none"]},
             },
         },
     }
@@ -67,7 +70,7 @@ SCHEMA = {
     "required": [
         "face_detected", "issue", "style_section", "face_shape", "face_shape_reason", "skin_tone", "undertone",
         "hair_texture", "hair_length", "hair_thickness", "hair_colour", "facial_hair", "summary",
-        "hairstyles", "makeup", "grooming", "full_looks", "hair_colours", "tips",
+        "hairstyles", "makeup", "grooming", "full_looks", "hair_colours", "tips", "avoid",
     ],
     "properties": {
         "face_detected": {"type": "boolean"},
@@ -94,6 +97,15 @@ SCHEMA = {
             },
         },
         "tips": {"type": "array", "items": {"type": "string"}},
+        "avoid": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["name", "reason"],
+                "properties": {"name": {"type": "string"}, "reason": {"type": "string"}},
+            },
+        },
     },
 }
 
@@ -122,14 +134,25 @@ The app's style catalogue has two sections:
 SECTION TO RECOMMEND FROM: {{section_rule}}
 Set style_section to the section you used.
 
-Then recommend, using only names from that section:
-- hairstyles: the 3 best, best first.
-- women's section: makeup = the 3 best; grooming = [].
-- men's section: grooming = the 3 best; makeup = [].
-- full_looks: the 1-2 best.
+Then recommend styles PERSONALISED to this person. You are NOT limited to the catalogue: design the
+specific styles a top stylist would suggest for exactly this face shape, hair texture, density, length,
+hairline and facial hair. Two different people must get different suggestions.
+- hairstyles: 4 suggestions, best first, and make them genuinely different from each other:
+  one that works with their current hair with minimal change, one polished/professional option,
+  one bolder change, and one low-maintenance option.
+- women's section: makeup = 3 suggestions; grooming = [].
+- men's section: grooming = 3 suggestions (beard, moustache, stubble, brows); makeup = [].
+- full_looks: 2 complete looks combining hair and makeup/grooming.
+For each suggestion:
+  name: a short, specific style name (max 5 words), e.g. "Curly taper fade", "Short boxed beard".
+  description: one sentence a stylist or image editor could follow exactly: lengths (cm or clipper
+    grade), fade/taper type and height, parting, fringe, texture and finish, shape lines. It is used to
+    generate the try-on image, so be concrete and visual.
+  reason: one sentence tied to what you saw (face shape, hair texture/density, facial hair, tone).
+  closest_catalogue: the most similar style from the catalogue list for that category, or "none".
+- avoid: 2 styles this person should avoid, each with a one-sentence reason.
 - hair_colours: 3 shades that suit the skin tone and undertone, each with a #RRGGBB hex.
 - tips: 2-4 short, practical hair, grooming or makeup tips.
-Each reason is one short sentence tied to what you saw (face shape, tone, hair type, facial hair).
 summary is 1-2 friendly sentences.
 
 Rules:
@@ -153,18 +176,24 @@ HEX = re.compile(r"^#[0-9A-Fa-f]{6}$")
 def _clean_picks(picks, category, section, limit):
     out, seen = [], set()
     for p in picks or []:
-        style = get_style(p.get("name"))
-        if not style or style["category"] != category or style["name"] in seen:
+        name = str(p.get("name", "")).strip()[:60]
+        description = str(p.get("description", "")).strip()[:400]
+        if not name or not description or name.lower() in seen:
             continue
-        if section in ("women", "men") and style["audience"] not in (section, "all"):
-            continue
-        seen.add(style["name"])
+        seen.add(name.lower())
+        match = get_style(p.get("closest_catalogue"))
+        if match and (match["category"] != category or
+                      (section in ("women", "men") and match["audience"] not in (section, "all"))):
+            match = None
+        exact = match if match and match["name"].lower() == name.lower() else None
         out.append({
-            "name": style["name"],
+            "name": name,
             "category": category,
-            "audience": style["audience"],
+            "description": description,
             "reason": str(p.get("reason", ""))[:240],
-            "image_url": style["image"],
+            # Only show a photo when the suggestion IS that catalogue style; a similar style's photo would mislead.
+            "image_url": exact["image"] if exact else None,
+            "closest_catalogue": match["name"] if match else None,
         })
     return out[:limit]
 
@@ -207,6 +236,8 @@ def _normalise(raw: dict, requested: str) -> dict:
         "recommendations": recs,
         "hair_colours": colours,
         "tips": [str(t)[:200] for t in (raw.get("tips") or [])][:4],
+        "avoid": [{"name": str(a.get("name", ""))[:60], "reason": str(a.get("reason", ""))[:200]}
+                  for a in (raw.get("avoid") or []) if a.get("name")][:3],
     }
 
 
