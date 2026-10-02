@@ -21,7 +21,7 @@ def _photo():
 
 
 MODEL_REPLY = {
-    "face_detected": True, "issue": "",
+    "face_detected": True, "issue": "", "style_section": "women", "facial_hair": "None",
     "face_shape": "Heart", "face_shape_reason": "Wider forehead and a narrow chin.",
     "skin_tone": "Medium", "undertone": "Warm",
     "hair_texture": "Wavy", "hair_length": "Long", "hair_thickness": "Thick", "hair_colour": "Dark brown",
@@ -32,6 +32,7 @@ MODEL_REPLY = {
         {"name": "Beach Waves", "reason": "Works with natural waves."},
     ],
     "makeup": [{"name": "Soft Glam", "reason": "Warm shades suit you."}],
+    "grooming": [{"name": "Full Beard", "reason": "should be dropped for women's section"}],
     "full_looks": [{"name": "Red Carpet", "reason": "Balanced."}],
     "hair_colours": [
         {"name": "Caramel", "hex": "#C68642", "reason": "Warm."},
@@ -104,3 +105,49 @@ def test_daily_limit(monkeypatch):
     monkeypatch.setattr(settings, "ANALYSIS_LIMIT_PER_DAY", 2)
     codes = [client.post("/api/v1/analyze-face", files=_photo()).status_code for _ in range(3)]
     assert codes == [503, 503, 429]
+
+
+MEN_REPLY = dict(MODEL_REPLY, style_section="men", facial_hair="Short beard",
+                 hairstyles=[{"name": "Classic Fade", "reason": "Sharp."}, {"name": "Glamour Waves", "reason": "wrong section"}],
+                 makeup=[{"name": "Soft Glam", "reason": "dropped"}],
+                 grooming=[{"name": "Boxed Beard", "reason": "Defines the jaw."}],
+                 full_looks=[{"name": "Groom Look", "reason": "Polished."}])
+
+
+def _fake(monkeypatch, reply, seen=None):
+    monkeypatch.setattr(settings, "OPENAI_API_KEY", "sk-test")
+
+    class R:
+        def create(self, **kw):
+            if seen is not None:
+                seen.update(kw)
+            return SimpleNamespace(output_text=json.dumps(reply))
+
+    monkeypatch.setattr(face_analyzer, "OpenAI", lambda **_: SimpleNamespace(responses=R()))
+
+
+def test_womens_section_drops_grooming(monkeypatch):
+    _fake(monkeypatch, MODEL_REPLY)
+    data = client.post("/api/v1/analyze-face", files=_photo()).json()
+    assert data["style_section"] == "women" and data["style_section_source"] == "photo"
+    assert data["recommendations"]["grooming"] == []
+
+
+def test_mens_section_from_photo(monkeypatch):
+    _fake(monkeypatch, MEN_REPLY)
+    data = client.post("/api/v1/analyze-face", files=_photo()).json()
+    assert data["style_section"] == "men"
+    rec = data["recommendations"]
+    assert [h["name"] for h in rec["hairstyles"]] == ["Classic Fade"]
+    assert rec["makeup"] == []
+    assert rec["grooming"][0]["name"] == "Boxed Beard" and rec["grooming"][0]["image_url"] is None
+    assert rec["full_looks"][0]["name"] == "Groom Look"
+
+
+def test_user_choice_overrides_model(monkeypatch):
+    seen = {}
+    _fake(monkeypatch, MEN_REPLY, seen)
+    data = client.post("/api/v1/analyze-face", files=_photo(), data={"section": "women"}).json()
+    assert data["style_section"] == "women" and data["style_section_source"] == "you"
+    assert [h["name"] for h in data["recommendations"]["hairstyles"]] == ["Glamour Waves"]  # men's pick filtered out
+    assert "chose the women's section" in seen["instructions"]

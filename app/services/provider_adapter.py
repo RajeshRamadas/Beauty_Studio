@@ -90,10 +90,12 @@ def generate_demo_beauty_blend(person, style, prompt, size):
             dim = (256, 256)
 
         person_img = Image.open(io.BytesIO(person[0])).convert("RGB").resize(dim)
-        style_img = Image.open(io.BytesIO(style[0])).convert("RGB").resize(dim)
-
-        # Smooth style blend maintaining target facial structure
-        blended = Image.blend(person_img, style_img, 0.40)
+        if style is not None:
+            style_img = Image.open(io.BytesIO(style[0])).convert("RGB").resize(dim)
+            # Smooth style blend maintaining target facial structure
+            blended = Image.blend(person_img, style_img, 0.40)
+        else:
+            blended = person_img
         
         # Color & Contrast enhancement
         enhancer = ImageEnhance.Color(blended)
@@ -122,10 +124,8 @@ def call_openai_image_edit(person, style, prompt, size):
         client = OpenAI(api_key=api_key, timeout=120, max_retries=1)
         kwargs = dict(
             model=settings.OPENAI_IMAGE_MODEL,
-            image=[
-                (f"person.{person[2]}", person[0], person[1]),
-                (f"style.{style[2]}", style[0], style[1]),
-            ],
+            image=[(f"person.{person[2]}", person[0], person[1])]
+            + ([(f"style.{style[2]}", style[0], style[1])] if style is not None else []),
             prompt=prompt,
             size=size,
             quality=settings.OPENAI_IMAGE_QUALITY,

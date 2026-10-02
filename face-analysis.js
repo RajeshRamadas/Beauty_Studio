@@ -7,6 +7,7 @@
 (function () {
   const $ = id => document.getElementById(id);
   let photo = null;
+  let chosenSection = 'auto';  // auto | women | men
 
   function el(tag, cls, text) {
     const e = document.createElement(tag);
@@ -30,9 +31,7 @@
 
   function recCard(item) {
     const c = el('div', 'fa-rec');
-    const img = el('img');
-    img.src = item.image_url;
-    img.alt = item.name;
+    const img = window.Styles.picture({ name: item.name, category: item.category, image: item.image_url }, 'fa-rec-img');
     const body = el('div', 'fa-rec-body');
     const btn = el('button', 'btn btn-p btn-sm', 'Try on');
     btn.type = 'button';
@@ -52,6 +51,18 @@
     return s;
   }
 
+  function sectionBanner(d) {
+    const other = d.style_section === 'men' ? 'women' : 'men';
+    const why = d.style_section_source === 'photo' ? ' (suggested from your photo)' : d.style_section_source === 'you' ? ' (your choice)' : '';
+    const b = el('div', 'fa-banner');
+    b.append(el('span', null, 'Showing ' + (d.style_section === 'men' ? 'men’s' : 'women’s') + ' styles' + why + '.'));
+    const sw = el('button', 'btn-link', 'Show ' + (other === 'men' ? 'men’s' : 'women’s') + ' styles instead');
+    sw.type = 'button';
+    sw.onclick = () => { FaceAnalysis.setSection(other); FaceAnalysis.run(); };
+    b.append(sw);
+    return b;
+  }
+
   function render(d) {
     const out = $('fa-results');
     out.replaceChildren();
@@ -60,6 +71,7 @@
       return;
     }
     setStatus('');
+    if (d.style_section === 'women' || d.style_section === 'men') window.Styles.setAudience(d.style_section);
 
     const profile = el('div', 'card');
     profile.append(el('h2', 'mb-12', 'Your profile'));
@@ -70,13 +82,15 @@
     if (hair.length && hair.length !== 'Not visible') grid.append(chip('Hair length', hair.length));
     if (hair.thickness && hair.thickness !== 'Not visible') grid.append(chip('Hair thickness', hair.thickness));
     if (hair.colour) grid.append(chip('Hair colour', hair.colour));
+    if (d.style_section === 'men' && d.facial_hair) grid.append(chip('Facial hair', d.facial_hair));
     profile.append(grid);
     if (d.face_shape_reason) profile.append(el('p', 'caption mt-12', d.face_shape_reason));
     if (d.summary) profile.append(el('p', 'mt-12 fa-summary', d.summary));
     out.append(profile);
 
     const r = d.recommendations || {};
-    [['Hairstyles for you', r.hairstyles], ['Makeup for you', r.makeup], ['Full looks', r.full_looks]].forEach(([t, items]) => {
+    out.append(sectionBanner(d));
+    [['Hairstyles for you', r.hairstyles], ['Makeup for you', r.makeup], ['Beard & grooming for you', r.grooming], ['Full looks', r.full_looks]].forEach(([t, items]) => {
       const s = section(t, (items || []).map(recCard));
       if (s) out.append(s);
     });
@@ -129,6 +143,7 @@
       $('fa-results').replaceChildren();
       const fd = new FormData();
       fd.append('face_image', photo);
+      fd.append('section', chosenSection);
       const headers = {};
       const token = typeof authToken !== 'undefined' ? authToken : null; // shared global from index.html
       if (token) headers['Authorization'] = 'Bearer ' + token;
@@ -143,6 +158,15 @@
         btn.disabled = false;
         btn.textContent = 'Analyse my face';
       }
+    },
+
+    setSection(value) {
+      chosenSection = ['women', 'men'].includes(value) ? value : 'auto';
+      document.querySelectorAll('#fa-section button').forEach(b => {
+        const on = b.dataset.sec === chosenSection;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-pressed', on);
+      });
     },
 
     tryOn(item) {

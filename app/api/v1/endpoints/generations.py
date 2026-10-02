@@ -16,6 +16,7 @@ from app.schemas.generation import GenerationAcceptedResponse, GenerationStatusR
 from app.services.image_processor import read_limited_image, process_image, pick_size
 from app.services.generation_service import process_generation_background_job
 from app.services.storage import storage_service
+from app.services.style_catalogue import get_style
 
 router = APIRouter()
 
@@ -66,7 +67,7 @@ async def create_generation(
     request: Request,
     background_tasks: BackgroundTasks,
     target_image: UploadFile = File(..., description="User target photo"),
-    reference_image: UploadFile = File(..., description="Style reference image"),
+    reference_image: Optional[UploadFile] = File(None, description="Style reference image (optional when style names a catalogue style)"),
     category: str = Form(...),
     style: str = Form(""),
     notes: str = Form(""),
@@ -85,24 +86,47 @@ async def create_generation(
 
 
     person_raw = await read_limited_image(target_image, "Target photo")
-    style_raw = await read_limited_image(reference_image, "Style reference")
+    catalogue_style = get_style(style.strip()) if style else None
+    has_reference = reference_image is not None and bool(reference_image.filename)
+    if not has_reference and not catalogue_style:
+        raise HTTPException(400, "Add a style reference image, or choose a style from the catalogue.")
+    style_raw = await read_limited_image(reference_image, "Style reference") if has_reference else None
 
     person_b, person_mime, person_ext, person_size = process_image(person_raw, "Target photo")
-    style_b, style_mime, style_ext, style_size = process_image(style_raw, "Style reference")
+    if style_raw is not None:
+        style_b, style_mime, style_ext, style_size = process_image(style_raw, "Style reference")
+    else:
+        style_b = style_mime = style_ext = style_size = None
 
     category_instructions = {
         "Hairstyle": "Apply the hairstyle, cut, styling, and hair-color cues shown in the reference, while adapting naturally to the person's own hairline, head shape, and hair texture.",
         "Makeup": "Apply the makeup look, colors, finish, and placement shown in the reference, adapted naturally to the person's face and skin tone.",
         "Nail art": "Apply the nail-art design, colors, pattern, and finish shown in the reference.",
+        "Beard & grooming": "Apply the beard, moustache and facial-hair grooming shown, adapted naturally to the person's jawline and hair colour.",
         "Overall beauty look": "Use the reference as inspiration for the overall beauty styling.",
     }
-    prompt = (
-        "You are editing two input images. IMAGE 1 is the target photo of the person and must remain the base image. "
-        "IMAGE 2 is a style reference showing the desired look. Transfer the relevant style from IMAGE 2 onto the person in IMAGE 1. "
-        f"Requested category: {category}. {category_instructions.get(category, '')} "
-        "Use IMAGE 2 as a visual reference for style only; do not copy the reference person's identity, face, body, pose, or background. "
-        "Preserve the target person's identity, facial features, face shape, skin tone, expression, age appearance, pose, camera angle, clothing, and background from IMAGE 1 as closely as possible."
-    )
+    text_only_instructions = {
+        "Hairstyle": "Change the haircut and styling to match, adapting naturally to the person's hairline, head shape and hair texture; keep their natural hair colour unless the style says otherwise.",
+        "Makeup": "Apply the makeup naturally to the person's face and skin tone.",
+        "Nail art": "Apply the nail design to the visible nails.",
+        "Beard & grooming": "Change only the facial hair, adapted naturally to the person's jawline and hair colour.",
+        "Overall beauty look": "Apply the hair and grooming changes described as one cohesive look.",
+    }
+    if style_b is not None:
+        prompt = (
+            "You are editing two input images. IMAGE 1 is the target photo of the person and must remain the base image. "
+            "IMAGE 2 is a style reference showing the desired look. Transfer the relevant style from IMAGE 2 onto the person in IMAGE 1. "
+            f"Requested category: {category}. {category_instructions.get(category, '')} "
+            "Use IMAGE 2 as a visual reference for style only; do not copy the reference person's identity, face, body, pose, or background. "
+            "Preserve the target person's identity, facial features, face shape, skin tone, expression, age appearance, pose, camera angle, clothing, and background from IMAGE 1 as closely as possible."
+        )
+    else:
+        prompt = (
+            "You are editing a photo of a person. Keep it as the base image and change only the requested styling. "
+            f"Requested category: {category}. Apply this style: {catalogue_style['name']}, which is {catalogue_style['description']}. "
+            f"{text_only_instructions.get(category, '')} "
+            "Preserve the person's identity, facial features, face shape, skin tone, expression, age appearance, pose, camera angle, clothing, and background as closely as possible."
+        )
     if style.strip():
         prompt += f" Additional style description: {style.strip()[:300]}."
     if notes.strip():
@@ -215,6 +239,7 @@ def delete_generation(
 async def analyze_face(
     request: Request,
     face_image: UploadFile = File(...),
+    section: str = Form("auto", description="Style section to recommend from: women, men or auto"),
     current_user: Optional[UserModel] = Depends(get_current_user_optional),
 ):
     """Analyse face shape, skin tone and hair, and recommend styles from the app's catalogue."""
@@ -227,7 +252,7 @@ async def analyze_face(
     raw = await read_limited_image(face_image, "Face photo")
     img_bytes, mime, _ext, _size = process_image(raw, "Face photo")
     try:
-        return await run_in_threadpool(run_analysis, img_bytes, mime)
+        return await run_in_threadpool(run_analysis, img_bytes, mime, section)
     except FaceAnalysisUnavailable as exc:
         raise HTTPException(503, str(exc))
     except FaceAnalysisFailed as exc:

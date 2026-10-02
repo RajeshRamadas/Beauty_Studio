@@ -1,4 +1,5 @@
 import base64
+from typing import Optional
 import io
 import time
 from datetime import datetime, timezone
@@ -20,7 +21,7 @@ def process_generation_background_job(
     person_mime: str,
     person_ext: str,
     person_size: tuple,
-    style_b: bytes,
+    style_b: Optional[bytes],
     style_mime: str,
     style_ext: str,
     style_size: tuple,
@@ -51,21 +52,22 @@ def process_generation_background_job(
             height=person_size[1],
         ))
 
-        ref_key = f"references/{request_id}.{style_ext}"
-        storage_service.save_image(ref_key, style_b)
-        db.add(ImageAssetModel(
-            request_id=request_id,
-            role="reference",
-            storage_key=ref_key,
-            mime_type=style_mime,
-            byte_size=len(style_b),
-            width=style_size[0],
-            height=style_size[1],
-        ))
+        if style_b is not None:
+            ref_key = f"references/{request_id}.{style_ext}"
+            storage_service.save_image(ref_key, style_b)
+            db.add(ImageAssetModel(
+                request_id=request_id,
+                role="reference",
+                storage_key=ref_key,
+                mime_type=style_mime,
+                byte_size=len(style_b),
+                width=style_size[0],
+                height=style_size[1],
+            ))
 
         # Call OpenAI provider
         person_tuple = (person_b, person_mime, person_ext)
-        style_tuple = (style_b, style_mime, style_ext)
+        style_tuple = (style_b, style_mime, style_ext) if style_b is not None else None
         result = call_openai_image_edit(person_tuple, style_tuple, prompt, size)
 
         encoded = result.data[0].b64_json

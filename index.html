@@ -360,12 +360,28 @@
     .fa-summary { font-size: 14px; line-height: 1.5; }
     .fa-list { display: flex; flex-direction: column; gap: 10px; }
     .fa-rec { display: flex; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 10px; }
-    .fa-rec img { width: 88px; height: 104px; object-fit: cover; border-radius: 14px; flex-shrink: 0; }
+    .fa-rec-img { width: 88px; height: 104px; object-fit: cover; border-radius: 14px; flex-shrink: 0; font-size: 10px; }
+    .fa-rec-img svg { width: 26px; height: 26px; }
+    .fa-banner { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; background: var(--surface-2); border-radius: 16px; padding: 12px 14px; margin: 16px 0; font-size: 13px; }
     .fa-rec-body { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
     .fa-rec-body .btn { margin-top: auto; }
     .fa-colour { display: flex; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 12px; }
     .fa-swatch { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; border: 2px solid var(--border); }
     .fa-tips { padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 1.45; }
+
+    /* ── Styles: audience toggle, tiles ───────────────── */
+    .aud-toggle { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px; margin-bottom: 16px; }
+    .aud-toggle button { flex: 1; min-height: 40px; border: none; border-radius: 999px; background: none; color: var(--text2); font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .aud-toggle button.active { background: var(--accent); color: var(--on-accent); }
+    .cat-card { display: block; width: 100%; text-align: left; color: var(--text); font-family: inherit; }
+    button.scroll-item, button.img-card { background: none; border: none; padding: 0; text-align: left; color: var(--text); font-family: inherit; width: 100%; }
+    button.scroll-item { width: auto; }
+    .scroll-img { width: 140px; height: 180px; object-fit: cover; border-radius: 18px; display: block; }
+    .img-card-img { width: 100%; height: 170px; object-fit: cover; display: block; }
+    .style-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: var(--surface-2); color: var(--accent); text-align: center; padding: 12px; font-size: 13px; font-weight: 700; }
+    .style-tile svg { width: 34px; height: 34px; stroke: currentColor; stroke-width: 1.6; fill: none; stroke-linecap: round; }
+    .detail-hero { border-radius: 24px; overflow: hidden; margin-bottom: 16px; height: 300px; }
+    .detail-hero img, .detail-tile { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     /* ── Spacing helpers ──────────────────────────────── */
     .mb-4 { margin-bottom: 4px; }
@@ -407,6 +423,11 @@
       <button class="icon-btn" onclick="showScreen('screen-15')" aria-label="Shopping bag"><svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 016 0"/></svg><span class="bag-count" style="display:none">0</span></button>
     </div>
 
+    <div class="aud-toggle" role="group" aria-label="Show styles for">
+      <button type="button" data-aud="women" onclick="Styles.setAudience('women')">Women</button>
+      <button type="button" data-aud="men" onclick="Styles.setAudience('men')">Men</button>
+    </div>
+
     <div class="hero">
       <div class="hero-pics">
         <img src="sample_short_bob.jpg" alt="Before: short bob">
@@ -425,7 +446,7 @@
       <span class="fa-entry-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="5"/><path d="M4 21a8 8 0 0116 0"/><path d="M3 7V4h3M21 7V4h-3"/></svg></span>
       <span style="flex:1;text-align:left;">
         <h3>Analyse my face</h3>
-        <span class="caption">Face shape, skin tone and hair type, with styles and makeup that suit you</span>
+        <span class="caption">Face shape, skin tone and hair type, with styles, makeup and grooming that suit you</span>
       </span>
       <span style="color:var(--accent);font-size:20px;">›</span>
     </button>
@@ -435,48 +456,10 @@
       <h2>Categories</h2>
       <button class="btn-link" onclick="showScreen('screen-3')">View all</button>
     </div>
-    <div class="g2 mb-24">
-      <div class="card card-click" onclick="showScreen('screen-4')">
-        <h3>Hairstyles</h3>
-        <p class="caption mt-8">120+ styles</p>
-      </div>
-      <div class="card card-click" onclick="showScreen('screen-8')">
-        <h3>Makeup</h3>
-        <p class="caption mt-8">85+ looks</p>
-      </div>
-      <div class="card card-click" onclick="showScreen('screen-9')">
-        <h3>Nail Art</h3>
-        <p class="caption mt-8">60+ designs</p>
-      </div>
-      <div class="card card-click" onclick="showScreen('screen-10')">
-        <h3>Full Looks</h3>
-        <p class="caption mt-8">Runway series</p>
-      </div>
-    </div>
+    <div id="home-cats" class="g2 mb-24"></div>
 
     <h2 class="mb-12">Trending</h2>
-    <div class="scroll-row">
-      <div class="scroll-item" onclick="selectPreset('Hairstyle','Glamour Waves','sample_glamour_waves.jpg')">
-        <img src="sample_glamour_waves.jpg" alt="Glamour Waves">
-        <p>Glamour Waves</p>
-        <p class="caption">Hairstyle</p>
-      </div>
-      <div class="scroll-item" onclick="selectPreset('Hairstyle','Beach Waves','sample_beach_waves.jpg')">
-        <img src="sample_beach_waves.jpg" alt="Beach Waves">
-        <p>Beach Waves</p>
-        <p class="caption">Hairstyle</p>
-      </div>
-      <div class="scroll-item" onclick="selectPreset('Hairstyle','Short Bob','sample_short_bob.jpg')">
-        <img src="sample_short_bob.jpg" alt="Short Bob">
-        <p>Short Bob</p>
-        <p class="caption">Hairstyle</p>
-      </div>
-      <div class="scroll-item" onclick="selectPreset('Hairstyle','Braided Updo','sample_braided_updo.jpg')">
-        <img src="sample_braided_updo.jpg" alt="Braided Updo">
-        <p>Braided Updo</p>
-        <p class="caption">Hairstyle</p>
-      </div>
-    </div>
+    <div id="home-trending" class="scroll-row"></div>
   </div>
 
   <!-- ════ SCREEN 3: CATEGORIES ══════════════════════════════ -->
@@ -485,26 +468,24 @@
       <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
       <h2>Categories</h2>
     </div>
-    <div class="card card-click" onclick="showScreen('screen-4')"><h3>Hairstyles</h3><p class="caption mt-8">Try on new cuts, colors, and styling</p></div>
-    <div class="card card-click" onclick="showScreen('screen-8')"><h3>Makeup</h3><p class="caption mt-8">Natural, glam, bridal and editorial</p></div>
-    <div class="card card-click" onclick="showScreen('screen-9')"><h3>Nail Art</h3><p class="caption mt-8">Patterns, textures and colors</p></div>
-    <div class="card card-click" onclick="showScreen('screen-10')"><h3>Full Looks</h3><p class="caption mt-8">Complete transformations</p></div>
+    <div class="aud-toggle" role="group" aria-label="Show styles for">
+      <button type="button" data-aud="women" onclick="Styles.setAudience('women')">Women</button>
+      <button type="button" data-aud="men" onclick="Styles.setAudience('men')">Men</button>
+    </div>
+    <div id="cat-list"></div>
   </div>
 
   <!-- ════ SCREEN 4: HAIRSTYLES ══════════════════════════════ -->
   <div id="screen-4" class="screen">
     <div class="top-bar">
       <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <h2>Hairstyles</h2>
+      <h2 id="style-title">Hairstyles</h2>
     </div>
-    <div class="g2">
-      <div class="img-card" onclick="selectPreset('Hairstyle','Glamour Waves','sample_glamour_waves.jpg')"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><p>Glamour Waves</p></div></div>
-      <div class="img-card" onclick="selectPreset('Hairstyle','Beach Waves','sample_beach_waves.jpg')"><img src="sample_beach_waves.jpg"><div class="img-card-info"><p>Beach Waves</p></div></div>
-      <div class="img-card" onclick="selectPreset('Hairstyle','Short Bob','sample_short_bob.jpg')"><img src="sample_short_bob.jpg"><div class="img-card-info"><p>Short Bob</p></div></div>
-      <div class="img-card" onclick="selectPreset('Hairstyle','Braided Updo','sample_braided_updo.jpg')"><img src="sample_braided_updo.jpg"><div class="img-card-info"><p>Braided Updo</p></div></div>
-      <div class="img-card" onclick="selectPreset('Hairstyle','Curtain Bangs','sample_short_bob.jpg')"><img src="sample_short_bob.jpg"><div class="img-card-info"><p>Curtain Bangs</p></div></div>
-      <div class="img-card" onclick="selectPreset('Hairstyle','Volumetric Curls','sample_glamour_waves.jpg')"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><p>Volumetric Curls</p></div></div>
+    <div class="aud-toggle" role="group" aria-label="Show styles for">
+      <button type="button" data-aud="women" onclick="Styles.setAudience('women')">Women</button>
+      <button type="button" data-aud="men" onclick="Styles.setAudience('men')">Men</button>
     </div>
+    <div id="style-grid" class="g2"></div>
   </div>
 
   <!-- ════ SCREEN 5: STYLE DETAIL ════════════════════════════ -->
@@ -513,11 +494,11 @@
       <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
       <h2>Style Detail</h2>
     </div>
-    <div style="border-radius:12px;overflow:hidden;margin-bottom:16px;height:260px;">
-      <img id="detail-hero-img" src="sample_glamour_waves.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Style">
+    <div id="detail-hero" class="detail-hero">
+      <img id="detail-hero-img" src="sample_glamour_waves.jpg" alt="Style">
     </div>
     <h1 id="detail-title" class="mb-8">Glamour Waves</h1>
-    <p class="caption mb-20">Face-framing layers with volumetric waves and soft natural highlights.</p>
+    <p id="detail-desc" class="caption mb-20"></p>
     <button class="btn btn-p mb-12" onclick="showScreen('screen-7')">Try On This Look</button>
   </div>
 
@@ -581,12 +562,7 @@
       <div class="g2 mb-8" style="gap:8px;">
         <div>
           <label style="display:block;font-size:11px;color:var(--text2);margin-bottom:4px;">Category</label>
-          <select id="cat-select">
-            <option value="Hairstyle">Hairstyle</option>
-            <option value="Makeup">Makeup</option>
-            <option value="Nail art">Nail Art</option>
-            <option value="Overall beauty look">Full Look</option>
-          </select>
+          <select id="cat-select"></select>
         </div>
         <div>
           <label style="display:block;font-size:11px;color:var(--text2);margin-bottom:4px;">Style Name</label>
@@ -599,51 +575,6 @@
 
     <button id="generate-btn" class="btn btn-p" onclick="submitGeneration()">Generate</button>
     <div id="gen-status" class="msg mt-12">Ready. Upload your photo and a style reference to begin.</div>
-  </div>
-
-  <!-- ════ SCREEN 8: MAKEUP ══════════════════════════════════ -->
-  <div id="screen-8" class="screen">
-    <div class="top-bar">
-      <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <h2>Makeup</h2>
-    </div>
-    <div class="g3">
-      <div class="img-card" onclick="selectPreset('Makeup','Natural Glow')"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><p>Natural</p></div></div>
-      <div class="img-card" onclick="selectPreset('Makeup','Soft Glam')"><img src="sample_beach_waves.jpg"><div class="img-card-info"><p>Soft Glam</p></div></div>
-      <div class="img-card" onclick="selectPreset('Makeup','Smoky Eyes')"><img src="sample_short_bob.jpg"><div class="img-card-info"><p>Smoky</p></div></div>
-      <div class="img-card" onclick="selectPreset('Makeup','Bridal Velvet')"><img src="sample_braided_updo.jpg"><div class="img-card-info"><p>Bridal</p></div></div>
-      <div class="img-card" onclick="selectPreset('Makeup','Bold Lip')"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><p>Bold Lip</p></div></div>
-      <div class="img-card" onclick="selectPreset('Makeup','Party Bronze')"><img src="sample_beach_waves.jpg"><div class="img-card-info"><p>Bronze</p></div></div>
-    </div>
-  </div>
-
-  <!-- ════ SCREEN 9: NAIL ART ════════════════════════════════ -->
-  <div id="screen-9" class="screen">
-    <div class="top-bar">
-      <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <h2>Nail Art</h2>
-    </div>
-    <div class="g3">
-      <div class="img-card" onclick="selectPreset('Nail art','French Ombre')"><img src="sample_beach_waves.jpg"><div class="img-card-info"><p>French</p></div></div>
-      <div class="img-card" onclick="selectPreset('Nail art','Rose Gold Chrome')"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><p>Rose Gold</p></div></div>
-      <div class="img-card" onclick="selectPreset('Nail art','Classic Nude')"><img src="sample_short_bob.jpg"><div class="img-card-info"><p>Classic</p></div></div>
-      <div class="img-card" onclick="selectPreset('Nail art','Marble')"><img src="sample_braided_updo.jpg"><div class="img-card-info"><p>Marble</p></div></div>
-    </div>
-  </div>
-
-  <!-- ════ SCREEN 10: FULL LOOKS ═════════════════════════════ -->
-  <div id="screen-10" class="screen">
-    <div class="top-bar">
-      <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <h2>Full Looks</h2>
-    </div>
-    <p class="caption mb-16">Complete beauty transformations</p>
-    <div class="g2">
-      <div class="img-card" onclick="selectPreset('Overall beauty look','Red Carpet')"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><p>Red Carpet</p></div></div>
-      <div class="img-card" onclick="selectPreset('Overall beauty look','Evening Gala')"><img src="sample_braided_updo.jpg"><div class="img-card-info"><p>Evening Gala</p></div></div>
-      <div class="img-card" onclick="selectPreset('Overall beauty look','Korean Glass Skin')"><img src="sample_beach_waves.jpg"><div class="img-card-info"><p>Glass Skin</p></div></div>
-      <div class="img-card" onclick="selectPreset('Overall beauty look','Bridal Luxe')"><img src="sample_short_bob.jpg"><div class="img-card-info"><p>Bridal Luxe</p></div></div>
-    </div>
   </div>
 
   <!-- ════ SCREEN 11: HISTORY ════════════════════════════════ -->
@@ -750,6 +681,12 @@
     </div>
     <input id="fa-camera" type="file" accept="image/*" capture="user" style="display:none;" onchange="FaceAnalysis.pick(event)">
     <input id="fa-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="FaceAnalysis.pick(event)">
+    <p class="caption mb-8">Recommend styles for</p>
+    <div id="fa-section" class="aud-toggle" role="group" aria-label="Recommend styles for">
+      <button type="button" data-sec="auto" class="active" aria-pressed="true" onclick="FaceAnalysis.setSection('auto')">Auto</button>
+      <button type="button" data-sec="women" aria-pressed="false" onclick="FaceAnalysis.setSection('women')">Women</button>
+      <button type="button" data-sec="men" aria-pressed="false" onclick="FaceAnalysis.setSection('men')">Men</button>
+    </div>
     <button id="fa-run" type="button" class="btn btn-p" onclick="FaceAnalysis.run()" disabled>Analyse my face</button>
     <p class="caption mt-8" style="text-align:center;">Your photo is sent to our AI provider for this analysis and is not saved.</p>
     <div id="fa-status" class="msg" style="display:none;"></div>
@@ -784,6 +721,7 @@
 
 <script src="shop-data.js"></script>
 <script src="shop.js"></script>
+<script src="styles.js"></script>
 <script src="salons.js"></script>
 <script src="face-analysis.js"></script>
 <script>
@@ -805,7 +743,7 @@ function showScreen(id) {
   document.body.classList.toggle('on-splash', id === 'screen-1');
 
   document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
-  const m = { 'screen-2':'nav-home','screen-3':'nav-home','screen-4':'nav-home','screen-8':'nav-home','screen-9':'nav-home','screen-10':'nav-home','screen-11':'nav-profile','screen-5':'nav-tryon','screen-6':'nav-tryon','screen-7':'nav-tryon','screen-12':'nav-profile','screen-13':'nav-salons','screen-14':'nav-shop','screen-15':'nav-shop','screen-16':'nav-home' };
+  const m = { 'screen-2':'nav-home','screen-3':'nav-home','screen-4':'nav-home','screen-11':'nav-profile','screen-5':'nav-tryon','screen-6':'nav-tryon','screen-7':'nav-tryon','screen-12':'nav-profile','screen-13':'nav-salons','screen-14':'nav-shop','screen-15':'nav-shop','screen-16':'nav-home' };
   if (m[id]) $g(m[id]).classList.add('active');
 
   if (id === 'screen-11') loadHistory();
@@ -827,12 +765,22 @@ function goBack() {
 
 /* ── Preset selection ─────────────────────────────── */
 async function selectPreset(category, name, imageUrl) {
+  const style = Styles.find(name);
   $g('cat-select').value = category;
   $g('style-name').value = name;
   $g('detail-title').textContent = name;
+  $g('detail-desc').textContent = style ? style.description.charAt(0).toUpperCase() + style.description.slice(1) + '.' : '';
+  const hero = $g('detail-hero');
+  const inp = $g('reference-file');
+  const st = $g('reference-status');
   if (imageUrl) {
-    $g('detail-hero-img').src = imageUrl;
+    hero.replaceChildren(Object.assign(document.createElement('img'), { id: 'detail-hero-img', src: imageUrl, alt: name }));
     autoAttachReference(imageUrl, name);
+  } else {
+    hero.replaceChildren(Styles.picture(style || { name, category }, 'detail-tile'));
+    inp.value = '';
+    st.textContent = 'No reference photo needed for ' + name + '. We’ll use the style description.';
+    st.style.color = 'var(--ok)';
   }
   showScreen('screen-5');
 }
@@ -883,11 +831,13 @@ async function submitGeneration() {
   const reference = refInp && refInp.files[0];
   const st = $g('gen-status');
 
-  if (!person || !reference) { st.className = 'msg err'; st.textContent = 'Upload both your photo and a style reference.'; return; }
+  const catalogueStyle = Styles.find($g('style-name').value.trim());
+  if (!person) { st.className = 'msg err'; st.textContent = 'Add your photo first.'; return; }
+  if (!reference && !catalogueStyle) { st.className = 'msg err'; st.textContent = 'Upload a style reference, or pick a style from Styles.'; return; }
 
   const fd = new FormData();
   fd.append('target_image', person);
-  fd.append('reference_image', reference);
+  if (reference) fd.append('reference_image', reference);
   fd.append('category', $g('cat-select').value);
   fd.append('style', $g('style-name').value.trim());
   fd.append('notes', $g('custom-notes').value.trim());
@@ -1023,6 +973,7 @@ if (cBox) {
 /* ── Init ─────────────────────────────────────────── */
 if (authToken) refreshAuthUI();
 Shop.init();
+Styles.load();
 if (!(navigator.canShare && navigator.canShare({ files: [new File([''], 'x.png', { type: 'image/png' })] }))) $g('share-btn').style.display = 'none';
 showScreen('screen-1');
 screenStack = [];

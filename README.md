@@ -26,6 +26,11 @@ Open http://127.0.0.1:8000. Upload both images and click **Apply style to my pho
 ## Face analysis
 **Analyse my face** (Home screen, or the link under "1. Your Photo" in the generator) sends the photo to an OpenAI vision model (`OPENAI_VISION_MODEL`, default `gpt-5-mini`) and returns face shape, skin tone, undertone, hair texture/length/thickness/colour, recommended hairstyles, makeup and full looks from the app's catalogue, flattering hair colours and tips. "Try on" opens the style with the same photo already selected. It uses the same `OPENAI_API_KEY` as image generation, is limited to `ANALYSIS_LIMIT_PER_DAY` (default 30) per user or IP, and the photo is not stored. The model is told not to infer age, gender, ethnicity or health.
 
+## Women's and men's styles
+Styles come from `app/services/style_catalogue.py` (served at `/api/v1/styles`). A **Women / Men** switch on Home, Categories and the style lists picks which set is shown and is remembered on the device. Men get hairstyles, a **Beard & grooming** category and full looks; women get hairstyles, makeup, nail art and full looks. Face analysis suggests the section from visible styling cues (facial hair, haircut, makeup) unless the user picks one, and recommends only from that section; the user can switch with one tap.
+
+Men's styles have no sample photos yet, so they are tried on from their written description (no reference image needed). To add a photo, put the image in the project root and set `"image"` for that style in the catalogue.
+
 ## Salons and Shop
 - **Salon map search** (`salons.js`) uses **Google Maps + Places** when `GOOGLE_MAPS_API_KEY` is set, showing Google ratings, review counts, today's opening hours, phone and website. Without a key it falls back to free OpenStreetMap services (Leaflet tiles, Nominatim place search, Overpass API), which have fair-use limits. If Google rejects the key, the app switches to OpenStreetMap automatically.
 
