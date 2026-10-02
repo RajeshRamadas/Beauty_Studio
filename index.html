@@ -8,7 +8,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin="anonymous">
   <style>
     :root {
       /* Champagne Noir */
@@ -328,6 +327,10 @@
     .salon-name { font-size: 15px; font-weight: 700; }
     .salon-meta { font-size: 12px; color: var(--text2); margin-top: 3px; line-height: 1.4; }
     .salon-meta b { color: var(--accent); font-weight: 700; }
+    .salon-rating { color: var(--text); font-weight: 700; }
+    .map-pop { font-family: inherit; }
+    .gm-style .map-pop { color: #1A1408; font-size: 13px; line-height: 1.4; }
+    .gm-style .map-pop b { display: block; font-size: 14px; }
     .salon-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
     .salon-actions .btn { text-decoration: none; }
 
@@ -703,7 +706,7 @@
     </div>
     <div id="salon-status" class="msg mb-12">Search for a place or use your location to see salons near you.</div>
     <div id="salon-list"></div>
-    <p class="caption mt-12">Salon data from OpenStreetMap contributors. Check opening hours with the salon before visiting.</p>
+    <p id="salon-credit" class="caption mt-12"></p>
   </div>
 
   <!-- ════ SCREEN 14: SHOP ═══════════════════════════════════ -->
@@ -761,7 +764,6 @@
 
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin="anonymous"></script>
 <script src="shop-data.js"></script>
 <script src="shop.js"></script>
 <script src="salons.js"></script>

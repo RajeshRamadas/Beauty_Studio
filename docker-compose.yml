@@ -10,6 +10,8 @@ services:
       - OPENAI_IMAGE_MODEL=${OPENAI_IMAGE_MODEL:-gpt-image-2.5-flare}
       - OPENAI_IMAGE_QUALITY=${OPENAI_IMAGE_QUALITY:-medium}
       - MIN_IMAGE_SIDE=256
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-}
+      - GOOGLE_MAPS_MAP_ID=${GOOGLE_MAPS_MAP_ID:-DEMO_MAP_ID}
     volumes:
       - ./storage:/app/storage
     restart: unless-stopped

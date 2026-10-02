@@ -38,6 +38,12 @@ class Settings(BaseSettings):
     AWS_SECRET_ACCESS_KEY: str = os.getenv("AWS_SECRET_ACCESS_KEY", "")
     AWS_REGION: str = os.getenv("AWS_REGION", "us-east-1")
 
+    # Maps (optional). With a key, salon search uses Google Maps + Places;
+    # without one the web app falls back to OpenStreetMap.
+    # This key is sent to the browser: restrict it by HTTP referrer and API in Google Cloud.
+    GOOGLE_MAPS_API_KEY: str = os.getenv("GOOGLE_MAPS_API_KEY", "")
+    GOOGLE_MAPS_MAP_ID: str = os.getenv("GOOGLE_MAPS_MAP_ID", "DEMO_MAP_ID")
+
     # Rate Limiting & Quotas
     RATE_LIMIT_PER_DAY: int = int(os.getenv("RATE_LIMIT_PER_DAY", "10"))
 
