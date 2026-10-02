@@ -347,8 +347,18 @@
     .bag-right .prod-price { margin: 0 0 6px; }
 
     /* ── Face analysis ────────────────────────────────── */
-    .fa-entry { display: flex; align-items: center; gap: 14px; width: 100%; color: var(--text); font-family: inherit; margin-bottom: 24px; }
-    .fa-entry h3 { margin-bottom: 4px; }
+    .fa-feature {
+      border: 1.5px solid var(--accent); border-radius: 24px; padding: 18px; margin-bottom: 24px;
+      background: linear-gradient(var(--surface), var(--surface)) padding-box;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .fa-feature-top { display: flex; gap: 14px; align-items: center; }
+    .fa-feature h3 { font-size: 17px; font-family: var(--display); }
+    .fa-badge { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-bottom: 2px; }
+    .fa-cta svg, .fa-outline svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.8; fill: none; stroke-linecap: round; }
+    .fa-inline { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 10px 10px 10px 14px; }
+    .fa-outline { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+    .fa-outline:hover { background: rgba(217,182,111,.12); }
     .fa-entry-icon { width: 48px; height: 48px; border-radius: 50%; background: var(--surface-2); color: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .fa-entry-icon svg, .fa-placeholder svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 1.7; fill: none; stroke-linecap: round; }
     .fa-photo { height: 320px; border-radius: 24px; overflow: hidden; background: var(--surface); border: 1px dashed var(--border); }
@@ -512,14 +522,17 @@
       </div>
     </div>
 
-    <button type="button" class="card card-click fa-entry" onclick="showScreen('screen-16')">
-      <span class="fa-entry-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="5"/><path d="M4 21a8 8 0 0116 0"/><path d="M3 7V4h3M21 7V4h-3"/></svg></span>
-      <span style="flex:1;text-align:left;">
-        <h3>Analyse my face</h3>
-        <span class="caption">Face shape, skin tone and hair type, with styles, makeup and grooming that suit you</span>
-      </span>
-      <span style="color:var(--accent);font-size:20px;">›</span>
-    </button>
+    <section class="fa-feature" aria-labelledby="fa-feature-title">
+      <div class="fa-feature-top">
+        <span class="fa-entry-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="5"/><path d="M4 21a8 8 0 0116 0"/><path d="M3 7V4h3M21 7V4h-3"/></svg></span>
+        <div>
+          <span class="fa-badge">AI consultation</span>
+          <h3 id="fa-feature-title">Not sure what suits you?</h3>
+        </div>
+      </div>
+      <p class="caption">Get your face shape, skin tone and hair type, plus the styles, makeup and grooming picked for you.</p>
+      <button type="button" class="btn btn-p fa-cta" onclick="showScreen('screen-16')"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="5"/><path d="M4 21a8 8 0 0116 0"/><path d="M3 7V4h3M21 7V4h-3"/></svg>Analyse my face</button>
+    </section>
 
 
     <div class="row mb-12">
@@ -639,7 +652,10 @@
     <input id="person-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleTargetInput(event)">
     <input id="reference-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="Generator.onReferenceInput(event)">
     <input id="style-name" type="hidden">
-    <button type="button" class="btn-link mb-16" onclick="showScreen('screen-16')">Not sure what suits you? Analyse my face →</button>
+    <div class="fa-inline mb-16">
+      <span class="caption">Not sure what suits you?</span>
+      <button type="button" class="btn btn-sm fa-outline" onclick="showScreen('screen-16')"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="5"/><path d="M4 21a8 8 0 0116 0"/><path d="M3 7V4h3M21 7V4h-3"/></svg>Analyse my face</button>
+    </div>
 
     <div class="card mb-16">
       <h3 class="mb-4">What should we change?</h3>
