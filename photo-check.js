@@ -116,12 +116,19 @@
     capture() {
       const v = $('cam-video');
       if (!v.videoWidth) return;
+      // The preview fills the screen (object-fit: cover), so save only the part
+      // the user actually saw and framed, not the wider hidden edges.
+      const vw = v.videoWidth, vh = v.videoHeight;
+      const ew = v.clientWidth || vw, eh = v.clientHeight || vh;
+      const scale = Math.max(ew / vw, eh / vh);
+      const sw = Math.min(vw, Math.round(ew / scale)), sh = Math.min(vh, Math.round(eh / scale));
+      const sx = Math.round((vw - sw) / 2), sy = Math.round((vh - sh) / 2);
       const c = document.createElement('canvas');
-      c.width = v.videoWidth;
-      c.height = v.videoHeight;
+      c.width = sw;
+      c.height = sh;
       const ctx = c.getContext('2d');
-      if (facing === 'user') { ctx.translate(c.width, 0); ctx.scale(-1, 1); } // save as the user saw it
-      ctx.drawImage(v, 0, 0);
+      if (facing === 'user') { ctx.translate(sw, 0); ctx.scale(-1, 1); } // save as the user saw it (mirrored)
+      ctx.drawImage(v, sx, sy, sw, sh, 0, 0, sw, sh);
       c.toBlob(blob => {
         if (!blob) return;
         const file = new File([blob], 'camera-photo.jpg', { type: 'image/jpeg' });

@@ -222,9 +222,10 @@
       cursor: ew-resize;
       user-select: none;
     }
-    .compare-box img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+    /* contain, not cover: show the whole photo instead of zooming in on it */
+    .compare-box img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; background: #000; }
     #compare-before-clip { position: absolute; top: 0; left: 0; width: 50%; height: 100%; overflow: hidden; border-right: 2px solid var(--accent); }
-    #compare-before-clip img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
+    #compare-before-clip img { width: 100%; height: 100%; object-fit: contain; background: #000; position: absolute; top: 0; left: 0; }
     #compare-handle {
       position: absolute;
       top: 50%;
@@ -351,7 +352,7 @@
     .fa-entry-icon { width: 48px; height: 48px; border-radius: 50%; background: var(--surface-2); color: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .fa-entry-icon svg, .fa-placeholder svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 1.7; fill: none; stroke-linecap: round; }
     .fa-photo { height: 320px; border-radius: 24px; overflow: hidden; background: var(--surface); border: 1px dashed var(--border); }
-    .fa-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .fa-photo img { width: 100%; height: 100%; object-fit: contain; background: #000; display: block; }
     .fa-placeholder { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--accent); padding: 20px; text-align: center; }
     .fa-placeholder svg { width: 44px; height: 44px; }
     .fa-chips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -391,7 +392,8 @@
       background: var(--surface); border: 1.5px dashed var(--border); color: var(--text); font-family: inherit;
     }
     .gen-slot.filled { border: 1px solid var(--border); }
-    .gen-slot img, .gen-tile { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .gen-slot img { width: 100%; height: 100%; object-fit: contain; background: #000; display: block; }
+    .gen-tile { width: 100%; height: 100%; display: flex; }
     .gen-tile svg { width: 40px; height: 40px; }
     .gen-empty { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 12px; text-align: center; }
     .gen-empty svg { width: 30px; height: 30px; stroke: var(--accent); stroke-width: 1.7; fill: none; stroke-linecap: round; stroke-linejoin: round; margin-bottom: 4px; }
