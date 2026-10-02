@@ -3,6 +3,7 @@ import os
 import uuid
 from datetime import datetime, timezone
 from typing import List, Optional
+from fastapi.concurrency import run_in_threadpool
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Request, status, UploadFile
 from sqlalchemy.orm import Session
 
@@ -212,15 +213,22 @@ def delete_generation(
 
 @router.post("/analyze-face")
 async def analyze_face(
-    face_image: UploadFile = File(...)
+    request: Request,
+    face_image: UploadFile = File(...),
+    current_user: Optional[UserModel] = Depends(get_current_user_optional),
 ):
-    import io
-    from PIL import Image
-    from app.services.face_analyzer import analyze_face_features
-    img_bytes = await read_limited_image(face_image, "face_image")
-    pil_img = Image.open(io.BytesIO(img_bytes))
-    analysis = analyze_face_features(pil_img)
-    return analysis
+    """Analyse face shape, skin tone and hair, and recommend styles from the app's catalogue."""
+    from app.services.face_analyzer import FaceAnalysisFailed, FaceAnalysisUnavailable, analyze_face as run_analysis
 
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    rate_key = "analysis:" + (current_user.id if current_user else f"ip:{client_ip}")
+    rate_limiter.check_rate_limit(rate_key, settings.ANALYSIS_LIMIT_PER_DAY, label="face analysis")
 
-
+    raw = await read_limited_image(face_image, "Face photo")
+    img_bytes, mime, _ext, _size = process_image(raw, "Face photo")
+    try:
+        return await run_in_threadpool(run_analysis, img_bytes, mime)
+    except FaceAnalysisUnavailable as exc:
+        raise HTTPException(503, str(exc))
+    except FaceAnalysisFailed as exc:
+        raise HTTPException(502, str(exc))

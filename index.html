@@ -345,6 +345,28 @@
     .bag-right { width: 110px; text-align: right; }
     .bag-right .prod-price { margin: 0 0 6px; }
 
+    /* ── Face analysis ────────────────────────────────── */
+    .fa-entry { display: flex; align-items: center; gap: 14px; width: 100%; color: var(--text); font-family: inherit; margin-bottom: 24px; }
+    .fa-entry h3 { margin-bottom: 4px; }
+    .fa-entry-icon { width: 48px; height: 48px; border-radius: 50%; background: var(--surface-2); color: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .fa-entry-icon svg, .fa-placeholder svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 1.7; fill: none; stroke-linecap: round; }
+    .fa-photo { height: 320px; border-radius: 24px; overflow: hidden; background: var(--surface); border: 1px dashed var(--border); }
+    .fa-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .fa-placeholder { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--accent); padding: 20px; text-align: center; }
+    .fa-placeholder svg { width: 44px; height: 44px; }
+    .fa-chips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .fa-chip { background: var(--surface-2); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+    .fa-chip b { font-size: 14px; }
+    .fa-summary { font-size: 14px; line-height: 1.5; }
+    .fa-list { display: flex; flex-direction: column; gap: 10px; }
+    .fa-rec { display: flex; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 10px; }
+    .fa-rec img { width: 88px; height: 104px; object-fit: cover; border-radius: 14px; flex-shrink: 0; }
+    .fa-rec-body { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+    .fa-rec-body .btn { margin-top: auto; }
+    .fa-colour { display: flex; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 12px; }
+    .fa-swatch { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; border: 2px solid var(--border); }
+    .fa-tips { padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 1.45; }
+
     /* ── Spacing helpers ──────────────────────────────── */
     .mb-4 { margin-bottom: 4px; }
     .mb-8 { margin-bottom: 8px; }
@@ -398,6 +420,15 @@
         <button class="btn btn-p" onclick="showScreen('screen-7')">Start a new look</button>
       </div>
     </div>
+
+    <button type="button" class="card card-click fa-entry" onclick="showScreen('screen-16')">
+      <span class="fa-entry-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="5"/><path d="M4 21a8 8 0 0116 0"/><path d="M3 7V4h3M21 7V4h-3"/></svg></span>
+      <span style="flex:1;text-align:left;">
+        <h3>Analyse my face</h3>
+        <span class="caption">Face shape, skin tone and hair type, with styles and makeup that suit you</span>
+      </span>
+      <span style="color:var(--accent);font-size:20px;">›</span>
+    </button>
 
 
     <div class="row mb-12">
@@ -535,16 +566,7 @@
       <input id="camera-capture" type="file" accept="image/*" capture="user" style="display:none;" onchange="handleTargetInput(event)">
       <input id="person-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleTargetInput(event)">
       <p id="person-status" class="caption">No photo selected</p>
-      <div id="face-analysis-panel" class="mt-12" style="display:none;padding-top:12px;border-top:1px solid var(--border);">
-        <p class="caption mb-8">Detected profile:</p>
-        <div style="display:flex;gap:8px;margin-bottom:8px;">
-          <span id="shape-tag" class="badge">Face: —</span>
-          <span id="tone-tag" class="badge">Tone: —</span>
-        </div>
-        <p id="shape-description" class="caption mb-12"></p>
-        <p class="caption mb-8">Recommended styles:</p>
-        <div id="recs-list"></div>
-      </div>
+      <button type="button" class="btn-link mt-12" onclick="showScreen('screen-16')">Not sure what suits you? Analyse my face →</button>
     </div>
 
     <div class="card mb-12">
@@ -708,6 +730,32 @@
     </div>
   </div>
 
+  <!-- ════ SCREEN 16: FACE ANALYSIS ══════════════════════════ -->
+  <div id="screen-16" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goBack()" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <h2>Analyse my face</h2>
+    </div>
+    <p class="caption mb-16" style="font-size:13px;">Get your face shape, skin tone, undertone and hair type, then styles and makeup picked for you.</p>
+    <div class="fa-photo mb-12">
+      <img id="fa-preview" alt="Your photo" style="display:none;">
+      <div id="fa-placeholder" class="fa-placeholder">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="5"/><path d="M4 21a8 8 0 0116 0"/></svg>
+        <span class="caption">Front-facing, good light, hair visible, no filters</span>
+      </div>
+    </div>
+    <div class="g2 mb-12" style="gap:8px;">
+      <button type="button" class="btn btn-s btn-sm" onclick="$g('fa-camera').click()">Camera</button>
+      <button type="button" class="btn btn-s btn-sm" onclick="$g('fa-file').click()">Upload</button>
+    </div>
+    <input id="fa-camera" type="file" accept="image/*" capture="user" style="display:none;" onchange="FaceAnalysis.pick(event)">
+    <input id="fa-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="FaceAnalysis.pick(event)">
+    <button id="fa-run" type="button" class="btn btn-p" onclick="FaceAnalysis.run()" disabled>Analyse my face</button>
+    <p class="caption mt-8" style="text-align:center;">Your photo is sent to our AI provider for this analysis and is not saved.</p>
+    <div id="fa-status" class="msg" style="display:none;"></div>
+    <div id="fa-results" class="mt-16"></div>
+  </div>
+
   <!-- ════ BOTTOM NAV ════════════════════════════════════════ -->
   <nav class="bottom-nav">
     <button id="nav-home" class="nav-btn active" onclick="showScreen('screen-2')">
@@ -737,6 +785,7 @@
 <script src="shop-data.js"></script>
 <script src="shop.js"></script>
 <script src="salons.js"></script>
+<script src="face-analysis.js"></script>
 <script>
 const $g = id => document.getElementById(id);
 let screenStack = ['screen-2'];
@@ -756,7 +805,7 @@ function showScreen(id) {
   document.body.classList.toggle('on-splash', id === 'screen-1');
 
   document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
-  const m = { 'screen-2':'nav-home','screen-3':'nav-home','screen-4':'nav-home','screen-8':'nav-home','screen-9':'nav-home','screen-10':'nav-home','screen-11':'nav-profile','screen-5':'nav-tryon','screen-6':'nav-tryon','screen-7':'nav-tryon','screen-12':'nav-profile','screen-13':'nav-salons','screen-14':'nav-shop','screen-15':'nav-shop' };
+  const m = { 'screen-2':'nav-home','screen-3':'nav-home','screen-4':'nav-home','screen-8':'nav-home','screen-9':'nav-home','screen-10':'nav-home','screen-11':'nav-profile','screen-5':'nav-tryon','screen-6':'nav-tryon','screen-7':'nav-tryon','screen-12':'nav-profile','screen-13':'nav-salons','screen-14':'nav-shop','screen-15':'nav-shop','screen-16':'nav-home' };
   if (m[id]) $g(m[id]).classList.add('active');
 
   if (id === 'screen-11') loadHistory();
@@ -814,36 +863,15 @@ function handleTargetInput(e) {
   r.readAsDataURL(file);
   $g('person-status').textContent = 'Selected: ' + file.name + ' (' + (file.size/1048576).toFixed(2) + ' MB)';
   $g('person-status').style.color = 'var(--ok)';
-  runFaceAnalysis();
 }
 
-/* ── Face analysis ────────────────────────────────── */
-async function runFaceAnalysis() {
-  const file = selectedTargetFile || ($g('person-file') && $g('person-file').files[0]) || ($g('camera-capture') && $g('camera-capture').files[0]);
-  if (!file) { alert('Select or capture your photo first.'); return; }
-  const panel = $g('face-analysis-panel');
-  panel.style.display = 'block';
-  $g('shape-tag').textContent = 'Analyzing...';
-  $g('tone-tag').textContent = 'Analyzing...';
-  $g('shape-description').textContent = '';
-
-  const fd = new FormData();
-  fd.append('face_image', file);
-  try {
-    const res = await fetch('/api/v1/analyze-face', { method: 'POST', body: fd });
-    if (!res.ok) throw new Error('Analysis failed');
-    const d = await res.json();
-    $g('shape-tag').textContent = 'Face: ' + d.face_shape;
-    $g('tone-tag').textContent = 'Tone: ' + d.skin_tone;
-    $g('shape-description').textContent = d.shape_description;
-    const list = $g('recs-list');
-    if (list) {
-      list.innerHTML = d.recommended_hairstyles.map(item => `
-        <div class="card card-click" style="margin-bottom:8px;padding:12px;" onclick="selectPreset('${item.category}','${item.name}','${item.image_url}')">
-          <div class="row"><div><p style="font-weight:500;">${item.name}</p><p class="caption">${item.reason}</p></div><span class="badge">${item.match_score}%</span></div>
-        </div>`).join('');
-    }
-  } catch(e) { $g('shape-tag').textContent = 'Error'; $g('tone-tag').textContent = e.message; }
+/* Used by face analysis: reuse the analysed photo as the try-on photo. */
+function setTargetPhoto(file) {
+  const dt = new DataTransfer();
+  dt.items.add(file);
+  $g('person-file').files = dt.files;
+  $g('camera-capture').value = '';
+  handleTargetInput({ target: { files: [file] } });
 }
 
 /* ── Generation ───────────────────────────────────── */

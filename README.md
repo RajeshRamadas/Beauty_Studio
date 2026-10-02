@@ -23,6 +23,9 @@ Open http://127.0.0.1:8000. Upload both images and click **Apply style to my pho
 - Results are generative and may not preserve identity or reproduce the reference precisely. Use clear, well-lit images and test with representative examples.
 - This is a local development prototype. Before deployment, add authentication, quotas/rate limits, timeouts, secure storage/retention, monitoring, and abuse controls.
 
+## Face analysis
+**Analyse my face** (Home screen, or the link under "1. Your Photo" in the generator) sends the photo to an OpenAI vision model (`OPENAI_VISION_MODEL`, default `gpt-5-mini`) and returns face shape, skin tone, undertone, hair texture/length/thickness/colour, recommended hairstyles, makeup and full looks from the app's catalogue, flattering hair colours and tips. "Try on" opens the style with the same photo already selected. It uses the same `OPENAI_API_KEY` as image generation, is limited to `ANALYSIS_LIMIT_PER_DAY` (default 30) per user or IP, and the photo is not stored. The model is told not to infer age, gender, ethnicity or health.
+
 ## Salons and Shop
 - **Salon map search** (`salons.js`) uses **Google Maps + Places** when `GOOGLE_MAPS_API_KEY` is set, showing Google ratings, review counts, today's opening hours, phone and website. Without a key it falls back to free OpenStreetMap services (Leaflet tiles, Nominatim place search, Overpass API), which have fair-use limits. If Google rejects the key, the app switches to OpenStreetMap automatically.
 

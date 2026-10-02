@@ -10,7 +10,7 @@ class RateLimiter:
         self._requests: Dict[str, List[float]] = defaultdict(list)
         self.window_seconds = 24 * 3600  # 24 hours
 
-    def check_rate_limit(self, key: str, max_requests: int = None):
+    def check_rate_limit(self, key: str, max_requests: int = None, label: str = "generation"):
         if max_requests is None:
             max_requests = settings.RATE_LIMIT_PER_DAY
 
@@ -24,7 +24,7 @@ class RateLimiter:
         if len(timestamps) >= max_requests:
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail=f"Daily generation quota exceeded ({max_requests} per day). Please try again tomorrow.",
+                detail=f"Daily {label} quota exceeded ({max_requests} per day). Please try again tomorrow.",
                 headers={"Retry-After": "86400"},
             )
 

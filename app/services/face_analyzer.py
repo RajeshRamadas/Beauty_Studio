@@ -1,186 +1,212 @@
-from PIL import Image
+"""Face analysis with a vision model.
 
-def analyze_face_features(pil_img: Image.Image):
-    """
-    Analyzes face image geometry, brightness, and color warmth to determine
-    face shape, skin tone complexion, undertone, and personalized hairstyle/color recommendations.
-    Uses pure Pillow and standard math (no numpy required).
-    """
-    img = pil_img.convert("RGB")
-    width, height = img.size
-    aspect_ratio = height / float(width)
+Looks at the user's photo and returns face shape, skin tone and undertone, hair
+texture/length/thickness/colour, and recommendations drawn from the styles the
+app can try on. Recommendations use the app's own catalogue so each one can be
+opened as a try-on preset.
+"""
+import base64
+import json
+import re
 
-    # Resize to 50x50 to compute mean RGB
-    small = img.resize((50, 50))
-    pixels = list(small.getdata())
-    n = len(pixels)
-    sum_r = sum(p[0] for p in pixels)
-    sum_g = sum(p[1] for p in pixels)
-    sum_b = sum(p[2] for p in pixels)
+from openai import OpenAI
 
-    avg_r = sum_r / float(n)
-    avg_g = sum_g / float(n)
-    avg_b = sum_b / float(n)
-    brightness = (avg_r + avg_g + avg_b) / 3.0
+from app.core.config import settings
+from app.core.logging import logger
 
-    # Warmth ratio
-    warmth = (avg_r - avg_b) / (avg_r + avg_g + avg_b + 1e-5)
 
-    # Face Shape Classification
-    if aspect_ratio >= 1.35:
-        face_shape = "Oblong / Oval"
-        shape_desc = "Balanced vertical proportions with soft jawline contours."
-    elif aspect_ratio >= 1.15:
-        if warmth > 0.08:
-            face_shape = "Oval"
-            shape_desc = "Symmetrical, ideal proportions suitable for almost all hairstyles."
-        else:
-            face_shape = "Heart"
-            shape_desc = "Wider forehead tapering into a delicate chin."
-    elif aspect_ratio >= 0.95:
-        if avg_r > avg_g + 10:
-            face_shape = "Square"
-            shape_desc = "Defined angular jawline with strong cheekbone width."
-        else:
-            face_shape = "Round"
-            shape_desc = "Soft rounded contours with equal width and length proportions."
-    else:
-        face_shape = "Diamond"
-        shape_desc = "Prominent cheekbones with narrow forehead and chin."
+class FaceAnalysisUnavailable(Exception):
+    """No provider key is configured."""
 
-    # Skin Tone & Complexion Classification
-    if brightness > 180:
-        skin_tone = "Fair Porcelain"
-        undertone = "Cool Rosy" if avg_r > avg_g else "Neutral"
-    elif brightness > 140:
-        skin_tone = "Warm Golden Sand"
-        undertone = "Warm Golden" if warmth > 0.05 else "Neutral Beige"
-    elif brightness > 90:
-        skin_tone = "Warm Olive"
-        undertone = "Warm Golden"
-    else:
-        skin_tone = "Deep Espresso"
-        undertone = "Rich Warm"
 
-    # Hairstyle Recommendations based on shape
-    if "Oval" in face_shape:
-        recommendations = [
-            {
-                "name": "Glamour Waves",
-                "category": "Hairstyle",
-                "match_score": 98,
-                "reason": "Accentuates natural oval face symmetry with sweeping volumetric waves.",
-                "image_url": "sample_glamour_waves.jpg"
-            },
-            {
-                "name": "Beach Waves",
-                "category": "Hairstyle",
-                "match_score": 95,
-                "reason": "Provides effortless lateral movement around cheekbones.",
-                "image_url": "sample_beach_waves.jpg"
-            },
-            {
-                "name": "Short Bob",
-                "category": "Hairstyle",
-                "match_score": 92,
-                "reason": "Frames jawline elegantly for a chic French fashion look.",
-                "image_url": "sample_short_bob.jpg"
-            }
-        ]
-    elif "Heart" in face_shape:
-        recommendations = [
-            {
-                "name": "Beach Waves",
-                "category": "Hairstyle",
-                "match_score": 98,
-                "reason": "Soft waves balance a wider forehead and draw focus to eyes.",
-                "image_url": "sample_beach_waves.jpg"
-            },
-            {
-                "name": "Curtain Bangs",
-                "category": "Hairstyle",
-                "match_score": 96,
-                "reason": "Face-framing curtain bangs soften forehead width.",
-                "image_url": "sample_short_bob.jpg"
-            },
-            {
-                "name": "Glamour Waves",
-                "category": "Hairstyle",
-                "match_score": 91,
-                "reason": "Adds fullness around the collarbone and chin.",
-                "image_url": "sample_glamour_waves.jpg"
-            }
-        ]
-    elif "Square" in face_shape:
-        recommendations = [
-            {
-                "name": "Glamour Waves",
-                "category": "Hairstyle",
-                "match_score": 97,
-                "reason": "Soft cascading waves round out angular jawline angles.",
-                "image_url": "sample_glamour_waves.jpg"
-            },
-            {
-                "name": "Braided Updo",
-                "category": "Hairstyle",
-                "match_score": 94,
-                "reason": "Elongates vertical facial silhouette with crown height.",
-                "image_url": "sample_braided_updo.jpg"
-            },
-            {
-                "name": "Beach Waves",
-                "category": "Hairstyle",
-                "match_score": 90,
-                "reason": "Textured layers soften cheekbone prominence.",
-                "image_url": "sample_beach_waves.jpg"
-            }
-        ]
-    else:  # Round or Diamond
-        recommendations = [
-            {
-                "name": "Short Bob",
-                "category": "Hairstyle",
-                "match_score": 97,
-                "reason": "Angular bob structure creates vertical length and cheekbone shadow.",
-                "image_url": "sample_short_bob.jpg"
-            },
-            {
-                "name": "Braided Updo",
-                "category": "Hairstyle",
-                "match_score": 95,
-                "reason": "Lifts focus upward, creating an elongated aesthetic.",
-                "image_url": "sample_braided_updo.jpg"
-            },
-            {
-                "name": "Glamour Waves",
-                "category": "Hairstyle",
-                "match_score": 93,
-                "reason": "Adds volume at crown while maintaining slim side contours.",
-                "image_url": "sample_glamour_waves.jpg"
-            }
-        ]
+class FaceAnalysisFailed(Exception):
+    """The provider call failed or returned something unusable."""
 
-    # Hair Color Recommendations based on Skin Tone & Undertone
-    if "Warm" in undertone or "Golden" in skin_tone:
-        color_recommendations = [
-            {"name": "Caramel Bronze", "hex": "#c68642", "desc": "Warm golden brown with sun-lit highlights"},
-            {"name": "Honey Blonde", "hex": "#e3a857", "desc": "Soft luminous golden blonde"},
-            {"name": "Espresso Dark", "hex": "#2b1704", "desc": "Deep glossy black with warm cocoa undertones"},
-            {"name": "Rose Gold", "hex": "#b76e79", "desc": "Trendy metallic blush rose color"}
-        ]
-    else:
-        color_recommendations = [
-            {"name": "Platinum Ice", "hex": "#e5e4e2", "desc": "Cool high-fashion icy blonde"},
-            {"name": "Burgundy Velvet", "hex": "#800020", "desc": "Deep wine red with cool plum reflections"},
-            {"name": "Jet Black", "hex": "#0a0a0a", "desc": "High-shine cool monochrome raven black"},
-            {"name": "Ash Brown", "hex": "#604e43", "desc": "Sophisticated cool matte brown"}
-        ]
 
+# Styles the app can try on, with the sample image used as the reference.
+CATALOGUE = {
+    "Hairstyle": {
+        "Glamour Waves": "sample_glamour_waves.jpg",
+        "Beach Waves": "sample_beach_waves.jpg",
+        "Short Bob": "sample_short_bob.jpg",
+        "Braided Updo": "sample_braided_updo.jpg",
+        "Curtain Bangs": "sample_short_bob.jpg",
+        "Volumetric Curls": "sample_glamour_waves.jpg",
+    },
+    "Makeup": {
+        "Natural Glow": "sample_glamour_waves.jpg",
+        "Soft Glam": "sample_beach_waves.jpg",
+        "Smoky Eyes": "sample_short_bob.jpg",
+        "Bridal Velvet": "sample_braided_updo.jpg",
+        "Bold Lip": "sample_glamour_waves.jpg",
+        "Party Bronze": "sample_beach_waves.jpg",
+    },
+    "Overall beauty look": {
+        "Red Carpet": "sample_glamour_waves.jpg",
+        "Evening Gala": "sample_braided_updo.jpg",
+        "Korean Glass Skin": "sample_beach_waves.jpg",
+        "Bridal Luxe": "sample_short_bob.jpg",
+    },
+}
+
+FACE_SHAPES = ["Oval", "Round", "Square", "Heart", "Diamond", "Oblong", "Triangle"]
+SKIN_TONES = ["Fair", "Light", "Medium", "Tan", "Deep"]
+UNDERTONES = ["Cool", "Neutral", "Warm", "Olive"]
+NOT_VISIBLE = "Not visible"
+
+
+def _pick(names):
     return {
-        "face_shape": face_shape,
-        "shape_description": shape_desc,
-        "skin_tone": skin_tone,
-        "undertone": undertone,
-        "recommended_hairstyles": recommendations,
-        "recommended_hair_colors": color_recommendations
+        "type": "array",
+        "items": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["name", "reason"],
+            "properties": {
+                "name": {"type": "string", "enum": list(names)},
+                "reason": {"type": "string"},
+            },
+        },
     }
+
+
+SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": [
+        "face_detected", "issue", "face_shape", "face_shape_reason", "skin_tone", "undertone",
+        "hair_texture", "hair_length", "hair_thickness", "hair_colour", "summary",
+        "hairstyles", "makeup", "full_looks", "hair_colours", "tips",
+    ],
+    "properties": {
+        "face_detected": {"type": "boolean"},
+        "issue": {"type": "string"},
+        "face_shape": {"type": "string", "enum": FACE_SHAPES},
+        "face_shape_reason": {"type": "string"},
+        "skin_tone": {"type": "string", "enum": SKIN_TONES},
+        "undertone": {"type": "string", "enum": UNDERTONES},
+        "hair_texture": {"type": "string", "enum": ["Straight", "Wavy", "Curly", "Coily", NOT_VISIBLE]},
+        "hair_length": {"type": "string", "enum": ["Short", "Medium", "Long", NOT_VISIBLE]},
+        "hair_thickness": {"type": "string", "enum": ["Fine", "Medium", "Thick", NOT_VISIBLE]},
+        "hair_colour": {"type": "string"},
+        "summary": {"type": "string"},
+        "hairstyles": _pick(CATALOGUE["Hairstyle"]),
+        "makeup": _pick(CATALOGUE["Makeup"]),
+        "full_looks": _pick(CATALOGUE["Overall beauty look"]),
+        "hair_colours": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["name", "hex", "reason"],
+                "properties": {
+                    "name": {"type": "string"},
+                    "hex": {"type": "string"},
+                    "reason": {"type": "string"},
+                },
+            },
+        },
+        "tips": {"type": "array", "items": {"type": "string"}},
+    },
+}
+
+INSTRUCTIONS = """You are a professional hairstylist and makeup artist giving a consultation from one photo.
+
+Look at the person's face and hair and describe only what is visible:
+- face_shape: judge from the proportions of forehead, cheekbones, jawline and face length; explain briefly in face_shape_reason.
+- skin_tone and undertone: for choosing makeup and hair colour shades. Allow for the photo's lighting.
+- hair texture, length, thickness and colour. Use "Not visible" if the hair is covered or out of frame.
+
+Then recommend, choosing names only from the allowed lists:
+- hairstyles: the 3 best, best first.
+- makeup: the 3 best, best first.
+- full_looks: the 1-2 best.
+- hair_colours: 3 shades that suit the skin tone and undertone, each with a #RRGGBB hex.
+- tips: 2-4 short, practical styling or makeup tips.
+Each reason is one short sentence tied to what you saw (face shape, tone, hair type).
+summary is 1-2 friendly sentences.
+
+Rules:
+- Do not guess or mention age, gender, race, ethnicity, health or attractiveness.
+- If there is no clear single human face (no face, several faces, too blurry, face mostly hidden),
+  set face_detected to false, explain in issue, and fill the other fields with your best neutral defaults.
+  Otherwise set issue to an empty string.
+- Write in plain, kind English."""
+
+HEX = re.compile(r"^#[0-9A-Fa-f]{6}$")
+
+
+def _clean_picks(picks, category, limit):
+    out, seen = [], set()
+    for p in picks or []:
+        name = p.get("name")
+        if name in CATALOGUE[category] and name not in seen:
+            seen.add(name)
+            out.append({
+                "name": name,
+                "category": category,
+                "reason": str(p.get("reason", ""))[:240],
+                "image_url": CATALOGUE[category][name],
+            })
+    return out[:limit]
+
+
+def _normalise(raw: dict) -> dict:
+    colours = [
+        {"name": str(c.get("name", ""))[:40], "hex": c["hex"], "reason": str(c.get("reason", ""))[:240]}
+        for c in raw.get("hair_colours") or []
+        if isinstance(c.get("hex"), str) and HEX.match(c["hex"])
+    ][:4]
+    return {
+        "face_detected": bool(raw.get("face_detected")),
+        "issue": str(raw.get("issue", ""))[:240],
+        "face_shape": raw.get("face_shape"),
+        "face_shape_reason": str(raw.get("face_shape_reason", ""))[:300],
+        "skin_tone": raw.get("skin_tone"),
+        "undertone": raw.get("undertone"),
+        "hair": {
+            "texture": raw.get("hair_texture"),
+            "length": raw.get("hair_length"),
+            "thickness": raw.get("hair_thickness"),
+            "colour": str(raw.get("hair_colour", ""))[:60],
+        },
+        "summary": str(raw.get("summary", ""))[:400],
+        "recommendations": {
+            "hairstyles": _clean_picks(raw.get("hairstyles"), "Hairstyle", 3),
+            "makeup": _clean_picks(raw.get("makeup"), "Makeup", 3),
+            "full_looks": _clean_picks(raw.get("full_looks"), "Overall beauty look", 2),
+        },
+        "hair_colours": colours,
+        "tips": [str(t)[:200] for t in (raw.get("tips") or [])][:4],
+    }
+
+
+def analyze_face(image_bytes: bytes, mime: str) -> dict:
+    """Analyse a validated, downscaled image. Raises FaceAnalysisUnavailable/FaceAnalysisFailed."""
+    api_key = settings.OPENAI_API_KEY
+    if not api_key or "your_" in api_key.lower() or "dummy" in api_key.lower():
+        raise FaceAnalysisUnavailable("Face analysis needs OPENAI_API_KEY to be set on the server.")
+
+    data_url = f"data:{mime};base64," + base64.b64encode(image_bytes).decode("ascii")
+    try:
+        client = OpenAI(api_key=api_key, timeout=60, max_retries=1)
+        resp = client.responses.create(
+            model=settings.OPENAI_VISION_MODEL,
+            instructions=INSTRUCTIONS,
+            input=[{
+                "role": "user",
+                "content": [
+                    {"type": "input_text", "text": "Analyse this photo for a beauty consultation."},
+                    {"type": "input_image", "image_url": data_url, "detail": "high"},
+                ],
+            }],
+            text={"format": {"type": "json_schema", "name": "face_analysis", "schema": SCHEMA, "strict": True}},
+        )
+        raw = json.loads(resp.output_text)
+    except Exception as exc:
+        logger.warning("Face analysis failed: %s", exc)
+        raise FaceAnalysisFailed("Face analysis is unavailable right now. Please try again.") from exc
+
+    result = _normalise(raw)
+    result["model"] = settings.OPENAI_VISION_MODEL
+    return result
