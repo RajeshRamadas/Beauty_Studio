@@ -438,6 +438,15 @@
     .cam-round svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
     .cam-alt { position: relative; background: none; border: none; color: var(--accent); font: inherit; font-size: 13px; font-weight: 700; padding: 8px 0 24px; cursor: pointer; }
 
+    /* ── Accuracy ─────────────────────────────────────── */
+    .accuracy { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 12px 14px; }
+    .acc-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+    .acc-head b { color: var(--ok); font-size: 16px; }
+    .acc-row { display: grid; grid-template-columns: 1fr 90px 40px; gap: 8px; align-items: center; font-size: 12px; color: var(--text2); margin-top: 4px; }
+    .acc-row span:last-child { text-align: right; color: var(--text); font-weight: 700; }
+    .acc-bar { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+    .acc-bar i { display: block; height: 100%; background: var(--accent); }
+
     /* ── Spacing helpers ──────────────────────────────── */
     .mb-4 { margin-bottom: 4px; }
     .mb-8 { margin-bottom: 8px; }
@@ -565,6 +574,7 @@
       <div style="flex:1"></div>
       <span class="badge" style="background:rgba(143,212,168,.14);color:var(--ok);">Generated</span>
     </div>
+    <div id="accuracy" class="accuracy mb-12" style="display:none;"></div>
     <div id="demo-banner" class="msg err mb-12" style="display:none;">Demo result: no AI was used. The server is in DEMO_MODE, so it only blended the two photos. Turn DEMO_MODE off and set OPENAI_API_KEY for real results.</div>
     <div id="compare-box" class="compare-box mb-8">
       <img id="compare-after-img" src="sample_glamour_waves.jpg" alt="After">
@@ -936,7 +946,7 @@ async function submitGeneration() {
 
     const statusUrl = data.status_url || ('/api/v1/generations/' + data.request_id);
     let attempts = 0, done = false;
-    while (attempts < 60 && !done) {
+    while (attempts < 180 && !done) {  // up to 6 minutes: retries and accuracy checks take time
       await new Promise(r => setTimeout(r, 2000)); attempts++;
       const pollRes = await fetch(statusUrl, { headers });
       if (!pollRes.ok) continue;
@@ -947,10 +957,12 @@ async function submitGeneration() {
         $g('compare-after-img').src = resultDataUrl;
         if (targetDataUrl) $g('compare-before-img').src = targetDataUrl;
         $g('demo-banner').style.display = (job.model || '').startsWith('demo') ? 'block' : 'none';
+        showAccuracy(job);
         showScreen('screen-6');
       } else if (job.status === 'failed') { done = true; throw new Error(job.error_message || 'Generation failed.'); }
-      else { st.textContent = 'Processing: ' + job.status + ' (' + (attempts*2) + 's)'; }
+      else { st.textContent = 'Creating your look and checking its accuracy… (' + (attempts*2) + 's)'; }
     }
+    if (!done) throw new Error('This is taking longer than usual. Check My history in a few minutes.');
   } catch(e) { st.className = 'msg err'; st.textContent = 'Error: ' + e.message; }
   finally { delete btn.dataset.busy; btn.textContent = 'Generate'; Generator.updateReady({ keepStatus: true }); }
 }
@@ -966,6 +978,33 @@ async function shareResultImage() {
 function downloadResultImage() {
   if (!resultDataUrl) return;
   const a = document.createElement('a'); a.href = resultDataUrl; a.download = 'glow-ai-result.png'; a.click();
+}
+
+/* ── Accuracy badge on the result ─────────────────── */
+function showAccuracy(job) {
+  const box = $g('accuracy');
+  if (job.accuracy == null) { box.style.display = 'none'; return; }
+  const head = document.createElement('div');
+  head.className = 'acc-head';
+  const big = document.createElement('b');
+  big.textContent = 'Accuracy ' + job.accuracy + '%';
+  const note = document.createElement('span');
+  note.className = 'caption';
+  note.textContent = 'AI-checked' + (job.attempts > 1 ? ' · best of ' + job.attempts + ' attempts' : '');
+  head.append(big, note);
+  const rows = Object.entries(job.accuracy_breakdown || {}).map(([label, v]) => {
+    const r = document.createElement('div');
+    r.className = 'acc-row';
+    const l = document.createElement('span'); l.textContent = label;
+    const bar = document.createElement('span'); bar.className = 'acc-bar';
+    const fill = document.createElement('i'); fill.style.width = Math.max(0, Math.min(100, v)) + '%';
+    bar.append(fill);
+    const n = document.createElement('span'); n.textContent = v + '%';
+    r.append(l, bar, n);
+    return r;
+  });
+  box.replaceChildren(head, ...rows);
+  box.style.display = 'block';
 }
 
 /* ── Auth ─────────────────────────────────────────── */

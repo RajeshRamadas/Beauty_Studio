@@ -32,6 +32,9 @@ class GenerationStatusResponse(BaseModel):
     completed_at: Optional[str] = None
     result_image_b64: Optional[str] = None
     assets: List[ImageAssetInfo] = []
+    accuracy: Optional[int] = Field(None, description="AI-estimated accuracy 0-100 (lowest of the criteria)")
+    accuracy_breakdown: Optional[Dict[str, int]] = None
+    attempts: Optional[int] = None
 
 class GenerationResponse(BaseModel):
     request_id: str

@@ -42,6 +42,8 @@ class GenerationRequestModel(Base):
 
     user: Mapped[Optional["UserModel"]] = relationship("UserModel", back_populates="requests")
     assets: Mapped[List["ImageAssetModel"]] = relationship("ImageAssetModel", back_populates="request", cascade="all, delete-orphan")
+    quality_check: Mapped[Optional["QualityCheckModel"]] = relationship(
+        "QualityCheckModel", uselist=False, cascade="all, delete-orphan")
 
 class ImageAssetModel(Base):
     __tablename__ = "image_assets"
@@ -74,4 +76,17 @@ class UsageEventModel(Base):
     request_id: Mapped[str] = mapped_column(String(36), ForeignKey("generation_requests.id"), nullable=False)
     provider_status: Mapped[str] = mapped_column(String(50), nullable=False)
     duration_ms: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class QualityCheckModel(Base):
+    """AI accuracy score of a generated result (a separate table so existing databases need no migration)."""
+    __tablename__ = "quality_checks"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    request_id: Mapped[str] = mapped_column(String(36), ForeignKey("generation_requests.id"), unique=True, index=True, nullable=False)
+    overall: Mapped[int] = mapped_column(Integer, nullable=False)
+    scores_json: Mapped[str] = mapped_column(Text, nullable=False)
+    issues_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)

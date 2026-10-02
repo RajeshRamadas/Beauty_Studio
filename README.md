@@ -19,6 +19,15 @@ uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 
 Open http://127.0.0.1:8000. Upload both images and click **Apply style to my photo**. Default quality is `medium` (set `OPENAI_IMAGE_QUALITY=low` for cheaper tests). Uploads are auto-rotated and downscaled to 1536px, and the output size follows your photo's aspect ratio. Actual API charges depend on image inputs and generated output.
 
+## Accuracy gate
+Every generated look is checked by the vision model before it is shown. It compares your photo, the style and the result and scores four things 0-100: **face kept**, **style match**, **everything else unchanged** and **natural result**. Accuracy is the lowest of the four.
+
+- At or above `QUALITY_MIN_SCORE` (default **90**) the result is shown with its accuracy and breakdown.
+- Below it, the image is regenerated with the problems fed back to the model, up to `QUALITY_MAX_ATTEMPTS` (default **2**) attempts in total; the best passing attempt is shown.
+- If no attempt passes, or the check itself can't run, the generation fails with the reason and **no image is saved or shown**.
+
+Each extra attempt and check costs another API call. `QUALITY_CHECK=off` disables the gate (not recommended). The score is the model's estimate, not a guarantee; higher `OPENAI_IMAGE_QUALITY` (e.g. `high`) generally raises it.
+
 ## Checking the OpenAI connection
 If results look wrong, first check the AI is really being used:
 

@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     # Demo mode blends the two photos locally instead of calling OpenAI. For UI testing only;
     # results are labelled as demo. Off by default so a missing key or API error is reported.
     DEMO_MODE: bool = os.getenv("DEMO_MODE", "").lower() in ("1", "true", "yes")
+    # Accuracy gate: every result is scored by the vision model. Below QUALITY_MIN_SCORE the image is
+    # regenerated (up to QUALITY_MAX_ATTEMPTS in total) and, if still below, rejected: nothing is shown.
+    QUALITY_CHECK: str = os.getenv("QUALITY_CHECK", "required")  # required | off
+    QUALITY_MIN_SCORE: int = int(os.getenv("QUALITY_MIN_SCORE", "90"))
+    QUALITY_MAX_ATTEMPTS: int = int(os.getenv("QUALITY_MAX_ATTEMPTS", "2"))
     # Vision model for face analysis (face shape, skin tone, hair type, recommendations)
     OPENAI_VISION_MODEL: str = os.getenv("OPENAI_VISION_MODEL", "gpt-5-mini")
     ANALYSIS_LIMIT_PER_DAY: int = int(os.getenv("ANALYSIS_LIMIT_PER_DAY", "30"))

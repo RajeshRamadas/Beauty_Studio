@@ -63,6 +63,18 @@ def test_edit(client):
     line(OK, f"Test edit took {time.time() - started:.1f}s; saved {out} (Short Bob photo given Glamour Waves hair)."
              + (f" Tokens: {usage.total_tokens}" if usage else ""))
     print("       Open that file: if it looks right, the API works and the app is calling it correctly.")
+    from app.services.result_judge import JudgeFailed, judge_result
+    try:
+        v = judge_result(person[0], person[1], style[0], style[1], base64.b64decode(result.data[0].b64_json),
+                         ["Hairstyle"], "Glamour Waves")
+    except JudgeFailed as exc:
+        line(BAD, f"Accuracy check ({settings.OPENAI_VISION_MODEL}): {exc}")
+        return False
+    status = OK if v["passed"] else BAD
+    line(status, f"Accuracy {v['overall']}% (needs {settings.QUALITY_MIN_SCORE}%): {v['scores']}"
+                 + (f"; issues: {', '.join(v['issues'])}" if v["issues"] else ""))
+    print("       This test uses quality=low; the app uses OPENAI_IMAGE_QUALITY "
+          f"({settings.OPENAI_IMAGE_QUALITY}), which usually scores higher.")
     return True
 
 

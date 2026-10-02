@@ -61,7 +61,22 @@ def build_status_response(req: GenerationRequestModel) -> GenerationStatusRespon
         completed_at=req.completed_at.isoformat() if req.completed_at else None,
         result_image_b64=result_b64,
         assets=asset_infos,
+        **_quality_fields(req),
     )
+
+
+def _quality_fields(req: GenerationRequestModel) -> dict:
+    qc = req.quality_check
+    if not qc:
+        return {}
+    import json
+    from app.services.result_judge import LABELS
+    scores = json.loads(qc.scores_json)
+    return {
+        "accuracy": qc.overall,
+        "accuracy_breakdown": {LABELS.get(k, k): v for k, v in scores.items()},
+        "attempts": qc.attempts,
+    }
 
 @router.post("/generations", status_code=202, response_model=GenerationAcceptedResponse)
 async def create_generation(
@@ -142,6 +157,11 @@ async def create_generation(
         style_size,
         prompt,
         size,
+        quality_context={
+            "areas": areas,
+            "style_text": (f"{catalogue_style['name']}: {catalogue_style['description']}" if catalogue_style
+                           else style.strip()[:300]) + (f". Notes: {notes.strip()[:300]}" if notes.strip() else ""),
+        },
     )
 
     logger.info("Queued async generation: request_id=%s user_id=%s category=%s", request_id, user_id, category)
