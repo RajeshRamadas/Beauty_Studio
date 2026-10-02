@@ -17,6 +17,7 @@ from app.services.image_processor import read_limited_image, process_image, pick
 from app.services.generation_service import process_generation_background_job
 from app.services.storage import storage_service
 from app.services.style_catalogue import get_style
+from app.services.prompt_builder import build_prompt, parse_areas
 
 router = APIRouter()
 
@@ -68,15 +69,15 @@ async def create_generation(
     background_tasks: BackgroundTasks,
     target_image: UploadFile = File(..., description="User target photo"),
     reference_image: Optional[UploadFile] = File(None, description="Style reference image (optional when style names a catalogue style)"),
-    category: str = Form(...),
+    category: str = Form(..., description="One or more areas to change, comma-separated, e.g. \"Hairstyle,Makeup\""),
     style: str = Form(""),
     notes: str = Form(""),
     consent_version: str = Form("v1.0"),
     db: Session = Depends(get_db),
     current_user: Optional[UserModel] = Depends(get_current_user_optional),
 ):
-    if category not in settings.CATEGORIES:
-        raise HTTPException(400, "Unsupported beauty category.")
+    areas = parse_areas(category)
+    category = ", ".join(areas)  # stored and returned as e.g. "Hairstyle, Makeup"
 
 
     # Rate limiting check
@@ -98,39 +99,7 @@ async def create_generation(
     else:
         style_b = style_mime = style_ext = style_size = None
 
-    category_instructions = {
-        "Hairstyle": "Apply the hairstyle, cut, styling, and hair-color cues shown in the reference, while adapting naturally to the person's own hairline, head shape, and hair texture.",
-        "Makeup": "Apply the makeup look, colors, finish, and placement shown in the reference, adapted naturally to the person's face and skin tone.",
-        "Nail art": "Apply the nail-art design, colors, pattern, and finish shown in the reference.",
-        "Beard & grooming": "Apply the beard, moustache and facial-hair grooming shown, adapted naturally to the person's jawline and hair colour.",
-        "Overall beauty look": "Use the reference as inspiration for the overall beauty styling.",
-    }
-    text_only_instructions = {
-        "Hairstyle": "Change the haircut and styling to match, adapting naturally to the person's hairline, head shape and hair texture; keep their natural hair colour unless the style says otherwise.",
-        "Makeup": "Apply the makeup naturally to the person's face and skin tone.",
-        "Nail art": "Apply the nail design to the visible nails.",
-        "Beard & grooming": "Change only the facial hair, adapted naturally to the person's jawline and hair colour.",
-        "Overall beauty look": "Apply the hair and grooming changes described as one cohesive look.",
-    }
-    if style_b is not None:
-        prompt = (
-            "You are editing two input images. IMAGE 1 is the target photo of the person and must remain the base image. "
-            "IMAGE 2 is a style reference showing the desired look. Transfer the relevant style from IMAGE 2 onto the person in IMAGE 1. "
-            f"Requested category: {category}. {category_instructions.get(category, '')} "
-            "Use IMAGE 2 as a visual reference for style only; do not copy the reference person's identity, face, body, pose, or background. "
-            "Preserve the target person's identity, facial features, face shape, skin tone, expression, age appearance, pose, camera angle, clothing, and background from IMAGE 1 as closely as possible."
-        )
-    else:
-        prompt = (
-            "You are editing a photo of a person. Keep it as the base image and change only the requested styling. "
-            f"Requested category: {category}. Apply this style: {catalogue_style['name']}, which is {catalogue_style['description']}. "
-            f"{text_only_instructions.get(category, '')} "
-            "Preserve the person's identity, facial features, face shape, skin tone, expression, age appearance, pose, camera angle, clothing, and background as closely as possible."
-        )
-    if style.strip():
-        prompt += f" Additional style description: {style.strip()[:300]}."
-    if notes.strip():
-        prompt += f" User notes: {notes.strip()[:500]}."
+    prompt = build_prompt(areas, style_b is not None, catalogue_style, style, notes)
 
     size = pick_size(*person_size)
     request_id = str(uuid.uuid4())

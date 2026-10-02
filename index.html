@@ -383,6 +383,27 @@
     .detail-hero { border-radius: 24px; overflow: hidden; margin-bottom: 16px; height: 300px; }
     .detail-hero img, .detail-tile { width: 100%; height: 100%; object-fit: cover; display: block; }
 
+    /* ── Generator ────────────────────────────────────── */
+    .gen-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .gen-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+    .gen-slot {
+      height: 220px; width: 100%; padding: 0; border-radius: 22px; overflow: hidden; cursor: pointer;
+      background: var(--surface); border: 1.5px dashed var(--border); color: var(--text); font-family: inherit;
+    }
+    .gen-slot.filled { border: 1px solid var(--border); }
+    .gen-slot img, .gen-tile { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .gen-tile svg { width: 40px; height: 40px; }
+    .gen-empty { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 12px; text-align: center; }
+    .gen-empty svg { width: 30px; height: 30px; stroke: var(--accent); stroke-width: 1.7; fill: none; stroke-linecap: round; stroke-linejoin: round; margin-bottom: 4px; }
+    .gen-empty small { color: var(--text2); font-size: 11px; line-height: 1.3; }
+    .gen-label { font-size: 13px; font-weight: 700; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .gen-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .gen-actions .btn { width: 100%; padding: 8px 6px; }
+    .area-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .area-chip { min-height: 44px; padding: 0 18px; font-weight: 700; }
+    .area-chip.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+    #generate-btn:disabled { background: var(--surface-2); color: var(--text2); cursor: not-allowed; opacity: 1; }
+
     /* ── Spacing helpers ──────────────────────────────── */
     .mb-4 { margin-bottom: 4px; }
     .mb-8 { margin-bottom: 8px; }
@@ -538,43 +559,46 @@
       <h2>AI Generator</h2>
     </div>
 
-    <div class="card mb-12">
-      <h3 class="mb-12">1. Your Photo</h3>
-      <div class="g2 mb-8" style="gap:8px;">
-        <button class="btn btn-s btn-sm" onclick="$g('camera-capture').click()">Camera</button>
-        <button class="btn btn-s btn-sm" onclick="$g('person-file').click()">Upload</button>
+    <div class="gen-pair">
+      <div class="gen-col">
+        <button type="button" id="gen-target" class="gen-slot" onclick="$g('person-file').click()" aria-label="Choose your photo"></button>
+        <p id="person-status" class="gen-label">Your photo</p>
+        <div class="gen-actions">
+          <button type="button" class="btn btn-s btn-sm" onclick="$g('camera-capture').click()">Camera</button>
+          <button type="button" class="btn btn-s btn-sm" onclick="$g('person-file').click()">Upload</button>
+        </div>
       </div>
-      <input id="camera-capture" type="file" accept="image/*" capture="user" style="display:none;" onchange="handleTargetInput(event)">
-      <input id="person-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleTargetInput(event)">
-      <p id="person-status" class="caption">No photo selected</p>
-      <button type="button" class="btn-link mt-12" onclick="showScreen('screen-16')">Not sure what suits you? Analyse my face →</button>
+      <div class="gen-col">
+        <button type="button" id="gen-ref" class="gen-slot" onclick="$g('reference-file').click()" aria-label="Choose a style reference"></button>
+        <p id="reference-status" class="gen-label">Style</p>
+        <div class="gen-actions">
+          <button type="button" class="btn btn-s btn-sm" onclick="showScreen('screen-3')">Browse</button>
+          <button type="button" class="btn btn-s btn-sm" onclick="$g('reference-file').click()">Upload</button>
+        </div>
+      </div>
     </div>
-
-    <div class="card mb-12">
-      <h3 class="mb-12">2. Style Reference</h3>
-      <button class="btn btn-s mb-8" onclick="$g('reference-file').click()">Upload Reference Image</button>
-      <input id="reference-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;">
-      <p id="reference-status" class="caption">Or select from a gallery above</p>
-    </div>
+    <template id="gen-target-empty">
+      <span class="gen-empty"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><b>Your photo</b><small>Front-facing, good light</small></span>
+    </template>
+    <template id="gen-ref-empty">
+      <span class="gen-empty"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/></svg><b>Style</b><small>Upload a photo or browse styles</small></span>
+    </template>
+    <input id="camera-capture" type="file" accept="image/*" capture="user" style="display:none;" onchange="handleTargetInput(event)">
+    <input id="person-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleTargetInput(event)">
+    <input id="reference-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="Generator.onReferenceInput(event)">
+    <input id="style-name" type="hidden">
+    <button type="button" class="btn-link mb-16" onclick="showScreen('screen-16')">Not sure what suits you? Analyse my face →</button>
 
     <div class="card mb-16">
-      <h3 class="mb-12">3. Options</h3>
-      <div class="g2 mb-8" style="gap:8px;">
-        <div>
-          <label style="display:block;font-size:11px;color:var(--text2);margin-bottom:4px;">Category</label>
-          <select id="cat-select"></select>
-        </div>
-        <div>
-          <label style="display:block;font-size:11px;color:var(--text2);margin-bottom:4px;">Style Name</label>
-          <input id="style-name" placeholder="e.g. Glamour Waves">
-        </div>
-      </div>
-      <label style="display:block;font-size:11px;color:var(--text2);margin-bottom:4px;">Notes</label>
-      <input id="custom-notes" placeholder="e.g. keep natural hair color">
+      <h3 class="mb-4">What should we change?</h3>
+      <p class="caption mb-12">Choose one or more. Everything else stays as in your photo.</p>
+      <div id="area-chips" class="area-chips" role="group" aria-label="What should we change"></div>
+      <label for="custom-notes" class="caption" style="display:block;margin:16px 0 6px;">Notes (optional)</label>
+      <input id="custom-notes" placeholder="e.g. a little shorter, softer lip colour">
     </div>
 
-    <button id="generate-btn" class="btn btn-p" onclick="submitGeneration()">Generate</button>
-    <div id="gen-status" class="msg mt-12">Ready. Upload your photo and a style reference to begin.</div>
+    <button id="generate-btn" class="btn btn-p" onclick="submitGeneration()" disabled>Generate</button>
+    <div id="gen-status" class="msg mt-12"></div>
   </div>
 
   <!-- ════ SCREEN 11: HISTORY ════════════════════════════════ -->
@@ -722,6 +746,7 @@
 <script src="shop-data.js"></script>
 <script src="shop.js"></script>
 <script src="styles.js"></script>
+<script src="generator.js"></script>
 <script src="salons.js"></script>
 <script src="face-analysis.js"></script>
 <script>
@@ -766,21 +791,17 @@ function goBack() {
 /* ── Preset selection ─────────────────────────────── */
 async function selectPreset(category, name, imageUrl) {
   const style = Styles.find(name);
-  $g('cat-select').value = category;
+  Generator.preselect(category);
   $g('style-name').value = name;
   $g('detail-title').textContent = name;
   $g('detail-desc').textContent = style ? style.description.charAt(0).toUpperCase() + style.description.slice(1) + '.' : '';
   const hero = $g('detail-hero');
-  const inp = $g('reference-file');
-  const st = $g('reference-status');
   if (imageUrl) {
     hero.replaceChildren(Object.assign(document.createElement('img'), { id: 'detail-hero-img', src: imageUrl, alt: name }));
     autoAttachReference(imageUrl, name);
   } else {
     hero.replaceChildren(Styles.picture(style || { name, category }, 'detail-tile'));
-    inp.value = '';
-    st.textContent = 'No reference photo needed for ' + name + '. We’ll use the style description.';
-    st.style.color = 'var(--ok)';
+    if (style) Generator.setReferenceStyle(style);
   }
   showScreen('screen-5');
 }
@@ -795,8 +816,7 @@ async function autoAttachReference(url, name) {
     const inp = $g('reference-file');
     if (inp) {
       inp.files = dt.files;
-      const st = $g('reference-status');
-      if (st) { st.textContent = 'Attached: ' + name + ' (' + (file.size/1048576).toFixed(2) + ' MB)'; st.style.color = 'var(--ok)'; }
+      Generator.setReferenceFile(file, name, true);
     }
   } catch(e) { console.error('Auto-attach failed', e); }
 }
@@ -809,8 +829,7 @@ function handleTargetInput(e) {
   const r = new FileReader();
   r.onload = ev => { targetDataUrl = ev.target.result; $g('compare-before-img').src = targetDataUrl; };
   r.readAsDataURL(file);
-  $g('person-status').textContent = 'Selected: ' + file.name + ' (' + (file.size/1048576).toFixed(2) + ' MB)';
-  $g('person-status').style.color = 'var(--ok)';
+  Generator.setTarget(file);
 }
 
 /* Used by face analysis: reuse the analysed photo as the try-on photo. */
@@ -834,11 +853,13 @@ async function submitGeneration() {
   const catalogueStyle = Styles.find($g('style-name').value.trim());
   if (!person) { st.className = 'msg err'; st.textContent = 'Add your photo first.'; return; }
   if (!reference && !catalogueStyle) { st.className = 'msg err'; st.textContent = 'Upload a style reference, or pick a style from Styles.'; return; }
+  const areas = Generator.areas();
+  if (!areas.length) { st.className = 'msg err'; st.textContent = 'Choose at least one thing to change.'; return; }
 
   const fd = new FormData();
   fd.append('target_image', person);
   if (reference) fd.append('reference_image', reference);
-  fd.append('category', $g('cat-select').value);
+  fd.append('category', areas.join(','));
   fd.append('style', $g('style-name').value.trim());
   fd.append('notes', $g('custom-notes').value.trim());
 
@@ -846,7 +867,7 @@ async function submitGeneration() {
   if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
 
   const btn = $g('generate-btn');
-  btn.disabled = true; btn.textContent = 'Processing...';
+  btn.disabled = true; btn.dataset.busy = '1'; btn.textContent = 'Processing...';
   st.className = 'msg'; st.textContent = 'Uploading and queuing...';
 
   try {
@@ -871,7 +892,7 @@ async function submitGeneration() {
       else { st.textContent = 'Processing: ' + job.status + ' (' + (attempts*2) + 's)'; }
     }
   } catch(e) { st.className = 'msg err'; st.textContent = 'Error: ' + e.message; }
-  finally { btn.disabled = false; btn.textContent = 'Generate'; }
+  finally { delete btn.dataset.busy; btn.textContent = 'Generate'; Generator.updateReady(); }
 }
 
 async function shareResultImage() {
@@ -947,8 +968,6 @@ async function deleteItem(id) {
 }
 
 /* ── Reference file listener ──────────────────────── */
-const refInp = $g('reference-file');
-if (refInp) { refInp.addEventListener('change', e => { const f = e.target.files[0]; if (f) { $g('reference-status').textContent = 'Attached: ' + f.name; $g('reference-status').style.color = 'var(--ok)'; } }); }
 
 /* ── Compare slider ───────────────────────────────── */
 const cBox = $g('compare-box'), cClip = $g('compare-before-clip'), cHandle = $g('compare-handle');
@@ -973,6 +992,7 @@ if (cBox) {
 /* ── Init ─────────────────────────────────────────── */
 if (authToken) refreshAuthUI();
 Shop.init();
+Generator.init();
 Styles.load();
 if (!(navigator.canShare && navigator.canShare({ files: [new File([''], 'x.png', { type: 'image/png' })] }))) $g('share-btn').style.display = 'none';
 showScreen('screen-1');

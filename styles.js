@@ -108,15 +108,6 @@
     }));
   }
 
-  function renderCategorySelect() {
-    const sel = $('cat-select');
-    if (!sel) return;
-    const keep = sel.value;
-    const cats = categories().length ? categories() : ['Hairstyle', 'Makeup', 'Nail art', 'Overall beauty look'];
-    sel.replaceChildren(...cats.map(c => { const o = el('option', null, LABELS[c][0]); o.value = c; return o; }));
-    if (cats.includes(keep)) sel.value = keep;
-  }
-
   function renderHero() {
     // The hero's sample photos are women's styles; hide them until men's photos are added.
     const pics = document.querySelector('#screen-2 .hero-pics');
@@ -129,7 +120,7 @@
     renderHome();
     renderCategories();
     renderList();
-    renderCategorySelect();
+    if (window.Generator) window.Generator.renderChips();
   }
 
   window.Styles = {

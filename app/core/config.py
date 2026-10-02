@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     MIN_SIDE: int = int(os.getenv("MIN_IMAGE_SIDE", "256"))
     MAX_SIDE: int = 1536
     ALLOWED_FORMATS: Set[str] = {"JPEG", "PNG", "WEBP"}
-    CATEGORIES: Set[str] = {"Hairstyle", "Makeup", "Nail art", "Beard & grooming", "Overall beauty look"}
+    CATEGORIES: Set[str] = {"Hairstyle", "Hair colour", "Makeup", "Nail art", "Beard & grooming", "Overall beauty look"}
 
     # Database & Storage
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./ai_beauty_studio.db")
