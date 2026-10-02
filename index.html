@@ -7,25 +7,29 @@
   <meta name="description" content="AI-powered beauty studio for hairstyle, makeup and nail-art try-on with face analysis.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #111111;
-      --surface: #1A1A1A;
-      --border: #2A2A2A;
-      --text: #EBEBEB;
-      --text2: #888888;
-      --accent: #E8836B;
-      --accent-h: #D4715B;
-      --ok: #5CB563;
-      --err: #E25C5C;
+      /* Champagne Noir */
+      --bg: #0C0C0C;
+      --surface: #181715;
+      --surface-2: #22201D;
+      --border: #2A2824;
+      --text: #F5F1EA;
+      --text2: #A39E95;
+      --accent: #D9B66F;
+      --accent-h: #E6C988;
+      --on-accent: #1A1408;
+      --ok: #8FD4A8;
+      --err: #F2998C;
+      --display: 'Sora', 'Manrope', system-ui, sans-serif;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: #000;
-      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      background: #050505;
+      font-family: 'Manrope', -apple-system, system-ui, sans-serif;
       color: var(--text);
       -webkit-font-smoothing: antialiased;
     }
@@ -36,7 +40,7 @@
       background: var(--bg);
       min-height: 100vh;
       position: relative;
-      padding-bottom: 76px;
+      padding-bottom: 100px;
     }
 
     /* ── Screens ──────────────────────────────────────── */
@@ -61,13 +65,14 @@
       cursor: pointer;
       display: flex;
     }
-    .logo { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
+    .logo { font-family: var(--display); font-size: 20px; font-weight: 600; letter-spacing: -0.4px; }
     .logo b { color: var(--accent); font-weight: 600; }
 
     /* ── Typography ───────────────────────────────────── */
-    h1 { font-size: 22px; font-weight: 600; line-height: 1.3; }
-    h2 { font-size: 15px; font-weight: 600; line-height: 1.4; }
-    h3 { font-size: 14px; font-weight: 500; }
+    h1, h2 { font-family: var(--display); letter-spacing: -0.02em; }
+    h1 { font-size: 24px; font-weight: 600; line-height: 1.3; }
+    h2 { font-size: 17px; font-weight: 600; line-height: 1.4; }
+    h3 { font-size: 15px; font-weight: 700; }
     .caption { font-size: 12px; color: var(--text2); line-height: 1.4; }
 
     /* ── Buttons ──────────────────────────────────────── */
@@ -76,10 +81,11 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      padding: 12px 16px;
-      font-size: 14px;
-      font-weight: 500;
-      border-radius: 10px;
+      min-height: 48px;
+      padding: 12px 20px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 999px;
       cursor: pointer;
       border: none;
       width: 100%;
@@ -88,11 +94,11 @@
     }
     .btn:active { opacity: .85; }
     .btn:disabled { opacity: .45; cursor: wait; }
-    .btn-p { background: var(--accent); color: #111; }
+    .btn-p { background: var(--accent); color: var(--on-accent); }
     .btn-p:hover { background: var(--accent-h); }
     .btn-s { background: transparent; color: var(--text); border: 1px solid var(--border); }
-    .btn-sm { padding: 7px 14px; font-size: 12px; width: auto; border-radius: 8px; }
-    .btn-link { background: none; border: none; color: var(--accent); font-weight: 500; font-size: 13px; cursor: pointer; padding: 0; font-family: inherit; }
+    .btn-sm { min-height: 40px; padding: 8px 16px; font-size: 13px; width: auto; }
+    .btn-link { background: none; border: none; color: var(--accent); font-weight: 700; font-size: 13px; cursor: pointer; padding: 0; font-family: inherit; }
 
     /* ── Inputs ───────────────────────────────────────── */
     input, select, textarea {
@@ -100,8 +106,8 @@
       background: var(--surface);
       color: var(--text);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 11px 14px;
+      border-radius: 14px;
+      padding: 13px 16px;
       font-family: inherit;
       font-size: 14px;
       outline: none;
@@ -116,35 +122,36 @@
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
+      border-radius: 20px;
+      padding: 18px;
       margin-bottom: 12px;
     }
     .card-click { cursor: pointer; transition: border-color .15s ease; }
-    .card-click:hover { border-color: #444; }
+    .card-click:hover { border-color: var(--accent); }
 
     /* ── Grids ────────────────────────────────────────── */
     .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 
     .img-card {
-      border-radius: 12px;
+      border-radius: 18px;
       overflow: hidden;
       cursor: pointer;
       transition: opacity .15s ease;
     }
     .img-card:hover { opacity: .85; }
-    .img-card img { width: 100%; height: 140px; object-fit: cover; display: block; }
+    .img-card img { width: 100%; height: 170px; object-fit: cover; display: block; }
     .img-card-info { padding: 10px; background: var(--surface); }
-    .img-card-info p { font-size: 13px; font-weight: 500; }
+    .img-card-info p { font-size: 13px; font-weight: 700; }
     .img-card-info span { font-size: 11px; color: var(--text2); }
 
     /* ── Scroll row ──────────────────────────────────── */
     .scroll-row { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
     .scroll-row::-webkit-scrollbar { display: none; }
     .scroll-item { flex: 0 0 140px; }
-    .scroll-item img { width: 140px; height: 180px; object-fit: cover; border-radius: 12px; }
-    .scroll-item p { font-size: 13px; margin-top: 8px; font-weight: 500; }
+    .scroll-item { cursor: pointer; }
+    .scroll-item img { width: 140px; height: 180px; object-fit: cover; border-radius: 18px; }
+    .scroll-item p { font-size: 13px; margin-top: 8px; font-weight: 700; }
     .scroll-item .caption { margin-top: 2px; }
 
     /* ── Chips ────────────────────────────────────────── */
@@ -161,7 +168,7 @@
       cursor: pointer;
       font-family: inherit;
     }
-    .chip.active { background: var(--text); color: #111; border-color: var(--text); }
+    .chip.active { background: var(--text); color: var(--bg); border-color: var(--text); }
 
     /* ── Bottom nav ───────────────────────────────────── */
     .bottom-nav {
@@ -175,7 +182,7 @@
       border-top: 1px solid var(--border);
       display: flex;
       justify-content: space-around;
-      padding: 10px 0 22px;
+      padding: 10px 0 20px;
       z-index: 100;
     }
     .nav-btn {
@@ -193,14 +200,23 @@
       font-family: inherit;
     }
     .nav-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-    .nav-btn.active { color: var(--accent); }
+    .nav-btn.active { color: var(--accent); font-weight: 700; }
+    .nav-fab { color: var(--text2); }
+    .nav-fab .fab {
+      width: 54px; height: 54px; margin-top: -30px;
+      border-radius: 50%; border: 4px solid var(--bg);
+      background: var(--accent); color: var(--on-accent);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nav-fab .fab svg { width: 22px; height: 22px; stroke-width: 2.2; }
+    .nav-fab.active .fab { background: var(--accent-h); }
 
     /* ── Compare slider ──────────────────────────────── */
     .compare-box {
       position: relative;
       width: 100%;
-      height: 360px;
-      border-radius: 12px;
+      height: 420px;
+      border-radius: 24px;
       overflow: hidden;
       background: var(--surface);
       cursor: ew-resize;
@@ -214,8 +230,8 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 32px;
-      height: 32px;
+      width: 40px;
+      height: 40px;
       background: var(--accent);
       border-radius: 50%;
       display: flex;
@@ -237,33 +253,41 @@
       flex-shrink: 0;
       transition: border-color .15s ease;
     }
-    .swatch.active { border-color: var(--accent); }
+    .swatch.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--bg) inset; }
     .swatch-label { font-size: 10px; color: var(--text2); text-align: center; margin-top: 3px; }
     .swatch-wrap { flex-shrink: 0; text-align: center; cursor: pointer; }
 
     /* ── Status msg ───────────────────────────────────── */
     .msg {
       padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 12px;
+      border-radius: 14px;
+      font-size: 13px;
       margin-top: 12px;
       border: 1px solid var(--border);
       background: var(--surface);
       color: var(--text2);
     }
-    .msg.err { border-color: rgba(226,92,92,.4); color: var(--err); }
-    .msg.ok { border-color: rgba(92,181,99,.4); color: var(--ok); }
+    .msg.err { border-color: rgba(242,153,140,.4); color: var(--err); }
+    .msg.ok { border-color: rgba(143,212,168,.4); color: var(--ok); }
 
     /* ── Badge ────────────────────────────────────────── */
     .badge {
       display: inline-block;
       padding: 3px 8px;
-      border-radius: 6px;
+      border-radius: 999px;
       font-size: 11px;
-      font-weight: 500;
-      background: var(--border);
+      font-weight: 700;
+      background: var(--surface-2);
       color: var(--text2);
     }
+
+    /* ── Hero ─────────────────────────────────────────── */
+    .hero { background: var(--surface); border: 1px solid var(--border); border-radius: 26px; overflow: hidden; margin-bottom: 24px; }
+    .hero-pics { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; height: 210px; position: relative; }
+    .hero-pics img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hero-tag { position: absolute; top: 10px; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+    .hero-body { padding: 18px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+    .hero-body .btn { width: auto; }
 
     /* ── Spacing helpers ──────────────────────────────── */
     .mb-4 { margin-bottom: 4px; }
@@ -285,9 +309,9 @@
 
   <!-- ════ SCREEN 1: SPLASH ══════════════════════════════════ -->
   <div id="screen-1" class="screen">
-    <div style="font-size:36px;font-weight:600;letter-spacing:-1px;margin-bottom:4px;">GLOW<b style="color:var(--accent)">AI</b></div>
-    <p class="caption mb-24">Professional AI Beauty Studio</p>
-    <div style="height:280px;border-radius:12px;overflow:hidden;margin-bottom:24px;">
+    <div style="font-family:var(--display);font-size:40px;font-weight:600;letter-spacing:-1.5px;margin-bottom:6px;">GLOW<b style="color:var(--accent);font-weight:600;">AI</b></div>
+    <p class="caption mb-24" style="letter-spacing:.12em;text-transform:uppercase;font-size:11px;font-weight:700;">Professional AI Beauty Studio</p>
+    <div style="height:340px;border-radius:28px;overflow:hidden;margin-bottom:28px;border:1px solid var(--border);">
       <img src="sample_glamour_waves.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Featured">
     </div>
     <button class="btn btn-p" onclick="screenStack = []; showScreen('screen-2')">Get Started</button>
@@ -296,7 +320,24 @@
   <!-- ════ SCREEN 2: HOME ════════════════════════════════════ -->
   <div id="screen-2" class="screen">
     <div class="top-bar">
-      <div class="logo">GLOW<b>AI</b></div>
+      <div>
+        <p class="caption">Welcome to</p>
+        <div class="logo">GLOW<b>AI</b></div>
+      </div>
+    </div>
+
+    <div class="hero">
+      <div class="hero-pics">
+        <img src="sample_short_bob.jpg" alt="Before: short bob">
+        <img src="sample_glamour_waves.jpg" alt="After: glamour waves">
+        <span class="hero-tag" style="left:10px;background:var(--bg);color:var(--text);">Before</span>
+        <span class="hero-tag" style="right:10px;background:var(--accent);color:var(--on-accent);">After</span>
+      </div>
+      <div class="hero-body">
+        <h1 style="font-size:20px;">See any style on your own photo</h1>
+        <p class="caption" style="font-size:13px;">Upload a selfie and a reference. We keep your face and change only the look.</p>
+        <button class="btn btn-p" onclick="showScreen('screen-7')">Start a new look</button>
+      </div>
     </div>
 
 
@@ -396,7 +437,7 @@
       <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
       <h2>Result</h2>
       <div style="flex:1"></div>
-      <span class="badge" style="background:rgba(92,181,99,.15);color:var(--ok);">Generated</span>
+      <span class="badge" style="background:rgba(143,212,168,.14);color:var(--ok);">Generated</span>
     </div>
     <div id="compare-box" class="compare-box mb-8">
       <img id="compare-after-img" src="sample_glamour_waves.jpg" alt="After">
@@ -404,7 +445,7 @@
         <img id="compare-before-img" src="sample_short_bob.jpg" alt="Before">
       </div>
       <div id="compare-handle">
-        <svg width="14" height="14" viewBox="0 0 24 24" stroke="#111" stroke-width="2.5" fill="none"><path d="M8 9l-3 3 3 3M16 9l3 3-3 3"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" stroke="#1A1408" stroke-width="2.5" fill="none"><path d="M8 9l-3 3 3 3M16 9l3 3-3 3"/></svg>
       </div>
     </div>
     <p class="caption mb-16" style="text-align:center;">Drag to compare</p>
@@ -564,8 +605,8 @@
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       Styles
     </button>
-    <button id="nav-tryon" class="nav-btn" onclick="showScreen('screen-7')">
-      <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <button id="nav-tryon" class="nav-btn nav-fab" onclick="showScreen('screen-7')">
+      <span class="fab"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>
       Create
     </button>
     <button id="nav-history" class="nav-btn" onclick="showScreen('screen-11')">

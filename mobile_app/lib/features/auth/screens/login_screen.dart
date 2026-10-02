@@ -66,14 +66,12 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-          color: Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: isSignedIn
                 ? Column(
                     children: [
-                      const Icon(Icons.check_circle, size: 60, color: Colors.green),
+                      const Icon(Icons.check_circle, size: 60, color: AppTheme.success),
                       const SizedBox(height: 12),
                       const Text(
                         "Signed In",
@@ -87,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             _statusMessage = "Signed out.";
                           });
                         },
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[700]),
+                        style: ElevatedButton.styleFrom(backgroundColor: AppTheme.surfaceHigh, foregroundColor: AppTheme.textPrimary),
                         child: const Text("Sign Out"),
                       ),
                     ],
@@ -104,7 +102,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: _emailController,
                         decoration: const InputDecoration(
                           labelText: "Email address",
-                          border: OutlineInputBorder(),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -113,7 +110,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         obscureText: true,
                         decoration: const InputDecoration(
                           labelText: "Password",
-                          border: OutlineInputBorder(),
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -135,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Text(
                           _statusMessage!,
                           style: TextStyle(
-                            color: _statusMessage!.contains("failed") ? Colors.red : Colors.green,
+                            color: _statusMessage!.contains("failed") ? AppTheme.error : AppTheme.success,
                           ),
                         ),
                       ],

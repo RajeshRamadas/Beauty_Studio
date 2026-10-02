@@ -19,7 +19,7 @@ class AIBeautyStudioApp extends StatelessWidget {
     return MaterialApp(
       title: 'AI Beauty Studio',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
+      theme: AppTheme.theme,
       home: MainNavigationContainer(apiClient: apiClient),
     );
   }
@@ -52,8 +52,6 @@ class _MainNavigationContainerState extends State<MainNavigationContainer> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        selectedItemColor: AppTheme.pinkPrimary,
-        unselectedItemColor: AppTheme.mutedGrey,
         onTap: (index) {
           setState(() {
             _currentIndex = index;
