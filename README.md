@@ -22,3 +22,7 @@ Open http://127.0.0.1:8000. Upload both images and click **Apply style to my pho
 - Both images are sent to the configured provider. Get consent before using another person's photo; review privacy/retention obligations before production use.
 - Results are generative and may not preserve identity or reproduce the reference precisely. Use clear, well-lit images and test with representative examples.
 - This is a local development prototype. Before deployment, add authentication, quotas/rate limits, timeouts, secure storage/retention, monitoring, and abuse controls.
+
+## Salons and Shop
+- **Salon map search** (`salons.js`) uses free OpenStreetMap services from the browser: Leaflet map tiles, Nominatim for place search and the Overpass API for hairdressers, beauty and nail salons. No API key is needed. These public services have fair-use limits, so a production launch should use a paid tile/geocoding provider or self-hosted instances.
+- **Shop** (`shop.js`, `shop-data.js`) shows the catalogue in `shop-data.js` (edit it to change products and prices; current prices are samples). The bag is saved in the browser on that device. Online payment is not connected yet, so checkout explains that instead of taking an order.

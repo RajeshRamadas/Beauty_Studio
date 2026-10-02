@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin="anonymous">
   <style>
     :root {
       /* Champagne Noir */
@@ -289,6 +290,74 @@
     .hero-body { padding: 18px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
     .hero-body .btn { width: auto; }
 
+    /* ── Icon buttons ─────────────────────────────────── */
+    .icon-btn {
+      position: relative; width: 44px; height: 44px; border-radius: 50%;
+      background: var(--surface); border: 1px solid var(--border); color: var(--text);
+      display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+    }
+    .icon-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .bag-count {
+      position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; padding: 0 5px;
+      border-radius: 10px; background: var(--accent); color: var(--on-accent);
+      font-size: 11px; font-weight: 700; align-items: center; justify-content: center;
+    }
+
+    /* ── Salons ───────────────────────────────────────── */
+    .search-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .search-row input { flex: 1; border-radius: 999px; }
+    .search-row .btn { width: auto; }
+    #salon-map {
+      height: 260px; border-radius: 22px; overflow: hidden; border: 1px solid var(--border);
+      background: var(--surface); position: relative; z-index: 0;
+    }
+    .map-wrap { position: relative; margin: 12px 0 14px; }
+    #salon-area-btn { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 500; width: auto; box-shadow: 0 4px 16px rgba(0,0,0,.5); }
+    .salon-pin span { display: block; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: 3px solid var(--bg); box-sizing: border-box; }
+    .you-pin span { display: block; width: 16px; height: 16px; border-radius: 50%; background: #7FB4FF; border: 3px solid #fff; box-sizing: border-box; }
+    .leaflet-container { font-family: inherit; background: var(--surface); }
+    .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--surface-2); color: var(--text); }
+    .leaflet-control-attribution { background: rgba(12,12,12,.75) !important; color: var(--text2) !important; }
+    .leaflet-control-attribution a { color: var(--accent) !important; }
+    .salon-row {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+      padding: 14px 16px; margin-bottom: 10px;
+    }
+    .salon-row.active { border-color: var(--accent); }
+    .salon-head { all: unset; display: block; width: 100%; cursor: pointer; }
+    .salon-name { font-size: 15px; font-weight: 700; }
+    .salon-meta { font-size: 12px; color: var(--text2); margin-top: 3px; line-height: 1.4; }
+    .salon-meta b { color: var(--accent); font-weight: 700; }
+    .salon-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .salon-actions .btn { text-decoration: none; }
+
+    /* ── Shop ─────────────────────────────────────────── */
+    .prod-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
+    .prod-img { width: 100%; height: 130px; object-fit: cover; display: block; }
+    .prod-tile { display: flex; align-items: flex-end; padding: 10px; font-size: 11px; font-weight: 700; color: var(--text2); background: var(--surface-2); }
+    .prod-tile[data-cat="Hair care"] { background: #2B261C; }
+    .prod-tile[data-cat="Colour"] { background: #2E2320; }
+    .prod-tile[data-cat="Makeup"] { background: #2D2226; }
+    .prod-tile[data-cat="Nails"] { background: #26262E; }
+    .prod-tile[data-cat="Tools"] { background: #22262A; }
+    .prod-card-body { padding: 12px; }
+    .prod-price { font-size: 15px; font-weight: 700; color: var(--accent); margin: 4px 0 10px; }
+    .prod-add {
+      width: 100%; min-height: 40px; background: transparent; border: 1px solid var(--border); border-radius: 999px;
+      color: var(--text); font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+    .prod-add:hover { border-color: var(--accent); color: var(--accent); }
+    .stepper { display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--accent); border-radius: 999px; min-height: 40px; }
+    .stepper button { width: 40px; height: 38px; background: none; border: none; color: var(--accent); font-size: 18px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .stepper span { font-weight: 700; font-size: 14px; }
+    .bag-row { display: flex; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 12px; margin-bottom: 10px; }
+    .bag-img { width: 64px; height: 64px; border-radius: 14px; flex-shrink: 0; object-fit: cover; }
+    .bag-img.prod-tile { padding: 6px; font-size: 9px; }
+    .bag-info { flex: 1; min-width: 0; }
+    .bag-info .btn-link { margin-top: 6px; font-size: 12px; }
+    .bag-right { width: 110px; text-align: right; }
+    .bag-right .prod-price { margin: 0 0 6px; }
+
     /* ── Spacing helpers ──────────────────────────────── */
     .mb-4 { margin-bottom: 4px; }
     .mb-8 { margin-bottom: 8px; }
@@ -324,6 +393,9 @@
         <p class="caption">Welcome to</p>
         <div class="logo">GLOW<b>AI</b></div>
       </div>
+      <div style="flex:1"></div>
+      <button class="icon-btn" onclick="showScreen('screen-11')" aria-label="My history"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></button>
+      <button class="icon-btn" onclick="showScreen('screen-15')" aria-label="Shopping bag"><svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 016 0"/></svg><span class="bag-count" style="display:none">0</span></button>
     </div>
 
     <div class="hero">
@@ -453,7 +525,12 @@
       <button id="download-btn" class="btn btn-s" onclick="downloadResultImage()">Download</button>
       <button id="share-btn" class="btn btn-s" onclick="shareResultImage()">Share</button>
     </div>
-    <button class="btn btn-p" onclick="showScreen('screen-7')">Create Another</button>
+    <button class="btn btn-p mb-12" onclick="showScreen('screen-13')">Find a salon for this look</button>
+    <button class="btn btn-s" onclick="showScreen('screen-7')">Create Another</button>
+    <div id="shop-look" class="mt-16" style="display:none;">
+      <div class="row mb-12"><h2>Shop this look</h2><button class="btn-link" onclick="showScreen('screen-14')">Shop all</button></div>
+      <div id="shop-look-grid" class="g2"></div>
+    </div>
   </div>
 
   <!-- ════ SCREEN 7: AI GENERATOR ════════════════════════════ -->
@@ -576,7 +653,10 @@
 
   <!-- ════ SCREEN 11: HISTORY ════════════════════════════════ -->
   <div id="screen-11" class="screen">
-    <div class="top-bar"><h2>My History</h2></div>
+    <div class="top-bar">
+      <button class="back-btn" onclick="goBack()" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <h2>My History</h2>
+    </div>
     <div id="history-list"><p class="caption">Sign in to view your saved history.</p></div>
   </div>
 
@@ -593,6 +673,66 @@
       <button id="auth-toggle" class="btn-link" onclick="flipAuthMode()" style="display:block;text-align:center;width:100%;padding:8px;">Need an account? Register</button>
       <div id="auth-msg" style="display:none;" class="msg mt-8"></div>
     </div>
+    <button class="btn btn-s mt-16" onclick="showScreen('screen-11')">My history</button>
+  </div>
+
+  <!-- ════ SCREEN 13: SALONS ═════════════════════════════════ -->
+  <div id="screen-13" class="screen">
+    <div class="top-bar">
+      <h2>Find a salon</h2>
+      <div style="flex:1"></div>
+      <span id="salon-count" class="badge"></span>
+    </div>
+    <form class="search-row" onsubmit="Salons.searchPlace(event)">
+      <input id="salon-query" type="search" placeholder="City, area or postcode" aria-label="Search for a place" autocomplete="off">
+      <button class="btn btn-p btn-sm" type="submit">Search</button>
+    </form>
+    <button class="btn btn-s btn-sm" type="button" onclick="Salons.useMyLocation()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+      Use my location
+    </button>
+    <div class="map-wrap">
+      <div id="salon-map" role="region" aria-label="Map of salons"></div>
+      <button id="salon-area-btn" class="btn btn-p btn-sm" type="button" style="display:none;" onclick="Salons.searchThisArea()">Search this area</button>
+    </div>
+    <div id="salon-filters" class="chips mb-12">
+      <button type="button" class="chip active" aria-pressed="true" onclick="Salons.setFilter('All', this)">All</button>
+      <button type="button" class="chip" aria-pressed="false" onclick="Salons.setFilter('Hair', this)">Hair</button>
+      <button type="button" class="chip" aria-pressed="false" onclick="Salons.setFilter('Beauty', this)">Beauty</button>
+      <button type="button" class="chip" aria-pressed="false" onclick="Salons.setFilter('Nails', this)">Nails</button>
+    </div>
+    <div id="salon-status" class="msg mb-12">Search for a place or use your location to see salons near you.</div>
+    <div id="salon-list"></div>
+    <p class="caption mt-12">Salon data from OpenStreetMap contributors. Check opening hours with the salon before visiting.</p>
+  </div>
+
+  <!-- ════ SCREEN 14: SHOP ═══════════════════════════════════ -->
+  <div id="screen-14" class="screen">
+    <div class="top-bar">
+      <h2>Shop</h2>
+      <div style="flex:1"></div>
+      <button class="icon-btn" onclick="showScreen('screen-15')" aria-label="Shopping bag"><svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 016 0"/></svg><span class="bag-count" style="display:none">0</span></button>
+    </div>
+    <div id="shop-filters" class="chips mb-16"></div>
+    <div id="shop-grid" class="g2"></div>
+  </div>
+
+  <!-- ════ SCREEN 15: BAG ════════════════════════════════════ -->
+  <div id="screen-15" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goBack()" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <h2>Your bag</h2>
+    </div>
+    <div id="bag-empty" class="card" style="text-align:center;padding:28px;">
+      <p class="caption mb-12">Your bag is empty.</p>
+      <button class="btn btn-s btn-sm" onclick="showScreen('screen-14')">Browse the shop</button>
+    </div>
+    <div id="bag-list"></div>
+    <div id="bag-summary" class="card" style="display:none;">
+      <div class="row mb-16"><span class="caption" style="font-size:14px;">Subtotal</span><span id="bag-subtotal" class="prod-price" style="margin:0;font-size:18px;"></span></div>
+      <button class="btn btn-p" onclick="Shop.checkout()">Checkout</button>
+      <div id="bag-msg" class="msg" style="display:none;"></div>
+    </div>
   </div>
 
   <!-- ════ BOTTOM NAV ════════════════════════════════════════ -->
@@ -601,17 +741,17 @@
       <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Home
     </button>
-    <button id="nav-styles" class="nav-btn" onclick="showScreen('screen-3')">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-      Styles
+    <button id="nav-salons" class="nav-btn" onclick="showScreen('screen-13')">
+      <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Salons
     </button>
     <button id="nav-tryon" class="nav-btn nav-fab" onclick="showScreen('screen-7')">
       <span class="fab"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>
       Create
     </button>
-    <button id="nav-history" class="nav-btn" onclick="showScreen('screen-11')">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
-      History
+    <button id="nav-shop" class="nav-btn" onclick="showScreen('screen-14')">
+      <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 016 0"/></svg>
+      Shop
     </button>
     <button id="nav-profile" class="nav-btn" onclick="showScreen('screen-12')">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>
@@ -621,6 +761,10 @@
 
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin="anonymous"></script>
+<script src="shop-data.js"></script>
+<script src="shop.js"></script>
+<script src="salons.js"></script>
 <script>
 const $g = id => document.getElementById(id);
 let screenStack = ['screen-2'];
@@ -640,10 +784,14 @@ function showScreen(id) {
   document.body.classList.toggle('on-splash', id === 'screen-1');
 
   document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
-  const m = { 'screen-2':'nav-home','screen-3':'nav-styles','screen-4':'nav-styles','screen-8':'nav-styles','screen-9':'nav-styles','screen-10':'nav-styles','screen-5':'nav-tryon','screen-6':'nav-tryon','screen-7':'nav-tryon','screen-11':'nav-history','screen-12':'nav-profile' };
+  const m = { 'screen-2':'nav-home','screen-3':'nav-home','screen-4':'nav-home','screen-8':'nav-home','screen-9':'nav-home','screen-10':'nav-home','screen-11':'nav-profile','screen-5':'nav-tryon','screen-6':'nav-tryon','screen-7':'nav-tryon','screen-12':'nav-profile','screen-13':'nav-salons','screen-14':'nav-shop','screen-15':'nav-shop' };
   if (m[id]) $g(m[id]).classList.add('active');
 
   if (id === 'screen-11') loadHistory();
+  if (id === 'screen-13') Salons.open();
+  if (id === 'screen-14') Shop.openShop();
+  if (id === 'screen-15') Shop.openBag();
+  if (id === 'screen-6') Shop.showLook();
   if (id === 'screen-12') refreshAuthUI();
 }
 
@@ -883,6 +1031,7 @@ if (cBox) {
 
 /* ── Init ─────────────────────────────────────────── */
 if (authToken) refreshAuthUI();
+Shop.init();
 if (!(navigator.canShare && navigator.canShare({ files: [new File([''], 'x.png', { type: 'image/png' })] }))) $g('share-btn').style.display = 'none';
 showScreen('screen-1');
 screenStack = [];
