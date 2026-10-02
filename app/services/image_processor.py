@@ -7,9 +7,9 @@ from app.core.config import settings
 async def read_limited_image(upload: UploadFile, label: str) -> bytes:
     raw_bytes = await upload.read(settings.MAX_BYTES + 1)
     if not raw_bytes:
-        raise HTTPException(400, f"{label} image is empty.")
+        raise HTTPException(400, f"{label} is empty. Choose the photo again.")
     if len(raw_bytes) > settings.MAX_BYTES:
-        raise HTTPException(413, f"{label} image must be 12 MB or smaller.")
+        raise HTTPException(413, f"{label} is larger than 12 MB. Use a smaller photo.")
     return raw_bytes
 
 
@@ -22,16 +22,18 @@ def process_image(raw: bytes, label: str):
         fmt = img.format
         img.load()
     except Exception:
-        raise HTTPException(400, f"{label} is not a valid or complete image.")
+        raise HTTPException(400, f"{label} isn't a valid or complete image. Choose a JPG, PNG or WEBP photo.")
 
     if fmt not in settings.ALLOWED_FORMATS:
-        raise HTTPException(400, f"{label}: use JPG, PNG, or WEBP.")
+        raise HTTPException(400, f"{label} must be a JPG, PNG or WEBP image.")
 
     img = ImageOps.exif_transpose(img)
     w, h = img.size
     if w < settings.MIN_SIDE or h < settings.MIN_SIDE:
         raise HTTPException(
-            400, f"{label} image is {w} × {h} px; it must be at least {settings.MIN_SIDE} × {settings.MIN_SIDE} px."
+            400,
+            f"{label} is too small ({w} × {h} px). It needs to be at least "
+            f"{settings.MIN_SIDE} × {settings.MIN_SIDE} px, so use a larger photo or take a new one.",
         )
 
     img.thumbnail((settings.MAX_SIDE, settings.MAX_SIDE), Image.LANCZOS)

@@ -21,12 +21,15 @@
 
   window.PhotoCheck = {
     /**
-     * handlers: { onResult(ok), retake(), upload() }
+     * handlers: { onResult(ok), retake(), upload(), label?, slot? }
+     * label names the photo in messages (e.g. "Your photo"); slot is outlined while the photo has a problem.
      * Returns a promise resolving to true when the photo is usable.
      */
     async check(file, box, handlers) {
       const id = ++seq;
       box.dataset.seq = id;
+      const label = handlers.label || 'This photo';
+      if (handlers.slot) handlers.slot.classList.remove('pc-bad');
       box.className = 'photo-check checking';
       box.replaceChildren(el('span', 'pc-spin'), el('span', null, 'Checking your photo…'));
       // Outcomes: 'ok', 'bad' (a problem with the photo itself) or
@@ -63,7 +66,8 @@
         box.replaceChildren(el('span', null, note + ' You can continue, but make sure your whole face and hair are clear and well lit.'));
       } else {
         box.className = 'photo-check bad';
-        const title = el('p', 'pc-title', 'Please retake or choose another photo');
+        const title = el('p', 'pc-title', label + ' needs to be retaken or replaced');
+        const which = el('p', 'pc-file', 'File: ' + (file.name || 'camera photo'));
         const list = el('ul', 'pc-list');
         (data.problems || []).forEach(p => list.append(el('li', null, p.message)));
         const actions = el('div', 'pc-actions');
@@ -74,7 +78,8 @@
         upload.type = 'button';
         upload.onclick = handlers.upload;
         actions.append(retake, upload);
-        box.replaceChildren(title, list, actions);
+        box.replaceChildren(title, which, list, actions);
+        if (handlers.slot) handlers.slot.classList.add('pc-bad');
       }
       box.setAttribute('role', outcome === 'bad' ? 'alert' : 'status');
       handlers.onResult(ok);

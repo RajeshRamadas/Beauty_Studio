@@ -413,7 +413,9 @@
     .photo-check.ok { background: rgba(143,212,168,.12); color: var(--ok); font-weight: 700; }
     .photo-check.warn { background: rgba(217,182,111,.12); border: 1px solid rgba(217,182,111,.4); color: var(--text); line-height: 1.45; }
     .photo-check.bad { background: rgba(242,153,140,.10); border: 1px solid rgba(242,153,140,.45); display: block; }
-    .pc-title { color: var(--err); font-weight: 700; margin-bottom: 6px; }
+    .pc-title { color: var(--err); font-weight: 700; margin-bottom: 2px; }
+    .pc-file { color: var(--text2); font-size: 12px; margin-bottom: 8px; word-break: break-all; }
+    .gen-slot.pc-bad, .fa-photo.pc-bad { border: 2px solid var(--err); }
     .pc-list { padding-left: 18px; color: var(--text); line-height: 1.5; margin-bottom: 10px; }
     .pc-actions { display: flex; gap: 8px; }
     .pc-actions .btn { flex: 1; }
@@ -948,7 +950,7 @@ async function submitGeneration() {
       else { st.textContent = 'Processing: ' + job.status + ' (' + (attempts*2) + 's)'; }
     }
   } catch(e) { st.className = 'msg err'; st.textContent = 'Error: ' + e.message; }
-  finally { delete btn.dataset.busy; btn.textContent = 'Generate'; Generator.updateReady(); }
+  finally { delete btn.dataset.busy; btn.textContent = 'Generate'; Generator.updateReady({ keepStatus: true }); }
 }
 
 async function shareResultImage() {

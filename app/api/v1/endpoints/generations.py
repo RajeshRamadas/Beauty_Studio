@@ -86,16 +86,16 @@ async def create_generation(
     rate_limiter.check_rate_limit(rate_key)
 
 
-    person_raw = await read_limited_image(target_image, "Target photo")
+    person_raw = await read_limited_image(target_image, "Your photo")
     catalogue_style = get_style(style.strip()) if style else None
     has_reference = reference_image is not None and bool(reference_image.filename)
     if not has_reference and not catalogue_style:
         raise HTTPException(400, "Add a style reference image, or choose a style from the catalogue.")
-    style_raw = await read_limited_image(reference_image, "Style reference") if has_reference else None
+    style_raw = await read_limited_image(reference_image, "The style reference photo") if has_reference else None
 
-    person_b, person_mime, person_ext, person_size = process_image(person_raw, "Target photo")
+    person_b, person_mime, person_ext, person_size = process_image(person_raw, "Your photo")
     if style_raw is not None:
-        style_b, style_mime, style_ext, style_size = process_image(style_raw, "Style reference")
+        style_b, style_mime, style_ext, style_size = process_image(style_raw, "The style reference photo")
     else:
         style_b = style_mime = style_ext = style_size = None
 
@@ -218,8 +218,8 @@ async def analyze_face(
     rate_key = "analysis:" + (current_user.id if current_user else f"ip:{client_ip}")
     rate_limiter.check_rate_limit(rate_key, settings.ANALYSIS_LIMIT_PER_DAY, label="face analysis")
 
-    raw = await read_limited_image(face_image, "Face photo")
-    img_bytes, mime, _ext, _size = process_image(raw, "Face photo")
+    raw = await read_limited_image(face_image, "Your photo")
+    img_bytes, mime, _ext, _size = process_image(raw, "Your photo")
     try:
         return await run_in_threadpool(run_analysis, img_bytes, mime, section)
     except FaceAnalysisUnavailable as exc:
@@ -241,6 +241,6 @@ async def check_photo(
     rate_key = "photo-check:" + (current_user.id if current_user else f"ip:{client_ip}")
     rate_limiter.check_rate_limit(rate_key, settings.PHOTO_CHECK_LIMIT_PER_DAY, label="photo check")
 
-    raw = await read_limited_image(face_image, "Photo")
-    img_bytes, mime, _ext, _size = process_image(raw, "Photo")
+    raw = await read_limited_image(face_image, "Your photo")
+    img_bytes, mime, _ext, _size = process_image(raw, "Your photo")
     return await run_in_threadpool(run_check, img_bytes, mime)

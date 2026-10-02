@@ -66,7 +66,8 @@
   function hasTarget() { return targetState === 'ok'; }
   function hasReference() { return !!(($('reference-file').files || [])[0]) || !!refStyle; }
 
-  function updateReady() {
+  /* keepStatus: only refresh the button (used after a generation, so its error stays visible). */
+  function updateReady(opts) {
     const btn = $('generate-btn');
     if (!btn || btn.dataset.busy === '1') return;
     const missing = [];
@@ -76,6 +77,7 @@
     if (!hasReference()) missing.push('add a style (upload one or browse styles)');
     if (!selected.length) missing.push('choose what to change');
     btn.disabled = missing.length > 0;
+    if (opts && opts.keepStatus) return;
     const st = $('gen-status');
     if (st.classList.contains('err') && missing.length) return;
     st.className = 'msg mt-12';
@@ -102,7 +104,9 @@
       window.PhotoCheck.check(file, $('gen-target-check'), {
         onResult: ok => { targetState = ok ? 'ok' : 'bad'; updateReady(); },
         retake: () => Generator.openCamera(),
-        upload: () => $('person-file').click()
+        upload: () => $('person-file').click(),
+        label: 'Your photo',
+        slot: $('gen-target')
       });
     },
 

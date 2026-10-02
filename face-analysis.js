@@ -138,7 +138,9 @@
       window.PhotoCheck.check(f, $('fa-check'), {
         onResult: ok => { photo = ok ? f : null; $('fa-run').disabled = !ok; },
         retake: () => FaceAnalysis.openCamera(),
-        upload: () => $('fa-file').click()
+        upload: () => $('fa-file').click(),
+        label: 'Your photo',
+        slot: document.querySelector('.fa-photo')
       });
     },
 
