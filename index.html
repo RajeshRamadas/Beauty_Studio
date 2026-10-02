@@ -241,22 +241,6 @@
       cursor: ew-resize;
     }
 
-    /* ── Swatches ─────────────────────────────────────── */
-    .swatches { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-    .swatches::-webkit-scrollbar { display: none; }
-    .swatch {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      border: 2px solid transparent;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: border-color .15s ease;
-    }
-    .swatch.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--bg) inset; }
-    .swatch-label { font-size: 10px; color: var(--text2); text-align: center; margin-top: 3px; }
-    .swatch-wrap { flex-shrink: 0; text-align: center; cursor: pointer; }
-
     /* ── Status msg ───────────────────────────────────── */
     .msg {
       padding: 10px 14px;
@@ -564,28 +548,14 @@
     </div>
 
     <div class="card mb-12">
-      <h3 class="mb-12">2. Hair Color</h3>
-      <div class="swatches">
-        <div class="swatch-wrap" onclick="pickHairColor('Caramel Bronze','#C68642',this)"><div class="swatch" style="background:#C68642"></div><div class="swatch-label">Caramel</div></div>
-        <div class="swatch-wrap" onclick="pickHairColor('Honey Blonde','#E3A857',this)"><div class="swatch" style="background:#E3A857"></div><div class="swatch-label">Honey</div></div>
-        <div class="swatch-wrap" onclick="pickHairColor('Espresso','#2B1704',this)"><div class="swatch" style="background:#2B1704"></div><div class="swatch-label">Espresso</div></div>
-        <div class="swatch-wrap" onclick="pickHairColor('Rose Gold','#B76E79',this)"><div class="swatch" style="background:#B76E79"></div><div class="swatch-label">Rose</div></div>
-        <div class="swatch-wrap" onclick="pickHairColor('Platinum','#E5E4E2',this)"><div class="swatch" style="background:#E5E4E2"></div><div class="swatch-label">Platinum</div></div>
-        <div class="swatch-wrap" onclick="pickHairColor('Burgundy','#800020',this)"><div class="swatch" style="background:#800020"></div><div class="swatch-label">Burgundy</div></div>
-        <div class="swatch-wrap" onclick="pickHairColor('Jet Black','#0A0A0A',this)"><div class="swatch" style="background:#0A0A0A;border:1px solid #444"></div><div class="swatch-label">Black</div></div>
-        <div class="swatch-wrap" onclick="pickHairColor('Ash Brown','#604E43',this)"><div class="swatch" style="background:#604E43"></div><div class="swatch-label">Ash</div></div>
-      </div>
-    </div>
-
-    <div class="card mb-12">
-      <h3 class="mb-12">3. Style Reference</h3>
+      <h3 class="mb-12">2. Style Reference</h3>
       <button class="btn btn-s mb-8" onclick="$g('reference-file').click()">Upload Reference Image</button>
       <input id="reference-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;">
       <p id="reference-status" class="caption">Or select from a gallery above</p>
     </div>
 
     <div class="card mb-16">
-      <h3 class="mb-12">4. Options</h3>
+      <h3 class="mb-12">3. Options</h3>
       <div class="g2 mb-8" style="gap:8px;">
         <div>
           <label style="display:block;font-size:11px;color:var(--text2);margin-bottom:4px;">Category</label>
@@ -874,15 +844,6 @@ async function runFaceAnalysis() {
         </div>`).join('');
     }
   } catch(e) { $g('shape-tag').textContent = 'Error'; $g('tone-tag').textContent = e.message; }
-}
-
-/* ── Hair color ───────────────────────────────────── */
-function pickHairColor(name, hex, el) {
-  document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
-  const sw = el.querySelector('.swatch');
-  if (sw) sw.classList.add('active');
-  const n = $g('custom-notes');
-  if (n) { let c = n.value.replace(/\[Hair Color:[^\]]+\]/g,'').trim(); n.value = (c ? c+' ' : '') + '[Hair Color: '+name+']'; }
 }
 
 /* ── Generation ───────────────────────────────────── */
