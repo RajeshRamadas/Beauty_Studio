@@ -114,14 +114,58 @@ def generate_demo_beauty_blend(person, style, prompt, size):
         b64_str = base64.b64encode(person[0]).decode("utf-8")
         return MockOpenAIResult(b64_str)
 
+DEMO_MODEL_NAME = "demo (no AI)"
+
+
+class ProviderError(Exception):
+    """The image provider could not produce a result. The message is safe to show to users."""
+
+
+def key_configured() -> bool:
+    key = settings.OPENAI_API_KEY
+    return bool(key) and "your_" not in key.lower() and "dummy" not in key.lower()
+
+
+def explain_openai_error(exc: Exception) -> str:
+    """Turn an OpenAI SDK error into a short, user-safe explanation."""
+    status = getattr(exc, "status_code", None)
+    body = getattr(exc, "body", None) or {}
+    err = body.get("error", body) if isinstance(body, dict) else {}
+    code = (err.get("code") or err.get("type") or "") if isinstance(err, dict) else ""
+    detail = (err.get("message") if isinstance(err, dict) else None) or str(exc)
+    detail = detail.replace(settings.OPENAI_API_KEY, "***") if settings.OPENAI_API_KEY else detail
+    if status == 401 or code == "invalid_api_key":
+        return "OpenAI rejected the API key. Check OPENAI_API_KEY on the server."
+    if code in ("insufficient_quota", "billing_hard_limit_reached") or status == 402:
+        return "The OpenAI account has no credit left or hit its billing limit."
+    if status == 404 or code == "model_not_found":
+        return f"OpenAI model '{settings.OPENAI_IMAGE_MODEL}' isn't available to this account. Check OPENAI_IMAGE_MODEL."
+    if status == 403:
+        return f"This OpenAI account can't use '{settings.OPENAI_IMAGE_MODEL}' (it may need organisation verification). {detail[:160]}"
+    if code == "moderation_blocked" or "safety" in detail.lower():
+        return "OpenAI's safety system declined this edit. Try a different photo or style."
+    if status == 429:
+        return "OpenAI is rate limiting this account. Wait a minute and try again."
+    if status == 400:
+        return f"OpenAI couldn't process this request: {detail[:200]}"
+    if exc.__class__.__name__ in ("APITimeoutError", "APIConnectionError"):
+        return "Couldn't reach OpenAI (timeout or network problem). Try again."
+    return f"OpenAI request failed: {detail[:200]}"
+
+
 def call_openai_image_edit(person, style, prompt, size):
-    api_key = settings.OPENAI_API_KEY
-    if not api_key or "your_" in api_key.lower() or "dummy" in api_key.lower():
-        logger.warning("OPENAI_API_KEY not set. Using Demo AI Beauty Processor fallback.")
-        return generate_demo_beauty_blend(person, style, prompt, size)
+    """Returns the provider result. Raises ProviderError with a user-safe message on failure.
+    Uses the local demo blend only when DEMO_MODE is on."""
+    if settings.DEMO_MODE:
+        logger.warning("DEMO_MODE is on: blending photos locally instead of calling OpenAI.")
+        result = generate_demo_beauty_blend(person, style, prompt, size)
+        result.demo = True
+        return result
+    if not key_configured():
+        raise ProviderError("OPENAI_API_KEY is not set on the server, so no AI edit was made.")
 
     try:
-        client = OpenAI(api_key=api_key, timeout=120, max_retries=1)
+        client = OpenAI(api_key=settings.OPENAI_API_KEY, timeout=180, max_retries=1)
         kwargs = dict(
             model=settings.OPENAI_IMAGE_MODEL,
             image=[(f"person.{person[2]}", person[0], person[1])]
@@ -135,5 +179,6 @@ def call_openai_image_edit(person, style, prompt, size):
             kwargs["input_fidelity"] = settings.OPENAI_INPUT_FIDELITY
         return client.images.edit(**kwargs)
     except Exception as exc:
-        logger.warning("OpenAI API invocation failed (%s). Falling back to Demo AI Beauty Processor.", exc)
-        return generate_demo_beauty_blend(person, style, prompt, size)
+        message = explain_openai_error(exc)
+        logger.error("OpenAI image edit failed (model=%s): %s | %r", settings.OPENAI_IMAGE_MODEL, message, exc)
+        raise ProviderError(message) from exc

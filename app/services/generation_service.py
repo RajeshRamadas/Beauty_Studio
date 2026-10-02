@@ -9,7 +9,7 @@ from app.core.config import settings
 from app.core.logging import logger
 from app.db.session import SessionLocal
 from app.db.models import GenerationRequestModel, ImageAssetModel, UsageEventModel
-from app.services.provider_adapter import call_openai_image_edit, extract_cost_data
+from app.services.provider_adapter import DEMO_MODEL_NAME, ProviderError, call_openai_image_edit, extract_cost_data
 from app.services.storage import storage_service
 
 def utc_now():
@@ -90,11 +90,14 @@ def process_generation_background_job(
             height=res_h,
         ))
 
+        is_demo = getattr(result, "demo", False)
         cost_data = extract_cost_data(result, settings.OPENAI_IMAGE_MODEL, settings.OPENAI_IMAGE_QUALITY, size)
+        if is_demo:
+            cost_data = dict(cost_data, cost_usd=0.0, cost_formatted="$0.000 (demo)")
         duration_ms = int((time.time() - start_time) * 1000)
 
         req.status = "succeeded"
-        req.model_name = settings.OPENAI_IMAGE_MODEL
+        req.model_name = DEMO_MODEL_NAME if is_demo else settings.OPENAI_IMAGE_MODEL
         req.quality = settings.OPENAI_IMAGE_QUALITY
         req.size = size
         req.cost_usd = cost_data["cost_usd"]
@@ -112,7 +115,10 @@ def process_generation_background_job(
     except Exception as exc:
         db.rollback()
         duration_ms = int((time.time() - start_time) * 1000)
-        logger.exception("Background job failed for request_id=%s", request_id)
+        if isinstance(exc, ProviderError):
+            logger.error("Background job failed for request_id=%s: %s", request_id, exc)
+        else:
+            logger.exception("Background job failed for request_id=%s", request_id)
         try:
             req = db.query(GenerationRequestModel).filter(GenerationRequestModel.id == request_id).first()
             if req:

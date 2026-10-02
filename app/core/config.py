@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     OPENAI_IMAGE_MODEL: str = os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-2.5-flare")
     OPENAI_IMAGE_QUALITY: str = os.getenv("OPENAI_IMAGE_QUALITY", "medium")
     OPENAI_INPUT_FIDELITY: str = os.getenv("OPENAI_INPUT_FIDELITY", "")
+    # Demo mode blends the two photos locally instead of calling OpenAI. For UI testing only;
+    # results are labelled as demo. Off by default so a missing key or API error is reported.
+    DEMO_MODE: bool = os.getenv("DEMO_MODE", "").lower() in ("1", "true", "yes")
     # Vision model for face analysis (face shape, skin tone, hair type, recommendations)
     OPENAI_VISION_MODEL: str = os.getenv("OPENAI_VISION_MODEL", "gpt-5-mini")
     ANALYSIS_LIMIT_PER_DAY: int = int(os.getenv("ANALYSIS_LIMIT_PER_DAY", "30"))

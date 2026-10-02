@@ -19,6 +19,17 @@ uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 
 Open http://127.0.0.1:8000. Upload both images and click **Apply style to my photo**. Default quality is `medium` (set `OPENAI_IMAGE_QUALITY=low` for cheaper tests). Uploads are auto-rotated and downscaled to 1536px, and the output size follows your photo's aspect ratio. Actual API charges depend on image inputs and generated output.
 
+## Checking the OpenAI connection
+If results look wrong, first check the AI is really being used:
+
+```bash
+python -m app.scripts.check_openai               # key and model access (free)
+python -m app.scripts.check_openai --test-edit   # one real low-quality edit, saved to storage/diagnostics/test-edit.png
+python -m app.scripts.check_openai --test-vision # one real face-analysis call
+```
+
+The server log also says at start-up whether image generation uses OpenAI (and which model) or is not configured. If an OpenAI call fails (bad key, no credit, model not available, safety block, timeout) the generation fails and the app shows the reason. It never substitutes a fake result. `DEMO_MODE=1` blends the two photos locally without AI for UI testing only; those results are labelled "Demo result: no AI was used".
+
 ## Notes
 - Each image must be JPG, PNG, or WEBP, at least 256×256 pixels, and no larger than 12 MB.
 - Both images are sent to the configured provider. Get consent before using another person's photo; review privacy/retention obligations before production use.

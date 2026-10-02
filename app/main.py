@@ -33,6 +33,12 @@ app.add_middleware(
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 logging.getLogger(__name__).info(
+    "Image generation: %s",
+    "DEMO_MODE (local blend, no AI)" if settings.DEMO_MODE
+    else (f"OpenAI {settings.OPENAI_IMAGE_MODEL}, quality={settings.OPENAI_IMAGE_QUALITY}" if settings.OPENAI_API_KEY
+          else "NOT CONFIGURED: set OPENAI_API_KEY (generation will fail with a clear error)"),
+)
+logging.getLogger(__name__).info(
     "Salon map provider: %s",
     "Google Maps (GOOGLE_MAPS_API_KEY is set)" if settings.GOOGLE_MAPS_API_KEY
     else "OpenStreetMap (set GOOGLE_MAPS_API_KEY to use Google Maps)",

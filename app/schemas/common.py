@@ -17,3 +17,4 @@ class HealthResponse(BaseModel):
     quality: str
     estimated_cost_per_image: str
     api_key_configured: bool
+    demo_mode: bool = False

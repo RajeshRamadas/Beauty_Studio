@@ -565,6 +565,7 @@
       <div style="flex:1"></div>
       <span class="badge" style="background:rgba(143,212,168,.14);color:var(--ok);">Generated</span>
     </div>
+    <div id="demo-banner" class="msg err mb-12" style="display:none;">Demo result: no AI was used. The server is in DEMO_MODE, so it only blended the two photos. Turn DEMO_MODE off and set OPENAI_API_KEY for real results.</div>
     <div id="compare-box" class="compare-box mb-8">
       <img id="compare-after-img" src="sample_glamour_waves.jpg" alt="After">
       <div id="compare-before-clip">
@@ -945,6 +946,7 @@ async function submitGeneration() {
         resultDataUrl = 'data:image/png;base64,' + job.result_image_b64;
         $g('compare-after-img').src = resultDataUrl;
         if (targetDataUrl) $g('compare-before-img').src = targetDataUrl;
+        $g('demo-banner').style.display = (job.model || '').startsWith('demo') ? 'block' : 'none';
         showScreen('screen-6');
       } else if (job.status === 'failed') { done = true; throw new Error(job.error_message || 'Generation failed.'); }
       else { st.textContent = 'Processing: ' + job.status + ' (' + (attempts*2) + 's)'; }
