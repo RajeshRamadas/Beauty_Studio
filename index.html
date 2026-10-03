@@ -424,8 +424,14 @@
     .photo-check.ok { background: rgba(143,212,168,.12); color: var(--ok); font-weight: 700; }
     .photo-check.warn { background: rgba(217,182,111,.12); border: 1px solid rgba(217,182,111,.4); color: var(--text); line-height: 1.45; }
     .photo-check.bad { background: rgba(242,153,140,.10); border: 1px solid rgba(242,153,140,.45); display: block; }
+    .pc-fixes { flex-basis: 100%; font-weight: 500; color: var(--text2); font-size: 12px; }
     .pc-title { color: var(--err); font-weight: 700; margin-bottom: 2px; }
     .pc-file { color: var(--text2); font-size: 12px; margin-bottom: 8px; word-break: break-all; }
+    .side-row { display: flex; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 10px 12px; flex-wrap: wrap; }
+    .side-thumb { width: 52px; height: 64px; border-radius: 12px; background: var(--surface-2); color: var(--accent); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+    .side-thumb svg { width: 26px; height: 26px; stroke: currentColor; stroke-width: 1.7; fill: none; stroke-linecap: round; }
+    .side-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .side-actions { display: flex; gap: 6px; align-items: center; }
     .gen-slot.pc-bad, .fa-photo.pc-bad { border: 2px solid var(--err); }
     .pc-list { padding-left: 18px; color: var(--text); line-height: 1.5; margin-bottom: 10px; }
     .pc-actions { display: flex; gap: 8px; }
@@ -441,7 +447,10 @@
     .cam-modal video.mirror { transform: scaleX(-1); }
     .cam-top { position: relative; padding: 24px 20px; text-align: center; }
     .cam-tip { font-size: 16px; color: #fff; }
-    .cam-tip b { color: var(--accent); }
+    .cam-tip { display: inline-block; padding: 8px 14px; border-radius: 999px; background: rgba(0,0,0,.55); font-weight: 700; transition: background .2s; }
+    .cam-modal[data-state="ok"] .cam-tip { background: rgba(78,160,108,.85); }
+    .cam-modal[data-state="ok"] .cam-guide ellipse { stroke: #8FD4A8; }
+    .cam-chip { position: relative; margin-top: 10px; background: rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.3); color: #fff; border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
     .cam-sub { font-size: 12px; color: #d8d2c8; margin-top: 6px; position: relative; text-align: center; }
     .cam-bar { position: relative; margin-top: auto; padding: 16px 32px 12px; display: flex; align-items: center; justify-content: space-between; }
     .cam-shutter { width: 76px; height: 76px; border-radius: 50%; background: #fff; border: 5px solid var(--accent); cursor: pointer; }
@@ -939,6 +948,20 @@
       <button type="button" class="btn btn-s btn-sm" onclick="$g('fa-file').click()">Upload</button>
     </div>
     <div id="fa-check" class="photo-check mb-12" aria-live="polite"></div>
+    <div class="side-row mb-16">
+      <div id="fa-side-thumb" class="side-thumb"><svg viewBox="0 0 24 24"><path d="M9 4c4 0 7 3 7 7 0 1-.3 2-.8 2.8L17 16l-2 .5V19a2 2 0 01-2 2H9"/><path d="M9 4C6 4 5 7 5 9"/></svg></div>
+      <div style="flex:1;min-width:0;">
+        <b style="font-size:14px;">Side photo <span class="caption">(optional)</span></b>
+        <p id="fa-side-status" class="caption">A profile photo makes face shape and hair estimates more accurate.</p>
+      </div>
+      <div class="side-actions">
+        <button type="button" class="btn btn-s btn-sm" onclick="$g('fa-side-camera').click()">Take</button>
+        <button type="button" class="btn btn-s btn-sm" onclick="$g('fa-side-file').click()">Upload</button>
+        <button type="button" id="fa-side-remove" class="look-remove" onclick="FaceAnalysis.clearSide()" aria-label="Remove side photo" style="display:none;">×</button>
+      </div>
+    </div>
+    <input id="fa-side-camera" type="file" accept="image/*" capture="user" style="display:none;" onchange="FaceAnalysis.pickSide(event)">
+    <input id="fa-side-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="FaceAnalysis.pickSide(event)">
     <input id="fa-camera" type="file" accept="image/*" capture="user" style="display:none;" onchange="FaceAnalysis.pick(event)">
     <input id="fa-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="FaceAnalysis.pick(event)">
     <p class="caption mb-8">Suggest styles from</p>
@@ -962,8 +985,9 @@
       <ellipse cx="150" cy="185" rx="92" ry="128" fill="none" stroke="#D9B66F" stroke-width="2.5" stroke-dasharray="8 6"/>
     </svg>
     <div class="cam-top">
-      <p class="cam-tip">Fit your <b>whole face and hair</b> inside the outline</p>
+      <p id="cam-live" class="cam-tip" aria-live="polite">Fit your whole face and hair inside the outline</p>
       <p class="cam-sub">Face a window or light · Look straight ahead · No sunglasses or filters</p>
+      <button type="button" id="cam-auto" class="cam-chip" onclick="GuidedCamera.toggleAuto()">Auto-capture: On</button>
     </div>
     <div class="cam-bar">
       <button type="button" class="cam-round" onclick="GuidedCamera.close()" aria-label="Close camera"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>

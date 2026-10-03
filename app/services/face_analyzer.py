@@ -14,7 +14,7 @@ The result has two kinds of suggestions:
 """
 import base64
 import json
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from openai import OpenAI
 
@@ -155,6 +155,15 @@ Rules:
   Otherwise set issue to an empty string.
 - Write in plain, kind English."""
 
+SIDE_PHOTO_NOTE = ("A second photo of the same person from the side (profile) follows. Use it together with the "
+                   "front photo to judge jawline, chin, forehead and face length, and the hair's length, volume "
+                   "and texture at the back and sides. Suggest only from what both photos show.")
+
+
+def _data_url(data: bytes, mime: str) -> str:
+    return f"data:{mime};base64," + base64.b64encode(data).decode("ascii")
+
+
 def build_instructions(group: str) -> str:
     return (INSTRUCTIONS
             .replace("{group_text}", GROUP_TEXT[group])
@@ -237,14 +246,23 @@ def analysis_for_ranking(result: Dict) -> Dict:
     }
 
 
-def analyze_face(image_bytes: bytes, mime: str, group: Optional[str] = "all", prefs: Optional[Dict] = None) -> Dict:
+def analyze_face(image_bytes: bytes, mime: str, group: Optional[str] = "all", prefs: Optional[Dict] = None,
+                 side: Optional[Tuple[bytes, str]] = None) -> Dict:
     """Analyse a validated, downscaled image. Raises FaceAnalysisUnavailable/FaceAnalysisFailed."""
     api_key = settings.OPENAI_API_KEY
     if not api_key or "your_" in api_key.lower() or "dummy" in api_key.lower():
         raise FaceAnalysisUnavailable("Face analysis needs OPENAI_API_KEY to be set on the server.")
     group = group if group in ("women", "men", "all") else "all"
 
-    data_url = f"data:{mime};base64," + base64.b64encode(image_bytes).decode("ascii")
+    content = [
+        {"type": "input_text", "text": "Analyse this photo for a beauty and grooming consultation."},
+        {"type": "input_image", "image_url": _data_url(image_bytes, mime), "detail": "high"},
+    ]
+    if side:
+        content += [
+            {"type": "input_text", "text": SIDE_PHOTO_NOTE},
+            {"type": "input_image", "image_url": _data_url(*side), "detail": "high"},
+        ]
     try:
         client = OpenAI(api_key=api_key, timeout=60, max_retries=1)
         resp = client.responses.create(
@@ -252,10 +270,7 @@ def analyze_face(image_bytes: bytes, mime: str, group: Optional[str] = "all", pr
             instructions=build_instructions(group),
             input=[{
                 "role": "user",
-                "content": [
-                    {"type": "input_text", "text": "Analyse this photo for a beauty and grooming consultation."},
-                    {"type": "input_image", "image_url": data_url, "detail": "high"},
-                ],
+                "content": content,
             }],
             text={"format": {"type": "json_schema", "name": "face_analysis", "schema": build_schema(group),
                              "strict": True}},
@@ -266,6 +281,7 @@ def analyze_face(image_bytes: bytes, mime: str, group: Optional[str] = "all", pr
         raise FaceAnalysisFailed("Face analysis is unavailable right now. Please try again.") from exc
 
     result = normalise(raw, group)
+    result["photos_used"] = 2 if side else 1
     result["catalogue"] = (recommender.recommend(group, analysis_for_ranking(result), prefs)
                            if result["face_detected"] else None)
     result["model"] = settings.OPENAI_VISION_MODEL

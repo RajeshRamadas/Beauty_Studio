@@ -11,7 +11,7 @@ pip install -r requirements.txt
 export OPENAI_API_KEY="YOUR_API_KEY"
 export OPENAI_IMAGE_MODEL="gpt-image-2.5-flare"  # optional; this is the default
 export OPENAI_IMAGE_QUALITY="medium"             # optional: low | medium | high | auto
-# export OPENAI_INPUT_FIDELITY="high"            # optional; only if your model supports it
+# export OPENAI_INPUT_FIDELITY="high"            # default; keeps faces closer to the photo (set empty to disable)
 uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
@@ -73,6 +73,14 @@ The generator ("Create a look") combines one choice per area: hairstyle + hair c
 - `intensity`, `keep_roots`, `notes`, `consent_version`.
 
 Each area is passed to the image model separately, with rules for that area (hair colour only on visible hair, makeup without changing skin tone, and so on). When a chosen template has a reference photo, it is sent as IMAGE 2 for that area only. The result keeps the template IDs and versions it used (`selections` in `GET /api/v1/generations/{id}`, `generation_selections` table). The result screen has before/after, Original / Compare / AI result, Regenerate at another intensity, Download, Share, Delete and Shop this look.
+
+## Photo quality
+Better input photos give more accurate results, so the app helps at each step:
+- **Smart camera:** live tips while you frame the photo: too dark or too bright, hold still and, on browsers with face detection (Chrome on Android), move closer, move back or centre your face. The outline turns green when the shot is good. **Auto-capture** (on by default, toggle in the camera) takes the photo after about a second of a good, steady frame. Each capture takes a short burst of 4 frames and keeps the sharpest one.
+- **Automatic touch-ups** (`app/services/image_enhance.py`), applied before the AI sees your photo, only when needed: brighten a dark face, tone down harsh light, lift flat contrast, reduce a strong colour cast at half strength (so undertone isn't thrown off by yellow indoor light), and sharpen a soft photo slightly. Well-lit photos are left untouched. Nothing is invented: there is no AI upscaling or "face restoration", which changes faces. The photo check says what will be adjusted. Turn it off with `PHOTO_ENHANCE=0`.
+- **Side photo for face analysis (optional):** a profile photo next to the front one improves face shape, jawline and hair estimates.
+- **Face kept closer to your photo:** `OPENAI_INPUT_FIDELITY` defaults to `high`. If the model doesn't accept it, the app retries without it automatically.
+- `OPENAI_IMAGE_QUALITY=high` gives sharper results at a higher cost per try-on (default `medium`).
 
 ## Face analysis
 **Analyse my face** sends the photo to an OpenAI vision model (`OPENAI_VISION_MODEL`, default `gpt-5-mini`). It returns **estimates with a confidence** (high / medium / low): face shape and undertone (both may be **Uncertain**), skin tone, visible hair length, texture and colour, and image quality. The user chooses **Women's / Men's / All styles**; the app never infers gender, age or ethnicity.

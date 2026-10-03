@@ -8,6 +8,7 @@ class GenerationAcceptedResponse(BaseModel):
     category: str
     created_at: str
     status_url: str
+    enhancements: List[str] = Field([], description="Automatic corrections applied to the user's photo")
 
 class ImageAssetInfo(BaseModel):
     id: str

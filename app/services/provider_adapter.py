@@ -177,7 +177,16 @@ def call_openai_image_edit(person, style, prompt, size):
         )
         if settings.OPENAI_INPUT_FIDELITY:
             kwargs["input_fidelity"] = settings.OPENAI_INPUT_FIDELITY
-        return client.images.edit(**kwargs)
+        try:
+            return client.images.edit(**kwargs)
+        except Exception as exc:
+            # High input fidelity keeps faces closer to the photo, but not every model accepts it:
+            # if this one doesn't, retry once without it rather than failing.
+            if "input_fidelity" in kwargs and "input_fidelity" in str(exc):
+                logger.warning("Model %s doesn't accept input_fidelity; retrying without it.", settings.OPENAI_IMAGE_MODEL)
+                kwargs.pop("input_fidelity")
+                return client.images.edit(**kwargs)
+            raise
     except Exception as exc:
         message = explain_openai_error(exc)
         logger.error("OpenAI image edit failed (model=%s): %s | %r", settings.OPENAI_IMAGE_MODEL, message, exc)

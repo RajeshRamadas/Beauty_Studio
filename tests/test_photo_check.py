@@ -41,7 +41,7 @@ def codes(r):
 def test_sharp_photo_passes_basic_check(sample):
     r = client.post("/api/v1/check-photo", data=CONSENT, files=_upload(sample))
     assert r.status_code == 200
-    assert r.json() == {"usable": True, "problems": [], "level": "basic"}
+    assert r.json() == {"usable": True, "problems": [], "level": "basic", "enhancements": []}
 
 
 def test_blurry_photo_rejected(sample):
@@ -86,7 +86,7 @@ def test_model_failure_falls_back_to_basic(monkeypatch, sample):
 
     monkeypatch.setattr(photo_check, "OpenAI", lambda **_: SimpleNamespace(responses=Boom()))
     data = client.post("/api/v1/check-photo", data=CONSENT, files=_upload(sample)).json()
-    assert data == {"usable": True, "problems": [], "level": "basic"}
+    assert data == {"usable": True, "problems": [], "level": "basic", "enhancements": []}
 
 
 def test_photo_needs_consent(sample):

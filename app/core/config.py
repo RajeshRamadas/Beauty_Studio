@@ -18,7 +18,9 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     OPENAI_IMAGE_MODEL: str = os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-2.5-flare")
     OPENAI_IMAGE_QUALITY: str = os.getenv("OPENAI_IMAGE_QUALITY", "medium")
-    OPENAI_INPUT_FIDELITY: str = os.getenv("OPENAI_INPUT_FIDELITY", "")
+    # "high" keeps the face and features closer to the user's photo (better "Face kept" scores).
+    # Set OPENAI_INPUT_FIDELITY= (empty) to use the model's default.
+    OPENAI_INPUT_FIDELITY: str = os.getenv("OPENAI_INPUT_FIDELITY", "high")
     # Demo mode blends the two photos locally instead of calling OpenAI. For UI testing only;
     # results are labelled as demo. Off by default so a missing key or API error is reported.
     DEMO_MODE: bool = os.getenv("DEMO_MODE", "").lower() in ("1", "true", "yes")
@@ -27,6 +29,9 @@ class Settings(BaseSettings):
     QUALITY_CHECK: str = os.getenv("QUALITY_CHECK", "required")  # required | off
     QUALITY_MIN_SCORE: int = int(os.getenv("QUALITY_MIN_SCORE", "90"))
     QUALITY_MAX_ATTEMPTS: int = int(os.getenv("QUALITY_MAX_ATTEMPTS", "2"))
+    # Gentle automatic photo corrections (exposure, contrast, colour cast, light sharpening) before the AI
+    # sees the user's photo. See app/services/image_enhance.py. Set PHOTO_ENHANCE=0 to send photos as taken.
+    PHOTO_ENHANCE: bool = os.getenv("PHOTO_ENHANCE", "1").lower() not in ("0", "false", "no", "off")
     # Vision model for face analysis (face shape, skin tone, hair type, recommendations)
     OPENAI_VISION_MODEL: str = os.getenv("OPENAI_VISION_MODEL", "gpt-5-mini")
     ANALYSIS_LIMIT_PER_DAY: int = int(os.getenv("ANALYSIS_LIMIT_PER_DAY", "30"))

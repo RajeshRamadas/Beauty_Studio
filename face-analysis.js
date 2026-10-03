@@ -9,6 +9,7 @@
 (function () {
   const $ = id => document.getElementById(id);
   let photo = null;
+  let side = null;  // optional profile photo
   let chosenGroup = null;  // women | men | all; defaults to the Home choice
   let lastAnalysis = null;
   let prefs = {};
@@ -170,6 +171,10 @@
     const q = d.image_quality || {};
     if (q.lighting && q.lighting !== 'good') profile.append(el('p', 'msg', 'The lighting looks ' + q.lighting + ', so these estimates are less certain.'));
     if (q.face_visible && !q.suitable_for_tryon) profile.append(el('p', 'msg', 'This photo may not give a good try-on. A front-facing photo in even light works best.'));
+    const used = [];
+    if (d.photos_used === 2) used.push('Front and side photos used');
+    if ((d.enhancements || []).length) used.push('Auto-adjusted: ' + d.enhancements.join(', ').toLowerCase());
+    if (used.length) profile.append(el('p', 'caption mt-12', used.join(' · ') + '.'));
     if (d.summary) profile.append(el('p', 'mt-12 fa-summary', d.summary));
     out.append(profile);
 
@@ -243,6 +248,7 @@
       $('fa-results').replaceChildren();
       const fd = new FormData();
       fd.append('face_image', photo);
+      if (side) fd.append('side_image', side);
       fd.append('group', group());
       fd.append('consent_version', window.Consent.version());
       Object.entries(prefs).forEach(([k, v]) => fd.append(k, v));
@@ -275,6 +281,27 @@
           renderCatalogue(lastAnalysis.catalogue);
         }
       } catch (e) { /* keep the current suggestions */ }
+    },
+
+    async pickSide(ev) {
+      const f = ev.target.files && ev.target.files[0];
+      ev.target.value = '';
+      if (!f || !(await window.Consent.ensure())) return;
+      if (f.size > 12 * 1024 * 1024) { $('fa-side-status').textContent = 'That photo is larger than 12 MB. Choose a smaller one.'; return; }
+      side = f;
+      const img = el('img');
+      img.src = URL.createObjectURL(f);
+      img.alt = 'Side photo';
+      $('fa-side-thumb').replaceChildren(img);
+      $('fa-side-status').textContent = 'Added. We’ll use both photos for face shape and hair.';
+      $('fa-side-remove').style.display = '';
+    },
+
+    clearSide() {
+      side = null;
+      $('fa-side-thumb').innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 4c4 0 7 3 7 7 0 1-.3 2-.8 2.8L17 16l-2 .5V19a2 2 0 01-2 2H9"/><path d="M9 4C6 4 5 7 5 9"/></svg>';
+      $('fa-side-status').textContent = 'A profile photo makes face shape and hair estimates more accurate.';
+      $('fa-side-remove').style.display = 'none';
     },
 
     setGroup(value) {

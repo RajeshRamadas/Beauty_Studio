@@ -20,6 +20,7 @@ from app.services.image_processor import read_limited_image, process_image, pick
 from app.services.generation_service import process_generation_background_job
 from app.services.storage import storage_service
 from app.services import catalog, recommender
+from app.services.image_enhance import describe, enhance_bytes
 from app.services.prompt_builder import MAX_AREAS, compose_prompt, parse_areas, summary
 
 router = APIRouter()
@@ -221,6 +222,9 @@ async def create_generation(
         style_label = "The style's reference photo"
 
     person_b, person_mime, person_ext, person_size = process_image(person_raw, "Your photo")
+    person_b, enhancements = enhance_bytes(person_b)
+    if enhancements:
+        person_mime, person_ext = "image/jpeg", "jpg"
     if style_raw is not None:
         style_b, style_mime, style_ext, style_size = process_image(style_raw, style_label)
     else:
@@ -281,7 +285,8 @@ async def create_generation(
         quality_context={"areas": areas, "style_text": summary(specs, intensity, notes)},
     )
 
-    logger.info("Queued async generation: request_id=%s user_id=%s category=%s", request_id, user_id, category)
+    logger.info("Queued async generation: request_id=%s user_id=%s category=%s enhancements=%s",
+                request_id, user_id, category, ",".join(enhancements) or "none")
 
     return {
         "request_id": request_id,
@@ -289,6 +294,7 @@ async def create_generation(
         "category": category,
         "created_at": created_at,
         "status_url": f"{settings.API_V1_STR}/generations/{request_id}",
+        "enhancements": describe(enhancements),
     }
 
 @router.get("/generations", response_model=List[GenerationStatusResponse])
@@ -344,6 +350,7 @@ def delete_generation(
 async def analyze_face(
     request: Request,
     face_image: UploadFile = File(...),
+    side_image: Optional[UploadFile] = File(None, description="Optional side (profile) photo for a better face-shape and hair estimate"),
     group: str = Form("", description="Catalogue to suggest from: women, men or all (chosen by the user)"),
     section: str = Form("", description="Older clients: women, men or auto"),
     length: str = Form(""),
@@ -365,9 +372,19 @@ async def analyze_face(
 
     raw = await read_limited_image(face_image, "Your photo")
     img_bytes, mime, _ext, _size = process_image(raw, "Your photo")
+    img_bytes, applied = enhance_bytes(img_bytes)
+    mime = "image/jpeg" if applied else mime
+    side = None
+    if side_image is not None and side_image.filename:
+        side_raw = await read_limited_image(side_image, "Your side photo")
+        side_bytes, side_mime, _e, _s = process_image(side_raw, "Your side photo")
+        side_bytes, side_applied = enhance_bytes(side_bytes)
+        side = (side_bytes, "image/jpeg" if side_applied else side_mime)
     prefs = _prefs(length, maintenance, occasion)
     try:
-        return await run_in_threadpool(run_analysis, img_bytes, mime, group, prefs)
+        result = await run_in_threadpool(run_analysis, img_bytes, mime, group, prefs, side)
+        result["enhancements"] = describe(applied)
+        return result
     except FaceAnalysisUnavailable as exc:
         raise HTTPException(503, str(exc))
     except FaceAnalysisFailed as exc:
@@ -423,4 +440,6 @@ async def check_photo(
 
     raw = await read_limited_image(face_image, "Your photo")
     img_bytes, mime, _ext, _size = process_image(raw, "Your photo")
-    return await run_in_threadpool(run_check, img_bytes, mime)
+    result = await run_in_threadpool(run_check, img_bytes, mime)
+    result["enhancements"] = describe(enhance_bytes(img_bytes)[1]) if result["usable"] else []
+    return result
