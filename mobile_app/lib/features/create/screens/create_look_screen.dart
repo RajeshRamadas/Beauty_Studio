@@ -112,7 +112,7 @@ class _CreateLookScreenState extends State<CreateLookScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("AI Beauty Studio")),
+      appBar: AppBar(title: const Text("Beautiva")),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -147,7 +147,6 @@ class _CreateLookScreenState extends State<CreateLookScreen> {
               value: _category,
               decoration: const InputDecoration(
                 labelText: "What to transfer",
-                border: OutlineInputBorder(),
               ),
               items: ["Hairstyle", "Makeup", "Nail art", "Overall beauty look"]
                   .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
@@ -162,7 +161,6 @@ class _CreateLookScreenState extends State<CreateLookScreen> {
               decoration: const InputDecoration(
                 labelText: "Optional style description",
                 hintText: "e.g. soft layered bob",
-                border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
@@ -171,7 +169,6 @@ class _CreateLookScreenState extends State<CreateLookScreen> {
               decoration: const InputDecoration(
                 labelText: "Optional instructions",
                 hintText: "e.g. keep natural hair color",
-                border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 20),
@@ -184,13 +181,13 @@ class _CreateLookScreenState extends State<CreateLookScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: _statusText!.startsWith("Error") ? Colors.red[50] : Colors.grey[200],
+                  color: _statusText!.startsWith("Error") ? AppTheme.error.withValues(alpha: 0.12) : AppTheme.surface,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   _statusText!,
                   style: TextStyle(
-                    color: _statusText!.startsWith("Error") ? Colors.red : AppTheme.inkDark,
+                    color: _statusText!.startsWith("Error") ? AppTheme.error : AppTheme.textPrimary,
                   ),
                 ),
               ),
@@ -207,11 +204,9 @@ class _CreateLookScreenState extends State<CreateLookScreen> {
     required VoidCallback onTap,
   }) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      color: Colors.white,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppTheme.radius),
         child: Padding(
           padding: const EdgeInsets.all(14),
           child: Row(
@@ -220,7 +215,7 @@ class _CreateLookScreenState extends State<CreateLookScreen> {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: Colors.grey[200],
+                  color: AppTheme.surfaceHigh,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: file != null
@@ -228,7 +223,7 @@ class _CreateLookScreenState extends State<CreateLookScreen> {
                         borderRadius: BorderRadius.circular(10),
                         child: Image.file(file, fit: BoxFit.cover),
                       )
-                    : const Icon(Icons.add_a_photo, color: AppTheme.pinkPrimary),
+                    : const Icon(Icons.add_a_photo, color: AppTheme.gold),
               ),
               const SizedBox(width: 14),
               Expanded(

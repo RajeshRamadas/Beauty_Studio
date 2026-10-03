@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -13,6 +15,24 @@ setup_logging()
 # Auto-create tables for development
 Base.metadata.create_all(bind=engine)
 
+
+def _startup_data():
+    """Add new seed templates to the catalogue and apply the retention period."""
+    from app.api.v1.endpoints.generations import purge_expired
+    from app.db.session import SessionLocal
+    from app.services import catalog
+    db = SessionLocal()
+    try:
+        added = catalog.sync_seed(db)
+        purged = purge_expired(db)
+        logging.getLogger(__name__).info("Style catalogue: %d new seed templates; retention removed %d old results",
+                                         added, purged)
+    finally:
+        db.close()
+
+
+_startup_data()
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
@@ -24,15 +44,31 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=False,
-    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
+logging.getLogger(__name__).info(
+    "Image generation: %s",
+    "DEMO_MODE (local blend, no AI)" if settings.DEMO_MODE
+    else (f"OpenAI {settings.OPENAI_IMAGE_MODEL}, quality={settings.OPENAI_IMAGE_QUALITY}" if settings.OPENAI_API_KEY
+          else "NOT CONFIGURED: set OPENAI_API_KEY (generation will fail with a clear error)"),
+)
+logging.getLogger(__name__).info(
+    "Salon map provider: %s",
+    "Google Maps (GOOGLE_MAPS_API_KEY is set)" if settings.GOOGLE_MAPS_API_KEY
+    else "OpenStreetMap (set GOOGLE_MAPS_API_KEY to use Google Maps)",
+)
+
 @app.get("/", include_in_schema=False)
 def index():
     return FileResponse("index.html")
+
+@app.get("/admin", include_in_schema=False)
+def admin_page():
+    return FileResponse("admin.html")
 
 @app.get("/health", include_in_schema=False)
 def health_legacy():

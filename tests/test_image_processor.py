@@ -29,4 +29,4 @@ def test_process_undersized_image():
     with pytest.raises(HTTPException) as exc_info:
         process_image(raw, "Test Image")
     assert exc_info.value.status_code == 400
-    assert "must be at least 256" in exc_info.value.detail
+    assert "at least 256 × 256" in exc_info.value.detail

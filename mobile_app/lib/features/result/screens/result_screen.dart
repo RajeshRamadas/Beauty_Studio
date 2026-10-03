@@ -38,11 +38,11 @@ class ResultScreen extends StatelessWidget {
             Container(
               height: 400,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(18),
-                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8)],
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: AppTheme.lineBorder),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(24),
                 child: beforeImage != null
                     ? CompareSliderWidget(
                         beforeImage: beforeImage,
@@ -56,17 +56,18 @@ class ResultScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                 decoration: BoxDecoration(
-                  color: Colors.purple[50],
+                  color: AppTheme.surface,
+                  border: Border.all(color: AppTheme.lineBorder),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.monetization_on, color: Colors.purple, size: 20),
+                    const Icon(Icons.monetization_on, color: AppTheme.gold, size: 20),
                     const SizedBox(width: 8),
                     Text(
                       "Cost: $costFormatted (${model ?? 'AI'})",
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.purple),
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
                     ),
                   ],
                 ),

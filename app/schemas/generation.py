@@ -8,6 +8,7 @@ class GenerationAcceptedResponse(BaseModel):
     category: str
     created_at: str
     status_url: str
+    enhancements: List[str] = Field([], description="Automatic corrections applied to the user's photo")
 
 class ImageAssetInfo(BaseModel):
     id: str
@@ -32,6 +33,11 @@ class GenerationStatusResponse(BaseModel):
     completed_at: Optional[str] = None
     result_image_b64: Optional[str] = None
     assets: List[ImageAssetInfo] = []
+    accuracy: Optional[int] = Field(None, description="AI-estimated accuracy 0-100 (lowest of the criteria)")
+    accuracy_breakdown: Optional[Dict[str, int]] = None
+    attempts: Optional[int] = None
+    selections: List[Dict[str, Any]] = Field([], description="Per area: template ID and version, custom style or reference photo")
+    intensity: Optional[str] = None
 
 class GenerationResponse(BaseModel):
     request_id: str

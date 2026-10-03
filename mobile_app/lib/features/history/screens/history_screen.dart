@@ -104,12 +104,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           child: ListTile(
                             title: Text(category, style: const TextStyle(fontWeight: FontWeight.bold)),
                             subtitle: Text("Status: $status • $date", style: const TextStyle(fontSize: 12)),
                             trailing: IconButton(
-                              icon: const Icon(Icons.delete_outline, color: Colors.red),
+                              icon: const Icon(Icons.delete_outline, color: AppTheme.error),
                               onPressed: () => _deleteItem(reqId),
                             ),
                             onTap: imgB64 != null

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beautiva — Catalogue admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #0C0C0C; --surface: #181715; --surface-2: #22201D; --border: #2A2824; --text: #F5F1EA; --text2: #A39E95;
+            --accent: #D9B66F; --on-accent: #1A1408; --ok: #8FD4A8; --err: #F2998C; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font: 14px/1.45 'Manrope', system-ui, sans-serif; }
+    main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 60px; }
+    h1 { font: 600 22px 'Sora', sans-serif; margin-bottom: 4px; }
+    h2 { font: 600 16px 'Sora', sans-serif; margin-bottom: 10px; }
+    .caption { color: var(--text2); font-size: 12px; }
+    .bar { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; align-items: center; }
+    input, select, textarea { background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; font: inherit; }
+    textarea { width: 100%; min-height: 70px; }
+    button { font: inherit; font-weight: 700; border-radius: 999px; padding: 8px 14px; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text); }
+    button.p { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { color: var(--text2); font-size: 12px; font-weight: 600; }
+    tr:hover td { background: var(--surface); cursor: pointer; }
+    .st { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); }
+    .st.published { color: var(--ok); } .st.draft { color: var(--accent); } .st.archived { color: var(--text2); }
+    .warn { color: var(--accent); font-size: 12px; }
+    .msg { margin: 10px 0; padding: 10px 12px; border-radius: 10px; background: var(--surface); }
+    .msg.err { color: var(--err); } .msg.ok { color: var(--ok); }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin: 16px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+    label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text2); }
+    label input, label select { color: var(--text); font-size: 14px; }
+    .imgs { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+    .imgs figure { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+    .imgs img { width: 90px; height: 110px; object-fit: cover; border-radius: 10px; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+    @media (max-width: 700px) { .hide-sm { display: none; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Catalogue admin</h1>
+  <p class="caption">Create and edit style templates, upload reference photos, publish or archive. Every edit raises the version; results keep the version they used. Only upload photos you have the rights to use.</p>
+  <div id="msg"></div>
+
+  <div id="login" class="panel" hidden>
+    <h2>Sign in with an admin account</h2>
+    <p class="caption">Admins are the emails in the server’s ADMIN_EMAILS setting.</p>
+    <div class="row"><input id="email" type="email" placeholder="Email"><input id="pass" type="password" placeholder="Password"><button class="p" onclick="Admin.login()">Sign in</button></div>
+  </div>
+
+  <div id="app" hidden>
+    <div class="bar">
+      <input id="q" type="search" placeholder="Search name or ID" oninput="Admin.render()">
+      <select id="f-cat" onchange="Admin.render()"><option value="">All categories</option></select>
+      <select id="f-group" onchange="Admin.render()"><option value="">All groups</option><option>women</option><option>men</option><option>all</option></select>
+      <select id="f-status" onchange="Admin.render()"><option value="">Any status</option><option>published</option><option>draft</option><option>archived</option></select>
+      <span style="flex:1"></span>
+      <button class="p" onclick="Admin.edit(null)">New template</button>
+    </div>
+    <div id="editor" class="panel" hidden></div>
+    <table>
+      <thead><tr><th>Name</th><th>Category</th><th>Group</th><th>Status</th><th class="hide-sm">Ver.</th><th class="hide-sm">Try-ons</th><th class="hide-sm">Success</th><th>Notes</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</main>
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+  const CATS = ['Hairstyle', 'Hair colour', 'Makeup', 'Beard & grooming', 'Nail art', 'Overall beauty look'];
+  const LISTS = ['face_shapes', 'lengths', 'textures', 'occasions', 'features', 'undertones', 'families', 'attributes', 'parts', 'extra_tags'];
+  const TEXTS = ['finish', 'maintenance', 'hex', 'technique', 'subcategory', 'intensity'];
+  let token = null, items = [], metrics = {};
+  try { token = localStorage.getItem('glow_auth_token'); } catch (e) { /* storage unavailable */ }
+
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function msg(text, kind) {
+    const m = $('msg');
+    m.className = text ? 'msg ' + (kind || '') : '';
+    m.textContent = text || '';
+  }
+
+  async function api(path, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({ Authorization: 'Bearer ' + token }, opts.headers || {});
+    const r = await fetch('/api/v1' + path, opts);
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      const err = new Error(typeof data.detail === 'string' ? data.detail : 'Request failed (' + r.status + ')');
+      err.status = r.status;
+      throw err;
+    }
+    return data;
+  }
+
+  function field(label, input) {
+    const l = el('label', null, label);
+    l.append(input);
+    return l;
+  }
+
+  function input(name, value, attrs) {
+    const i = el('input');
+    i.name = name;
+    i.value = value == null ? '' : value;
+    Object.assign(i, attrs || {});
+    return i;
+  }
+
+  function select(name, options, value) {
+    const s = el('select');
+    s.name = name;
+    options.forEach(o => s.append(Object.assign(el('option', null, o), { value: o })));
+    s.value = value;
+    return s;
+  }
+
+  window.Admin = {
+    async start() {
+      $('f-cat').append(...CATS.map(c => Object.assign(el('option', null, c), { value: c })));
+      if (!token) { $('login').hidden = false; return; }
+      try {
+        [items, metrics] = await Promise.all([api('/admin/catalog'), api('/admin/catalog-metrics')]);
+        $('login').hidden = true;
+        $('app').hidden = false;
+        Admin.render();
+      } catch (e) {
+        $('login').hidden = false;
+        $('app').hidden = true;
+        msg(e.status === 403 ? 'This account isn’t an admin.' : e.message, 'err');
+      }
+    },
+
+    async login() {
+      const fd = new URLSearchParams();
+      fd.append('username', $('email').value.trim());
+      fd.append('password', $('pass').value);
+      const r = await fetch('/api/v1/auth/token', { method: 'POST', body: fd });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) { msg(d.detail || 'Sign-in failed.', 'err'); return; }
+      token = d.access_token;
+      try { localStorage.setItem('glow_auth_token', token); } catch (e) { /* storage unavailable */ }
+      msg('');
+      Admin.start();
+    },
+
+    render() {
+      const q = $('q').value.trim().toLowerCase();
+      const cat = $('f-cat').value, group = $('f-group').value, status = $('f-status').value;
+      const shown = items.filter(t => (!q || t.name.toLowerCase().includes(q) || t.id.includes(q)) &&
+        (!cat || t.category === cat) && (!group || t.group === group) && (!status || t.status === status));
+      $('rows').replaceChildren(...shown.map(t => {
+        const tr = el('tr');
+        const m = metrics[t.id] || {};
+        tr.onclick = () => Admin.edit(t.id);
+        const st = el('span', 'st ' + t.status, t.status);
+        const stTd = el('td'); stTd.append(st);
+        tr.append(el('td', null, t.name), el('td', null, t.category), el('td', null, t.group), stTd,
+                  el('td', 'hide-sm', String(t.version)), el('td', 'hide-sm', String(m.tryons || 0)),
+                  el('td', 'hide-sm', m.success_rate == null ? '–' : m.success_rate + '%'),
+                  el('td', 'warn', (t.warnings || []).join('; ')));
+        return tr;
+      }));
+    },
+
+    edit(id) {
+      const t = id ? items.find(x => x.id === id) : { category: 'Hairstyle', group: 'women', name: '', description: '', prompt: '' };
+      const box = $('editor');
+      box.hidden = false;
+      const form = el('form');
+      form.onsubmit = e => { e.preventDefault(); Admin.save(id, form); };
+      form.append(el('h2', null, id ? t.name + ' · ' + t.id + ' · v' + t.version : 'New template (saved as draft)'));
+      const grid = el('div', 'grid');
+      grid.append(
+        field('Category', select('category', CATS, t.category)),
+        field('Group', select('group', ['women', 'men', 'all'], t.group)),
+        field('Name', input('name', t.name, { required: true })),
+        field('Description (shown in the app)', input('description', t.description)),
+        ...TEXTS.map(k => field(k, input(k, t[k]))),
+        ...LISTS.map(k => field(k + ' (comma-separated)', input(k, (t[k] || []).join(', ')))),
+        field('Sort order', input('sort_order', t.sort_order == null ? 1000 : t.sort_order, { type: 'number' })),
+      );
+      const featured = input('featured', '', { type: 'checkbox', checked: !!t.featured });
+      featured.style.width = '20px';
+      grid.append(field('Featured', featured));
+      const prompt = el('textarea');
+      prompt.name = 'prompt';
+      prompt.value = t.prompt || '';
+      form.append(grid, el('p', 'caption', ' '),
+                  field('Try-on instruction (sent to the image model; never shown to users)', prompt));
+      const actions = el('div', 'row');
+      actions.append(Object.assign(el('button', 'p', 'Save'), { type: 'submit' }));
+      if (id) {
+        ['published', 'draft', 'archived'].filter(s => s !== t.status).forEach(s => {
+          const b = el('button', null, s === 'published' ? 'Publish' : s === 'archived' ? 'Archive' : 'Move to draft');
+          b.type = 'button';
+          b.onclick = () => Admin.setStatus(id, s);
+          actions.append(b);
+        });
+      }
+      const close = el('button', null, 'Close');
+      close.type = 'button';
+      close.onclick = () => { box.hidden = true; };
+      actions.append(close);
+      form.append(actions);
+      if (id) {
+        const imgs = el('div', 'imgs');
+        Object.entries(t.images || {}).forEach(([view, url]) => {
+          const f = el('figure');
+          const i = el('img'); i.src = url; i.alt = view;
+          const rm = el('button', null, 'Remove ' + view);
+          rm.type = 'button';
+          rm.onclick = () => Admin.removeImage(id, view);
+          f.append(i, rm);
+          imgs.append(f);
+        });
+        const up = el('div', 'row');
+        const view = select('view', ['front', 'side', 'back'], 'front');
+        const file = input('image', '', { type: 'file', accept: 'image/jpeg,image/png,image/webp' });
+        const b = el('button', null, 'Upload reference photo');
+        b.type = 'button';
+        b.onclick = () => Admin.upload(id, view.value, file.files[0]);
+        up.append(view, file, b);
+        form.append(el('h2', null, ' '), el('p', 'caption', 'Reference photos (front, side, back). Shown with a “Reference” label in the app.'), imgs, up);
+      }
+      box.replaceChildren(form);
+      box.scrollIntoView({ behavior: 'smooth' });
+    },
+
+    async save(id, form) {
+      const f = new FormData(form);
+      const body = { featured: form.featured.checked };
+      ['category', 'group', 'name', 'description', 'prompt'].forEach(k => { body[k] = f.get(k) || ''; });
+      TEXTS.forEach(k => { const v = (f.get(k) || '').trim(); body[k] = v || null; });
+      LISTS.forEach(k => { body[k] = (f.get(k) || '').split(',').map(x => x.trim()).filter(Boolean); });
+      body.sort_order = parseInt(f.get('sort_order'), 10) || 1000;
+      try {
+        const t = await api(id ? '/admin/catalog/' + id : '/admin/catalog', {
+          method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+        });
+        Admin.replace(t);
+        msg('Saved ' + t.name + ' (v' + t.version + ').', 'ok');
+        Admin.edit(t.id);
+      } catch (e) { msg(e.message, 'err'); }
+    },
+
+    async setStatus(id, status) {
+      try {
+        const t = await api('/admin/catalog/' + id + '/status', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status })
+        });
+        Admin.replace(t);
+        msg(t.name + ' is now ' + t.status + '.', 'ok');
+        Admin.edit(id);
+      } catch (e) { msg(e.message, 'err'); }
+    },
+
+    async upload(id, view, file) {
+      if (!file) { msg('Choose a photo first.', 'err'); return; }
+      const fd = new FormData();
+      fd.append('view', view);
+      fd.append('image', file);
+      try {
+        const t = await api('/admin/catalog/' + id + '/images', { method: 'POST', body: fd });
+        Admin.replace(t);
+        msg('Uploaded the ' + view + ' photo.', 'ok');
+        Admin.edit(id);
+      } catch (e) { msg(e.message, 'err'); }
+    },
+
+    async removeImage(id, view) {
+      try {
+        const t = await api('/admin/catalog/' + id + '/images/' + view, { method: 'DELETE' });
+        Admin.replace(t);
+        Admin.edit(id);
+      } catch (e) { msg(e.message, 'err'); }
+    },
+
+    replace(t) {
+      const i = items.findIndex(x => x.id === t.id);
+      if (i >= 0) items[i] = t; else items.unshift(t);
+      Admin.render();
+    }
+  };
+  Admin.start();
+})();
+</script>
+</body>
+</html>

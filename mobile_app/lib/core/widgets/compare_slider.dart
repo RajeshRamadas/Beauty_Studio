@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 
 class CompareSliderWidget extends StatefulWidget {
   final ImageProvider beforeImage;
@@ -56,7 +57,7 @@ class _CompareSliderWidgetState extends State<CompareSliderWidget> {
                 bottom: 0,
                 child: Container(
                   width: 3,
-                  color: Colors.white,
+                  color: AppTheme.gold,
                 ),
               ),
               // Slider Handle Circle
@@ -67,13 +68,13 @@ class _CompareSliderWidgetState extends State<CompareSliderWidget> {
                   width: 36,
                   height: 36,
                   decoration: const BoxDecoration(
-                    color: Colors.white,
+                    color: AppTheme.gold,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(color: Colors.black26, blurRadius: 4),
                     ],
                   ),
-                  child: const Icon(Icons.unfold_more, size: 20, color: Colors.black87),
+                  child: const Icon(Icons.unfold_more, size: 20, color: AppTheme.onGold),
                 ),
               ),
             ],

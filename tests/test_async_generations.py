@@ -27,6 +27,7 @@ def test_async_generation_creation_and_polling():
         "category": "Hairstyle",
         "style": "short wavy bob",
         "notes": "keep natural tone",
+        "consent_version": settings.PHOTO_CONSENT_VERSION,
     }
 
     # 1. Submit request -> HTTP 202 Accepted

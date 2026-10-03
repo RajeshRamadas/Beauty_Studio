@@ -62,7 +62,7 @@ def test_ownership_authorization():
     target_bytes = create_dummy_jpeg(300, 300, "pink")
     ref_bytes = create_dummy_jpeg(300, 300, "blue")
     files = {"target_image": ("target.jpg", target_bytes, "image/jpeg"), "reference_image": ("ref.jpg", ref_bytes, "image/jpeg")}
-    data = {"category": "Makeup"}
+    data = {"category": "Makeup", "consent_version": settings.PHOTO_CONSENT_VERSION}
 
     # User A creates a generation
     headers_a = {"Authorization": f"Bearer {token_a}"}

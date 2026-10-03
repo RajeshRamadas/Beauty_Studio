@@ -15,6 +15,7 @@ def health():
         "quality": settings.OPENAI_IMAGE_QUALITY,
         "estimated_cost_per_image": f"~${est_cost:.3f} USD",
         "api_key_configured": bool(settings.OPENAI_API_KEY),
+        "demo_mode": settings.DEMO_MODE,
     }
 
 @router.get("/ready")

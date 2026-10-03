@@ -41,8 +41,14 @@ def test_admin_metrics_endpoint():
 
 def test_image_delivery_endpoint():
     # Attempt to fetch nonexistent image
+    # Unsigned links are refused; signed links to missing files are 404.
     res = client.get("/api/v1/images/nonexistent_file.png")
+    assert res.status_code == 403
+    from app.services.storage import storage_service
+    res = client.get(storage_service.get_signed_url("nonexistent_file.png"))
     assert res.status_code == 404
+    expired = storage_service.get_signed_url("nonexistent_file.png", expires_in=-10)
+    assert client.get(expired).status_code == 403
 
     # Traversal attack check (rejected by router or endpoint path validation)
     res_bad = client.get("/api/v1/images/../app/main.py")

@@ -3,29 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Glow AI — Beauty Studio</title>
-  <meta name="description" content="AI-powered beauty studio for hairstyle try-on, face analysis, salon discovery and beauty products.">
+  <title>Beautiva — AI Beauty Studio</title>
+  <meta name="description" content="Beautiva: AI-powered beauty studio for hairstyle, makeup and nail-art try-on with face analysis.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #111111;
-      --surface: #1A1A1A;
-      --border: #2A2A2A;
-      --text: #EBEBEB;
-      --text2: #888888;
-      --accent: #E8836B;
-      --accent-h: #D4715B;
-      --ok: #5CB563;
-      --err: #E25C5C;
+      /* Champagne Noir */
+      --bg: #0C0C0C;
+      --surface: #181715;
+      --surface-2: #22201D;
+      --border: #2A2824;
+      --text: #F5F1EA;
+      --text2: #A39E95;
+      --accent: #D9B66F;
+      --accent-h: #E6C988;
+      --on-accent: #1A1408;
+      --ok: #8FD4A8;
+      --err: #F2998C;
+      --display: 'Sora', 'Manrope', system-ui, sans-serif;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: #000;
-      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      background: #050505;
+      font-family: 'Manrope', -apple-system, system-ui, sans-serif;
       color: var(--text);
       -webkit-font-smoothing: antialiased;
     }
@@ -36,35 +40,15 @@
       background: var(--bg);
       min-height: 100vh;
       position: relative;
-      padding-bottom: 76px;
+      padding-bottom: 100px;
     }
 
     /* ── Screens ──────────────────────────────────────── */
     .screen { display: none; padding: 20px 16px 20px; }
     .screen.active { display: block; animation: fadeIn .15s ease; }
+    #screen-1.active { display: flex; flex-direction: column; justify-content: center; min-height: 80vh; text-align: center; }
+    body.on-splash .bottom-nav { display: none; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    /* ── Dev toolbar ──────────────────────────────────── */
-    .dev-bar {
-      background: #000;
-      border-bottom: 1px solid var(--border);
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    .dev-bar label { font-size: 11px; color: var(--text2); }
-    .dev-bar select {
-      background: var(--surface);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 5px 10px;
-      font-size: 11px;
-      font-family: inherit;
-      outline: none;
-    }
 
     /* ── Top bar ──────────────────────────────────────── */
     .top-bar {
@@ -81,13 +65,14 @@
       cursor: pointer;
       display: flex;
     }
-    .logo { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
+    .logo { font-family: var(--display); font-size: 20px; font-weight: 600; letter-spacing: -0.4px; }
     .logo b { color: var(--accent); font-weight: 600; }
 
     /* ── Typography ───────────────────────────────────── */
-    h1 { font-size: 22px; font-weight: 600; line-height: 1.3; }
-    h2 { font-size: 15px; font-weight: 600; line-height: 1.4; }
-    h3 { font-size: 14px; font-weight: 500; }
+    h1, h2 { font-family: var(--display); letter-spacing: -0.02em; }
+    h1 { font-size: 24px; font-weight: 600; line-height: 1.3; }
+    h2 { font-size: 17px; font-weight: 600; line-height: 1.4; }
+    h3 { font-size: 15px; font-weight: 700; }
     .caption { font-size: 12px; color: var(--text2); line-height: 1.4; }
 
     /* ── Buttons ──────────────────────────────────────── */
@@ -96,10 +81,11 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      padding: 12px 16px;
-      font-size: 14px;
-      font-weight: 500;
-      border-radius: 10px;
+      min-height: 48px;
+      padding: 12px 20px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 999px;
       cursor: pointer;
       border: none;
       width: 100%;
@@ -108,11 +94,11 @@
     }
     .btn:active { opacity: .85; }
     .btn:disabled { opacity: .45; cursor: wait; }
-    .btn-p { background: var(--accent); color: #111; }
+    .btn-p { background: var(--accent); color: var(--on-accent); }
     .btn-p:hover { background: var(--accent-h); }
     .btn-s { background: transparent; color: var(--text); border: 1px solid var(--border); }
-    .btn-sm { padding: 7px 14px; font-size: 12px; width: auto; border-radius: 8px; }
-    .btn-link { background: none; border: none; color: var(--accent); font-weight: 500; font-size: 13px; cursor: pointer; padding: 0; font-family: inherit; }
+    .btn-sm { min-height: 40px; padding: 8px 16px; font-size: 13px; width: auto; }
+    .btn-link { background: none; border: none; color: var(--accent); font-weight: 700; font-size: 13px; cursor: pointer; padding: 0; font-family: inherit; }
 
     /* ── Inputs ───────────────────────────────────────── */
     input, select, textarea {
@@ -120,8 +106,8 @@
       background: var(--surface);
       color: var(--text);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 11px 14px;
+      border-radius: 14px;
+      padding: 13px 16px;
       font-family: inherit;
       font-size: 14px;
       outline: none;
@@ -136,35 +122,36 @@
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
+      border-radius: 20px;
+      padding: 18px;
       margin-bottom: 12px;
     }
     .card-click { cursor: pointer; transition: border-color .15s ease; }
-    .card-click:hover { border-color: #444; }
+    .card-click:hover { border-color: var(--accent); }
 
     /* ── Grids ────────────────────────────────────────── */
     .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 
     .img-card {
-      border-radius: 12px;
+      border-radius: 18px;
       overflow: hidden;
       cursor: pointer;
       transition: opacity .15s ease;
     }
     .img-card:hover { opacity: .85; }
-    .img-card img { width: 100%; height: 140px; object-fit: cover; display: block; }
+    .img-card img { width: 100%; height: 170px; object-fit: cover; display: block; }
     .img-card-info { padding: 10px; background: var(--surface); }
-    .img-card-info p { font-size: 13px; font-weight: 500; }
+    .img-card-info p { font-size: 13px; font-weight: 700; }
     .img-card-info span { font-size: 11px; color: var(--text2); }
 
     /* ── Scroll row ──────────────────────────────────── */
     .scroll-row { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
     .scroll-row::-webkit-scrollbar { display: none; }
     .scroll-item { flex: 0 0 140px; }
-    .scroll-item img { width: 140px; height: 180px; object-fit: cover; border-radius: 12px; }
-    .scroll-item p { font-size: 13px; margin-top: 8px; font-weight: 500; }
+    .scroll-item { cursor: pointer; }
+    .scroll-item img { width: 140px; height: 180px; object-fit: cover; border-radius: 18px; }
+    .scroll-item p { font-size: 13px; margin-top: 8px; font-weight: 700; }
     .scroll-item .caption { margin-top: 2px; }
 
     /* ── Chips ────────────────────────────────────────── */
@@ -181,7 +168,7 @@
       cursor: pointer;
       font-family: inherit;
     }
-    .chip.active { background: var(--text); color: #111; border-color: var(--text); }
+    .chip.active { background: var(--text); color: var(--bg); border-color: var(--text); }
 
     /* ── Bottom nav ───────────────────────────────────── */
     .bottom-nav {
@@ -195,7 +182,7 @@
       border-top: 1px solid var(--border);
       display: flex;
       justify-content: space-around;
-      padding: 10px 0 22px;
+      padding: 10px 0 20px;
       z-index: 100;
     }
     .nav-btn {
@@ -213,29 +200,39 @@
       font-family: inherit;
     }
     .nav-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-    .nav-btn.active { color: var(--accent); }
+    .nav-btn.active { color: var(--accent); font-weight: 700; }
+    .nav-fab { color: var(--text2); }
+    .nav-fab .fab {
+      width: 54px; height: 54px; margin-top: -30px;
+      border-radius: 50%; border: 4px solid var(--bg);
+      background: var(--accent); color: var(--on-accent);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nav-fab .fab svg { width: 22px; height: 22px; stroke-width: 2.2; }
+    .nav-fab.active .fab { background: var(--accent-h); }
 
     /* ── Compare slider ──────────────────────────────── */
     .compare-box {
       position: relative;
       width: 100%;
-      height: 360px;
-      border-radius: 12px;
+      height: 420px;
+      border-radius: 24px;
       overflow: hidden;
       background: var(--surface);
       cursor: ew-resize;
       user-select: none;
     }
-    .compare-box img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+    /* contain, not cover: show the whole photo instead of zooming in on it */
+    .compare-box img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; background: #000; }
     #compare-before-clip { position: absolute; top: 0; left: 0; width: 50%; height: 100%; overflow: hidden; border-right: 2px solid var(--accent); }
-    #compare-before-clip img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
+    #compare-before-clip img { width: 100%; height: 100%; object-fit: contain; background: #000; position: absolute; top: 0; left: 0; }
     #compare-handle {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 32px;
-      height: 32px;
+      width: 40px;
+      height: 40px;
       background: var(--accent);
       border-radius: 50%;
       display: flex;
@@ -245,129 +242,315 @@
       cursor: ew-resize;
     }
 
-    /* ── Swatches ─────────────────────────────────────── */
-    .swatches { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-    .swatches::-webkit-scrollbar { display: none; }
-    .swatch {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      border: 2px solid transparent;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: border-color .15s ease;
-    }
-    .swatch.active { border-color: var(--accent); }
-    .swatch-label { font-size: 10px; color: var(--text2); text-align: center; margin-top: 3px; }
-    .swatch-wrap { flex-shrink: 0; text-align: center; cursor: pointer; }
-
-    /* ── Salon map ────────────────────────────────────── */
-    .map-box {
-      border-radius: 12px;
-      overflow: hidden;
-      background: var(--surface);
-      height: 200px;
-      margin-bottom: 16px;
-    }
-
-    /* ── Mode switch ──────────────────────────────────── */
-    .mode-sw {
-      display: flex;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 3px;
-    }
-    .mode-opt {
-      flex: 1;
-      text-align: center;
-      padding: 8px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text2);
-      cursor: pointer;
-      border-radius: 6px;
-      border: none;
-      background: none;
-      font-family: inherit;
-    }
-    .mode-opt.active { background: var(--bg); color: var(--text); }
-
     /* ── Status msg ───────────────────────────────────── */
     .msg {
       padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 12px;
+      border-radius: 14px;
+      font-size: 13px;
       margin-top: 12px;
       border: 1px solid var(--border);
       background: var(--surface);
       color: var(--text2);
     }
-    .msg.err { border-color: rgba(226,92,92,.4); color: var(--err); }
-    .msg.ok { border-color: rgba(92,181,99,.4); color: var(--ok); }
-
-    /* ── Product card ─────────────────────────────────── */
-    .prod-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    .prod-card img { width: 100%; height: 120px; object-fit: cover; display: block; }
-    .prod-card-body { padding: 12px; }
-    .prod-price { font-size: 15px; font-weight: 600; color: var(--accent); margin: 4px 0 8px; }
-    .prod-add {
-      width: 100%;
-      padding: 7px;
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      font-family: inherit;
-      transition: border-color .15s ease;
-    }
-    .prod-add:hover { border-color: var(--accent); color: var(--accent); }
-
-    /* ── Salon card ───────────────────────────────────── */
-    .salon-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 16px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      margin-bottom: 10px;
-    }
-    .salon-dot {
-      width: 40px; height: 40px;
-      border-radius: 10px;
-      background: var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      flex-shrink: 0;
-      color: var(--text2);
-    }
-    .salon-detail { flex: 1; min-width: 0; }
-    .salon-name { font-size: 14px; font-weight: 500; }
-    .salon-meta { font-size: 11px; color: var(--text2); margin-top: 2px; }
-    .salon-meta b { color: var(--accent); font-weight: 500; }
+    .msg.err { border-color: rgba(242,153,140,.4); color: var(--err); }
+    .msg.ok { border-color: rgba(143,212,168,.4); color: var(--ok); }
 
     /* ── Badge ────────────────────────────────────────── */
     .badge {
       display: inline-block;
       padding: 3px 8px;
-      border-radius: 6px;
+      border-radius: 999px;
       font-size: 11px;
-      font-weight: 500;
-      background: var(--border);
+      font-weight: 700;
+      background: var(--surface-2);
       color: var(--text2);
     }
+
+    /* ── Hero ─────────────────────────────────────────── */
+    .hero { background: var(--surface); border: 1px solid var(--border); border-radius: 26px; overflow: hidden; margin-bottom: 24px; }
+    .hero-pics { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; height: 210px; position: relative; }
+    .hero-pics img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hero-tag { position: absolute; top: 10px; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+    .hero-body { padding: 18px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+    .hero-body .btn { width: auto; }
+
+    /* ── Icon buttons ─────────────────────────────────── */
+    .icon-btn {
+      position: relative; width: 44px; height: 44px; border-radius: 50%;
+      background: var(--surface); border: 1px solid var(--border); color: var(--text);
+      display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+    }
+    .icon-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .bag-count {
+      position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; padding: 0 5px;
+      border-radius: 10px; background: var(--accent); color: var(--on-accent);
+      font-size: 11px; font-weight: 700; align-items: center; justify-content: center;
+    }
+
+    /* ── Salons ───────────────────────────────────────── */
+    .search-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .search-row input { flex: 1; border-radius: 999px; }
+    .search-row .btn { width: auto; }
+    #salon-map {
+      height: 260px; border-radius: 22px; overflow: hidden; border: 1px solid var(--border);
+      background: var(--surface); position: relative; z-index: 0;
+    }
+    .map-wrap { position: relative; margin: 12px 0 14px; }
+    #salon-area-btn { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 500; width: auto; box-shadow: 0 4px 16px rgba(0,0,0,.5); }
+    .salon-pin span { display: block; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: 3px solid var(--bg); box-sizing: border-box; }
+    .you-pin span { display: block; width: 16px; height: 16px; border-radius: 50%; background: #7FB4FF; border: 3px solid #fff; box-sizing: border-box; }
+    .leaflet-container { font-family: inherit; background: var(--surface); }
+    .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--surface-2); color: var(--text); }
+    .leaflet-control-attribution { background: rgba(12,12,12,.75) !important; color: var(--text2) !important; }
+    .leaflet-control-attribution a { color: var(--accent) !important; }
+    .salon-row {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+      padding: 14px 16px; margin-bottom: 10px;
+    }
+    .salon-row.active { border-color: var(--accent); }
+    .salon-head { all: unset; display: block; width: 100%; cursor: pointer; }
+    .salon-name { font-size: 15px; font-weight: 700; }
+    .salon-meta { font-size: 12px; color: var(--text2); margin-top: 3px; line-height: 1.4; }
+    .salon-meta b { color: var(--accent); font-weight: 700; }
+    .salon-rating { color: var(--text); font-weight: 700; }
+    .map-pop { font-family: inherit; }
+    .gm-style .map-pop { color: #1A1408; font-size: 13px; line-height: 1.4; }
+    .gm-style .map-pop b { display: block; font-size: 14px; }
+    .salon-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .salon-actions .btn { text-decoration: none; }
+
+    /* ── Shop ─────────────────────────────────────────── */
+    .prod-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
+    .prod-img { width: 100%; height: 130px; object-fit: cover; display: block; }
+    .prod-tile { display: flex; align-items: flex-end; padding: 10px; font-size: 11px; font-weight: 700; color: var(--text2); background: var(--surface-2); }
+    .prod-tile[data-cat="Hair care"] { background: #2B261C; }
+    .prod-tile[data-cat="Colour"] { background: #2E2320; }
+    .prod-tile[data-cat="Makeup"] { background: #2D2226; }
+    .prod-tile[data-cat="Nails"] { background: #26262E; }
+    .prod-tile[data-cat="Tools"] { background: #22262A; }
+    .prod-card-body { padding: 12px; }
+    .prod-price { font-size: 15px; font-weight: 700; color: var(--accent); margin: 4px 0 10px; }
+    .prod-add {
+      width: 100%; min-height: 40px; background: transparent; border: 1px solid var(--border); border-radius: 999px;
+      color: var(--text); font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+    .prod-add:hover { border-color: var(--accent); color: var(--accent); }
+    .stepper { display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--accent); border-radius: 999px; min-height: 40px; }
+    .stepper button { width: 40px; height: 38px; background: none; border: none; color: var(--accent); font-size: 18px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .stepper span { font-weight: 700; font-size: 14px; }
+    .bag-row { display: flex; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 12px; margin-bottom: 10px; }
+    .bag-img { width: 64px; height: 64px; border-radius: 14px; flex-shrink: 0; object-fit: cover; }
+    .bag-img.prod-tile { padding: 6px; font-size: 9px; }
+    .bag-info { flex: 1; min-width: 0; }
+    .bag-info .btn-link { margin-top: 6px; font-size: 12px; }
+    .bag-right { width: 110px; text-align: right; }
+    .bag-right .prod-price { margin: 0 0 6px; }
+
+    /* ── Face analysis ────────────────────────────────── */
+    .fa-feature {
+      border: 1.5px solid var(--accent); border-radius: 24px; padding: 18px; margin-bottom: 24px;
+      background: linear-gradient(var(--surface), var(--surface)) padding-box;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .fa-feature-top { display: flex; gap: 14px; align-items: center; }
+    .fa-feature h3 { font-size: 17px; font-family: var(--display); }
+    .fa-badge { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-bottom: 2px; }
+    .fa-cta svg, .fa-outline svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.8; fill: none; stroke-linecap: round; }
+    .fa-inline { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 10px 10px 10px 14px; }
+    .fa-outline { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+    .fa-outline:hover { background: rgba(217,182,111,.12); }
+    .fa-entry-icon { width: 48px; height: 48px; border-radius: 50%; background: var(--surface-2); color: var(--accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .fa-entry-icon svg, .fa-placeholder svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 1.7; fill: none; stroke-linecap: round; }
+    .fa-photo { height: 320px; border-radius: 24px; overflow: hidden; background: var(--surface); border: 1px dashed var(--border); }
+    .fa-photo img { width: 100%; height: 100%; object-fit: contain; background: #000; display: block; }
+    .fa-placeholder { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--accent); padding: 20px; text-align: center; }
+    .fa-placeholder svg { width: 44px; height: 44px; }
+    .fa-chips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .fa-chip { background: var(--surface-2); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+    .fa-chip b { font-size: 14px; }
+    .fa-summary { font-size: 14px; line-height: 1.5; }
+    .fa-list { display: flex; flex-direction: column; gap: 10px; }
+    .fa-rec { display: flex; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 10px; }
+    .fa-rec-img { width: 88px; height: 104px; object-fit: cover; border-radius: 14px; flex-shrink: 0; font-size: 10px; }
+    .fa-rec-img svg { width: 26px; height: 26px; }
+    .fa-rec-body { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+    .fa-rec-body .btn { margin-top: auto; }
+    .fa-desc { font-size: 12px; color: var(--text); line-height: 1.4; }
+    .fa-tips { padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 1.45; }
+
+    /* ── Styles: audience toggle, tiles ───────────────── */
+    .aud-toggle { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px; margin-bottom: 16px; }
+    .aud-toggle button { flex: 1; min-height: 40px; border: none; border-radius: 999px; background: none; color: var(--text2); font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .aud-toggle button.active { background: var(--accent); color: var(--on-accent); }
+    .cat-card { display: block; width: 100%; text-align: left; color: var(--text); font-family: inherit; }
+    button.scroll-item, button.img-card { background: none; border: none; padding: 0; text-align: left; color: var(--text); font-family: inherit; width: 100%; }
+    button.scroll-item { width: auto; }
+    .scroll-img { width: 140px; height: 180px; object-fit: cover; border-radius: 18px; display: block; }
+    .img-card-img { width: 100%; height: 170px; object-fit: cover; display: block; }
+    .style-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: var(--surface-2); color: var(--accent); text-align: center; padding: 12px; font-size: 13px; font-weight: 700; }
+    .style-tile svg { width: 34px; height: 34px; stroke: currentColor; stroke-width: 1.6; fill: none; stroke-linecap: round; flex-shrink: 0; }
+    div.style-tile { display: flex; background: linear-gradient(160deg, #2A2620, var(--surface-2) 60%); }
+    .tile-note { font-size: 10.5px; font-weight: 600; color: var(--text2); letter-spacing: .02em; }
+    .look-thumb .tile-note, .fa-rec-img .tile-note, .scroll-img .tile-note { display: none; }
+    .detail-hero { border-radius: 24px; overflow: hidden; margin-bottom: 16px; height: 300px; }
+    .detail-hero img, .detail-tile { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    /* ── Generator ────────────────────────────────────── */
+    .gen-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .gen-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+    .gen-slot {
+      height: 220px; width: 100%; padding: 0; border-radius: 22px; overflow: hidden; cursor: pointer;
+      background: var(--surface); border: 1.5px dashed var(--border); color: var(--text); font-family: inherit;
+    }
+    .gen-slot.filled { border: 1px solid var(--border); }
+    .gen-slot img { width: 100%; height: 100%; object-fit: contain; background: #000; display: block; }
+    .gen-tile { width: 100%; height: 100%; display: flex; }
+    .gen-tile svg { width: 40px; height: 40px; }
+    .gen-empty { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 12px; text-align: center; }
+    .gen-empty svg { width: 30px; height: 30px; stroke: var(--accent); stroke-width: 1.7; fill: none; stroke-linecap: round; stroke-linejoin: round; margin-bottom: 4px; }
+    .gen-empty small { color: var(--text2); font-size: 11px; line-height: 1.3; }
+    .gen-label { font-size: 13px; font-weight: 700; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .gen-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .gen-actions .btn { width: 100%; padding: 8px 6px; }
+    .area-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .area-chip { min-height: 44px; padding: 0 18px; font-weight: 700; }
+    .area-chip.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+    #generate-btn:disabled { background: var(--surface-2); color: var(--text2); cursor: not-allowed; opacity: 1; }
+
+    /* ── Photo check ──────────────────────────────────── */
+    .photo-check:empty { display: none; }
+    .photo-check { border-radius: 16px; padding: 12px 14px; margin-bottom: 12px; font-size: 13px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .photo-check.checking { background: var(--surface); color: var(--text2); }
+    .photo-check.ok { background: rgba(143,212,168,.12); color: var(--ok); font-weight: 700; }
+    .photo-check.warn { background: rgba(217,182,111,.12); border: 1px solid rgba(217,182,111,.4); color: var(--text); line-height: 1.45; }
+    .photo-check.bad { background: rgba(242,153,140,.10); border: 1px solid rgba(242,153,140,.45); display: block; }
+    .pc-fixes { flex-basis: 100%; font-weight: 500; color: var(--text2); font-size: 12px; }
+    .pc-title { color: var(--err); font-weight: 700; margin-bottom: 2px; }
+    .pc-file { color: var(--text2); font-size: 12px; margin-bottom: 8px; word-break: break-all; }
+    .side-row { display: flex; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 10px 12px; flex-wrap: wrap; }
+    .side-thumb { width: 52px; height: 64px; border-radius: 12px; background: var(--surface-2); color: var(--accent); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+    .side-thumb svg { width: 26px; height: 26px; stroke: currentColor; stroke-width: 1.7; fill: none; stroke-linecap: round; }
+    .side-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .side-actions { display: flex; gap: 6px; align-items: center; }
+    .gen-slot.pc-bad, .fa-photo.pc-bad { border: 2px solid var(--err); }
+    .pc-list { padding-left: 18px; color: var(--text); line-height: 1.5; margin-bottom: 10px; }
+    .pc-actions { display: flex; gap: 8px; }
+    .pc-actions .btn { flex: 1; }
+    .pc-spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--accent); animation: pcspin .8s linear infinite; }
+    @keyframes pcspin { to { transform: rotate(360deg); } }
+
+    /* ── Guided camera ────────────────────────────────── */
+    body.cam-open { overflow: hidden; }
+    .cam-modal { position: fixed; inset: 0; z-index: 1000; background: #000; display: flex; flex-direction: column; }
+    .cam-modal[hidden] { display: none; }
+    .cam-modal video, .cam-guide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .cam-modal video.mirror { transform: scaleX(-1); }
+    .cam-top { position: relative; padding: 24px 20px; text-align: center; }
+    .cam-tip { font-size: 16px; color: #fff; }
+    .cam-tip { display: inline-block; padding: 8px 14px; border-radius: 999px; background: rgba(0,0,0,.55); font-weight: 700; transition: background .2s; }
+    .cam-modal[data-state="ok"] .cam-tip { background: rgba(78,160,108,.85); }
+    .cam-modal[data-state="ok"] .cam-guide ellipse { stroke: #8FD4A8; }
+    .cam-chip { position: relative; margin-top: 10px; background: rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.3); color: #fff; border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .cam-sub { font-size: 12px; color: #d8d2c8; margin-top: 6px; position: relative; text-align: center; }
+    .cam-bar { position: relative; margin-top: auto; padding: 16px 32px 12px; display: flex; align-items: center; justify-content: space-between; }
+    .cam-shutter { width: 76px; height: 76px; border-radius: 50%; background: #fff; border: 5px solid var(--accent); cursor: pointer; }
+    .cam-round { width: 52px; height: 52px; border-radius: 50%; background: rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.3); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .cam-round svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .cam-alt { position: relative; background: none; border: none; color: var(--accent); font: inherit; font-size: 13px; font-weight: 700; padding: 8px 0 24px; cursor: pointer; }
+
+    /* ── Accuracy ─────────────────────────────────────── */
+    .accuracy { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 0 12px; font-size: 13px; }
+    .accuracy summary { list-style: none; cursor: pointer; display: flex; gap: 8px; align-items: center; min-height: 40px; }
+    .accuracy summary::-webkit-details-marker { display: none; }
+    .accuracy summary b { color: var(--ok); }
+    .accuracy summary .caption { flex: 1; }
+    .accuracy summary::after { content: '▾'; color: var(--text2); transition: transform .15s; }
+    .accuracy[open] summary::after { transform: rotate(180deg); }
+    .accuracy[open] { padding-bottom: 10px; }
+    .acc-note { margin-top: 8px; }
+    .acc-row { display: grid; grid-template-columns: 1fr 90px 40px; gap: 8px; align-items: center; font-size: 12px; color: var(--text2); margin-top: 4px; }
+    .acc-row span:last-child { text-align: right; color: var(--text); font-weight: 700; }
+    .acc-bar { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; }
+    .acc-bar i { display: block; height: 100%; background: var(--accent); }
+
+    /* ── Catalogue gallery ────────────────────────────── */
+    .tpl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .tpl-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+    .tpl-card.selected { border-color: var(--accent); }
+    .tpl-pic { all: unset; display: block; position: relative; cursor: pointer; }
+    .tpl-img { width: 100%; height: 150px; display: block; }
+    .tpl-body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .tpl-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; }
+    .tpl-name { all: unset; cursor: pointer; font-size: 14px; font-weight: 700; line-height: 1.3; }
+    .tpl-name:focus-visible { outline: 2px solid var(--accent); }
+    .tpl-desc { font-size: 12px; line-height: 1.35; color: var(--text); }
+    .tpl-try { margin-top: auto; width: 100%; min-height: 36px; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 6px; }
+    .tag { font-size: 10.5px; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--text2); }
+    .in-look { position: absolute; left: 8px; bottom: 8px; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--accent); color: var(--on-accent); }
+    .pic-wrap { position: relative; overflow: hidden; }
+    .pic-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ref-badge { position: absolute; top: 8px; left: 8px; font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 7px; border-radius: 999px; background: rgba(12,12,12,.75); color: var(--text); }
+    .swatch-tile { background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.28), transparent 45%), linear-gradient(160deg, var(--sw), color-mix(in srgb, var(--sw) 65%, #000)); }
+    .fav-btn { flex-shrink: 0; width: 32px; height: 32px; margin: -4px -6px 0 0; border: none; background: none; color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .fav-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.8; fill: none; }
+    .fav-btn.on { color: var(--accent); }
+    .fav-btn.on svg { fill: currentColor; }
+    .search-input { border-radius: 999px; margin-bottom: 10px; }
+    .filter-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; margin-bottom: 8px; }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .filter-select { width: auto; flex-shrink: 0; padding: 7px 28px 7px 12px; border-radius: 999px; font-size: 13px; min-height: 36px; }
+    .filter-select.on { border-color: var(--accent); color: var(--accent); }
+    .filter-active { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }
+    .chip.removable { padding: 5px 12px; font-size: 12px; }
+    .aud-toggle.three button { font-size: 13px; }
+
+    /* ── Template detail ─────────────────────────────── */
+    .detail-views { display: flex; gap: 8px; margin: -6px 0 14px; }
+    .view-thumb { background: none; border: 1px solid var(--border); border-radius: 12px; padding: 4px; cursor: pointer; color: var(--text); display: flex; flex-direction: column; align-items: center; gap: 2px; font-family: inherit; }
+    .view-thumb img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; }
+    .meta { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .meta-row { display: grid; grid-template-columns: 120px 1fr; gap: 8px; font-size: 13px; }
+    .detail-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+
+    /* ── Look builder ────────────────────────────────── */
+    .look-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--border); }
+    .look-row:first-child { border-top: none; }
+    .look-thumb { width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0; overflow: hidden; }
+    .look-thumb.style-tile { padding: 6px; }
+    .look-thumb svg { width: 22px; height: 22px; }
+    .look-thumb .ref-badge { display: none; }
+    .look-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+    .look-text b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .look-keep { font-size: 13px; color: var(--text2); }
+    .look-actions { display: flex; align-items: center; gap: 4px; }
+    .look-remove { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: none; color: var(--text2); font-size: 18px; cursor: pointer; }
+    .seg { display: flex; background: var(--surface-2); border-radius: 999px; padding: 3px; }
+    .seg button { flex: 1; min-height: 36px; padding: 0 8px; white-space: nowrap; border: none; border-radius: 999px; background: none; color: var(--text2); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .seg button.active { background: var(--text); color: var(--bg); }
+    .check-row { display: flex; gap: 10px; align-items: center; font-size: 13px; margin-top: 12px; cursor: pointer; }
+    .check-row input { width: 18px; height: 18px; accent-color: var(--accent); }
+    .sel-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .sel-chip { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); color: var(--text); }
+    .sel-chip span { color: var(--text2); }
+
+    /* ── Face analysis extras ────────────────────────── */
+    .conf { font-size: 11px; color: var(--text2); }
+    .conf-high { color: var(--ok); }
+    .conf-low { color: var(--err); }
+    .rec-label { font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--text2); }
+    .rec-label.on { color: var(--accent); }
+    .pref-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    /* ── Consent ─────────────────────────────────────── */
+    .sheet { position: fixed; inset: 0; z-index: 1100; background: rgba(0,0,0,.7); display: flex; align-items: flex-end; justify-content: center; }
+    .sheet[hidden] { display: none; }
+    .sheet-body { background: var(--surface); border: 1px solid var(--border); border-radius: 26px 26px 0 0; padding: 22px 20px 28px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; }
+    .sheet-body ul { padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.45; margin: 12px 0 18px; }
+
+    /* ── History ─────────────────────────────────────── */
+    .hist-row { display: flex; gap: 12px; align-items: center; }
+    .hist-img { width: 64px; height: 80px; object-fit: cover; border-radius: 12px; background: var(--surface-2); flex-shrink: 0; }
 
     /* ── Spacing helpers ──────────────────────────────── */
     .mb-4 { margin-bottom: 4px; }
@@ -385,100 +568,79 @@
 </head>
 <body>
 
-<!-- Dev toolbar -->
-<div class="dev-bar">
-  <label>Screen:</label>
-  <select id="screen-jump" onchange="showScreen(this.value)">
-    <option value="screen-1">1 Splash</option>
-    <option value="screen-2">2 Home</option>
-    <option value="screen-3">3 Categories</option>
-    <option value="screen-4">4 Hairstyles</option>
-    <option value="screen-5">5 Detail</option>
-    <option value="screen-6">6 Result</option>
-    <option value="screen-7">7 Generator</option>
-    <option value="screen-8">8 Makeup</option>
-    <option value="screen-9">9 Nails</option>
-    <option value="screen-10">10 Full Looks</option>
-    <option value="screen-11">11 History</option>
-    <option value="screen-12">12 Profile</option>
-    <option value="screen-13">13 Salons</option>
-    <option value="screen-14">14 Store</option>
-  </select>
-</div>
-
 <div id="app">
 
   <!-- ════ SCREEN 1: SPLASH ══════════════════════════════════ -->
-  <div id="screen-1" class="screen active" style="display:flex;flex-direction:column;justify-content:center;min-height:80vh;text-align:center;">
-    <div style="font-size:36px;font-weight:600;letter-spacing:-1px;margin-bottom:4px;">GLOW<b style="color:var(--accent)">AI</b></div>
-    <p class="caption mb-24">Professional AI Beauty Studio</p>
-    <div style="height:280px;border-radius:12px;overflow:hidden;margin-bottom:24px;">
+  <div id="screen-1" class="screen">
+    <div style="font-family:var(--display);font-size:40px;font-weight:600;letter-spacing:-1.5px;margin-bottom:6px;">BEAUTI<b style="color:var(--accent);font-weight:600;">VA</b></div>
+    <p class="caption mb-24" style="letter-spacing:.12em;text-transform:uppercase;font-size:11px;font-weight:700;">Professional AI Beauty Studio</p>
+    <div style="height:340px;border-radius:28px;overflow:hidden;margin-bottom:28px;border:1px solid var(--border);">
       <img src="sample_glamour_waves.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Featured">
     </div>
-    <button class="btn btn-p" onclick="showScreen('screen-2')">Get Started</button>
+    <button class="btn btn-p" onclick="screenStack = []; showScreen('screen-2')">Get Started</button>
   </div>
 
   <!-- ════ SCREEN 2: HOME ════════════════════════════════════ -->
   <div id="screen-2" class="screen">
     <div class="top-bar">
-      <div class="logo">GLOW<b>AI</b></div>
+      <div>
+        <p class="caption">Welcome to</p>
+        <div class="logo">BEAUTI<b>VA</b></div>
+      </div>
       <div style="flex:1"></div>
-      <button class="btn-link" onclick="showScreen('screen-12')">Account</button>
+      <button class="icon-btn" onclick="showScreen('screen-11')" aria-label="My looks"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></button>
+      <button class="icon-btn" onclick="showScreen('screen-15')" aria-label="Shopping bag"><svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 016 0"/></svg><span class="bag-count" style="display:none">0</span></button>
     </div>
 
-    <input type="text" placeholder="Search styles, salons, products..." class="mb-20">
+    <div class="aud-toggle three" data-kind="audience" role="group" aria-label="Show styles for">
+      <button type="button" data-aud="women" onclick="Styles.setAudience('women')">Women</button>
+      <button type="button" data-aud="men" onclick="Styles.setAudience('men')">Men</button>
+      <button type="button" data-aud="all" onclick="Styles.setAudience('all')">All styles</button>
+    </div>
+
+    <div class="hero">
+      <div class="hero-pics">
+        <img src="sample_short_bob.jpg" alt="Before: short bob">
+        <img src="sample_glamour_waves.jpg" alt="After: glamour waves">
+        <span class="hero-tag" style="left:10px;background:var(--bg);color:var(--text);">Before</span>
+        <span class="hero-tag" style="right:10px;background:var(--accent);color:var(--on-accent);">After</span>
+      </div>
+      <div class="hero-body">
+        <h1 style="font-size:20px;">See any style on your own photo</h1>
+        <p class="caption" style="font-size:13px;">Pick a hairstyle, colour and makeup from the catalogue. We keep your face and change only the look.</p>
+        <button class="btn btn-p" onclick="showScreen('screen-7')">Start a new look</button>
+      </div>
+    </div>
+
+    <section class="fa-feature" aria-labelledby="fa-feature-title">
+      <div class="fa-feature-top">
+        <span class="fa-entry-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="5"/><path d="M4 21a8 8 0 0116 0"/><path d="M3 7V4h3M21 7V4h-3"/></svg></span>
+        <div>
+          <span class="fa-badge">AI consultation</span>
+          <h3 id="fa-feature-title">Not sure what suits you?</h3>
+        </div>
+      </div>
+      <p class="caption">Get estimates of your face shape, undertone and hair, then catalogue styles matched to them and new ideas.</p>
+      <button type="button" class="btn btn-p fa-cta" onclick="showScreen('screen-16')"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="5"/><path d="M4 21a8 8 0 0116 0"/><path d="M3 7V4h3M21 7V4h-3"/></svg>Analyse my face</button>
+    </section>
+
 
     <div class="row mb-12">
       <h2>Categories</h2>
       <button class="btn-link" onclick="showScreen('screen-3')">View all</button>
     </div>
-    <div class="g2 mb-24">
-      <div class="card card-click" onclick="showScreen('screen-4')">
-        <h3>Hairstyles</h3>
-        <p class="caption mt-8">120+ styles</p>
+    <div id="home-cats" class="g2 mb-24"></div>
+
+    <div id="home-favs-box" style="display:none;">
+      <div class="row mb-12">
+        <h2>Your favourites</h2>
+        <button class="btn-link" onclick="Styles.openFavourites()">See all</button>
       </div>
-      <div class="card card-click" onclick="showScreen('screen-8')">
-        <h3>Makeup</h3>
-        <p class="caption mt-8">85+ looks</p>
-      </div>
-      <div class="card card-click" onclick="showScreen('screen-9')">
-        <h3>Nail Art</h3>
-        <p class="caption mt-8">60+ designs</p>
-      </div>
-      <div class="card card-click" onclick="showScreen('screen-10')">
-        <h3>Full Looks</h3>
-        <p class="caption mt-8">Runway series</p>
-      </div>
+      <div id="home-favs" class="scroll-row mb-24"></div>
     </div>
 
-    <h2 class="mb-12">Trending</h2>
-    <div class="scroll-row mb-24">
-      <div class="scroll-item" onclick="selectPreset('Hairstyle','Glamour Waves','sample_glamour_waves.jpg')">
-        <img src="sample_glamour_waves.jpg" alt="Glamour Waves">
-        <p>Glamour Waves</p>
-        <p class="caption">Hairstyle</p>
-      </div>
-      <div class="scroll-item" onclick="selectPreset('Hairstyle','Beach Waves','sample_beach_waves.jpg')">
-        <img src="sample_beach_waves.jpg" alt="Beach Waves">
-        <p>Beach Waves</p>
-        <p class="caption">Hairstyle</p>
-      </div>
-      <div class="scroll-item" onclick="selectPreset('Hairstyle','Short Bob','sample_short_bob.jpg')">
-        <img src="sample_short_bob.jpg" alt="Short Bob">
-        <p>Short Bob</p>
-        <p class="caption">Hairstyle</p>
-      </div>
-      <div class="scroll-item" onclick="selectPreset('Hairstyle','Braided Updo','sample_braided_updo.jpg')">
-        <img src="sample_braided_updo.jpg" alt="Braided Updo">
-        <p>Braided Updo</p>
-        <p class="caption">Hairstyle</p>
-      </div>
-    </div>
-
-    <div class="g2">
-      <button class="btn btn-s" onclick="showScreen('screen-13')">Find Salons</button>
-      <button class="btn btn-s" onclick="showScreen('screen-14')">Shop Products</button>
-    </div>
+    <h2 class="mb-12">Featured</h2>
+    <div id="home-featured" class="scroll-row"></div>
   </div>
 
   <!-- ════ SCREEN 3: CATEGORIES ══════════════════════════════ -->
@@ -487,54 +649,63 @@
       <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
       <h2>Categories</h2>
     </div>
-    <div class="card card-click" onclick="showScreen('screen-4')"><h3>Hairstyles</h3><p class="caption mt-8">Try on new cuts, colors, and styling</p></div>
-    <div class="card card-click" onclick="showScreen('screen-8')"><h3>Makeup</h3><p class="caption mt-8">Natural, glam, bridal and editorial</p></div>
-    <div class="card card-click" onclick="showScreen('screen-9')"><h3>Nail Art</h3><p class="caption mt-8">Patterns, textures and colors</p></div>
-    <div class="card card-click" onclick="showScreen('screen-10')"><h3>Full Looks</h3><p class="caption mt-8">Complete transformations</p></div>
+    <div class="aud-toggle three" data-kind="audience" role="group" aria-label="Show styles for">
+      <button type="button" data-aud="women" onclick="Styles.setAudience('women')">Women</button>
+      <button type="button" data-aud="men" onclick="Styles.setAudience('men')">Men</button>
+      <button type="button" data-aud="all" onclick="Styles.setAudience('all')">All styles</button>
+    </div>
+    <div id="cat-list"></div>
   </div>
 
   <!-- ════ SCREEN 4: HAIRSTYLES ══════════════════════════════ -->
   <div id="screen-4" class="screen">
     <div class="top-bar">
       <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <h2>Hairstyles</h2>
+      <h2 id="style-title">Hairstyles</h2>
+      <div style="flex:1"></div>
+      <span id="style-count" class="caption"></span>
     </div>
-    <div class="chips mb-16">
-      <div class="chip active">All</div>
-      <div class="chip">Short</div>
-      <div class="chip">Long</div>
-      <div class="chip">Curly</div>
-      <div class="chip">Braids</div>
-      <div class="chip">Updo</div>
+    <div id="list-aud" class="aud-toggle three" data-kind="audience" role="group" aria-label="Show styles for">
+      <button type="button" data-aud="women" onclick="Styles.setAudience('women')">Women</button>
+      <button type="button" data-aud="men" onclick="Styles.setAudience('men')">Men</button>
+      <button type="button" data-aud="all" onclick="Styles.setAudience('all')">All styles</button>
     </div>
-    <div class="g2">
-      <div class="img-card" onclick="selectPreset('Hairstyle','Glamour Waves','sample_glamour_waves.jpg')"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><p>Glamour Waves</p></div></div>
-      <div class="img-card" onclick="selectPreset('Hairstyle','Beach Waves','sample_beach_waves.jpg')"><img src="sample_beach_waves.jpg"><div class="img-card-info"><p>Beach Waves</p></div></div>
-      <div class="img-card" onclick="selectPreset('Hairstyle','Short Bob','sample_short_bob.jpg')"><img src="sample_short_bob.jpg"><div class="img-card-info"><p>Short Bob</p></div></div>
-      <div class="img-card" onclick="selectPreset('Hairstyle','Braided Updo','sample_braided_updo.jpg')"><img src="sample_braided_updo.jpg"><div class="img-card-info"><p>Braided Updo</p></div></div>
-      <div class="img-card" onclick="selectPreset('Hairstyle','Curtain Bangs','sample_short_bob.jpg')"><img src="sample_short_bob.jpg"><div class="img-card-info"><p>Curtain Bangs</p></div></div>
-      <div class="img-card" onclick="selectPreset('Hairstyle','Volumetric Curls','sample_glamour_waves.jpg')"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><p>Volumetric Curls</p></div></div>
-    </div>
+    <p id="style-for-all" class="caption mb-12" style="display:none;">Makeup templates are for everyone.</p>
+    <input id="style-search" class="search-input" type="search" placeholder="Search by name or tag, e.g. fade, layers" aria-label="Search styles" oninput="Styles.search(this.value)">
+    <div id="filter-bar" class="filter-bar" role="group" aria-label="Filters"></div>
+    <div id="filter-active" class="filter-active" style="display:none;"></div>
+    <div id="style-grid" class="tpl-grid"></div>
   </div>
 
   <!-- ════ SCREEN 5: STYLE DETAIL ════════════════════════════ -->
   <div id="screen-5" class="screen">
     <div class="top-bar">
       <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <h2>Style Detail</h2>
+      <h2>Style</h2>
     </div>
-    <div style="border-radius:12px;overflow:hidden;margin-bottom:16px;height:260px;">
-      <img id="detail-hero-img" src="sample_glamour_waves.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Style">
+    <div id="detail-hero" class="detail-hero"></div>
+    <div id="detail-views" class="detail-views"></div>
+    <div class="row" style="align-items:flex-start;">
+      <h1 id="detail-title" class="mb-4"></h1>
+      <span id="detail-fav"></span>
     </div>
-    <h1 id="detail-title" class="mb-8">Glamour Waves</h1>
-    <p class="caption mb-20">Face-framing layers with volumetric waves and soft natural highlights.</p>
-    <h2 class="mb-12">Angles</h2>
-    <div class="g3 mb-20">
-      <div class="img-card"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><span>Front</span></div></div>
-      <div class="img-card"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><span>Side</span></div></div>
-      <div class="img-card"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><span>Back</span></div></div>
+    <p id="detail-kind" class="caption mb-12"></p>
+    <p id="detail-desc" class="mb-16" style="font-size:15px;line-height:1.5;"></p>
+    <div id="detail-meta" class="meta"></div>
+    <div id="detail-tags" class="tag-row mb-16"></div>
+    <div id="detail-parts" style="display:none;" class="mb-16">
+      <h2 class="mb-12">This look combines</h2>
+      <div id="detail-parts-list" class="scroll-row"></div>
     </div>
-    <button class="btn btn-p mb-12" onclick="showScreen('screen-7')">Try On This Look</button>
+    <div class="detail-actions">
+      <button id="detail-add" class="btn btn-s" onclick="Styles.addCurrent()">Add to my look</button>
+      <button class="btn btn-p" onclick="Styles.tryCurrent()">Try this style</button>
+    </div>
+    <p id="detail-note" class="caption mb-20"></p>
+    <div id="detail-related-box">
+      <h2 class="mb-12">Related styles</h2>
+      <div id="detail-related" class="scroll-row"></div>
+    </div>
   </div>
 
   <!-- ════ SCREEN 6: AI RESULT ═══════════════════════════════ -->
@@ -543,162 +714,146 @@
       <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
       <h2>Result</h2>
       <div style="flex:1"></div>
-      <span class="badge" style="background:rgba(92,181,99,.15);color:var(--ok);">Generated</span>
+      <span class="badge" style="background:rgba(217,182,111,.14);color:var(--accent);">AI-generated preview</span>
     </div>
+    <div id="result-selections" class="sel-chips"></div>
+    <details id="accuracy" class="accuracy mb-12" style="display:none;"></details>
+    <div id="demo-banner" class="msg err mb-12" style="display:none;">Demo result: no AI was used. The server is in DEMO_MODE, so it only blended the two photos. Turn DEMO_MODE off and set OPENAI_API_KEY for real results.</div>
     <div id="compare-box" class="compare-box mb-8">
       <img id="compare-after-img" src="sample_glamour_waves.jpg" alt="After">
       <div id="compare-before-clip">
         <img id="compare-before-img" src="sample_short_bob.jpg" alt="Before">
       </div>
       <div id="compare-handle">
-        <svg width="14" height="14" viewBox="0 0 24 24" stroke="#111" stroke-width="2.5" fill="none"><path d="M8 9l-3 3 3 3M16 9l3 3-3 3"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" stroke="#1A1408" stroke-width="2.5" fill="none"><path d="M8 9l-3 3 3 3M16 9l3 3-3 3"/></svg>
       </div>
     </div>
-    <p class="caption mb-16" style="text-align:center;">Drag to compare</p>
-    <div id="cost-badge" style="display:none;" class="card mb-12"><p class="caption"></p></div>
+    <div class="row mb-16">
+      <p class="caption">Drag to compare</p>
+      <div class="seg" id="compare-mode" role="group" aria-label="Show" style="width:250px;">
+        <button type="button" data-v="original" onclick="setCompareMode('original')">Original</button>
+        <button type="button" data-v="compare" class="active" onclick="setCompareMode('compare')">Compare</button>
+        <button type="button" data-v="result" onclick="setCompareMode('result')">AI result</button>
+      </div>
+    </div>
+    <div class="card mb-12">
+      <h3 class="mb-8">Adjust intensity</h3>
+      <div class="seg mb-12" id="result-intensity" role="group" aria-label="Intensity">
+        <button type="button" data-v="subtle" onclick="pickRegenIntensity('subtle')">Subtle</button>
+        <button type="button" data-v="medium" onclick="pickRegenIntensity('medium')">Medium</button>
+        <button type="button" data-v="bold" onclick="pickRegenIntensity('bold')">Bold</button>
+      </div>
+      <button id="regen-btn" class="btn btn-s" onclick="regenerate()">Regenerate</button>
+    </div>
     <div class="g2 mb-12">
       <button id="download-btn" class="btn btn-s" onclick="downloadResultImage()">Download</button>
-      <button class="btn btn-s" onclick="alert('Link copied!')">Share</button>
+      <button id="share-btn" class="btn btn-s" onclick="shareResultImage()">Share</button>
     </div>
-    <button class="btn btn-p" onclick="showScreen('screen-7')">Create Another</button>
+    <button class="btn btn-p mb-12" onclick="showScreen('screen-13')">Find a salon for this look</button>
+    <div class="g2">
+      <button class="btn btn-s" onclick="showScreen('screen-7')">Try another style</button>
+      <button class="btn btn-s" onclick="deleteCurrentResult()">Delete</button>
+    </div>
+    <p class="caption mt-12" style="text-align:center;">AI previews are approximations. Saved to My looks when you’re signed in.</p>
+    <div id="shop-look" class="mt-16" style="display:none;">
+      <div class="row mb-12"><h2>Shop this look</h2><button class="btn-link" onclick="showScreen('screen-14')">Shop all</button></div>
+      <div id="shop-look-grid" class="g2"></div>
+    </div>
   </div>
 
   <!-- ════ SCREEN 7: AI GENERATOR ════════════════════════════ -->
   <div id="screen-7" class="screen">
     <div class="top-bar">
-      <h2>AI Generator</h2>
+      <h2>Create a look</h2>
+    </div>
+
+    <div class="gen-pair">
+      <div class="gen-col">
+        <button type="button" id="gen-target" class="gen-slot" onclick="$g('person-file').click()" aria-label="Choose your photo"></button>
+        <p id="person-status" class="gen-label">Your photo</p>
+        <div class="gen-actions">
+          <button type="button" class="btn btn-s btn-sm" onclick="Generator.openCamera()">Camera</button>
+          <button type="button" class="btn btn-s btn-sm" onclick="$g('person-file').click()">Upload</button>
+        </div>
+      </div>
+      <div class="gen-col">
+        <button type="button" id="gen-ref" class="gen-slot" onclick="$g('reference-file').click()" aria-label="Choose a reference photo (optional)"></button>
+        <p id="reference-status" class="gen-label">Reference (optional)</p>
+        <div class="gen-actions">
+          <button type="button" class="btn btn-s btn-sm" onclick="$g('reference-file').click()">Upload</button>
+          <button type="button" id="ref-clear" class="btn btn-s btn-sm" onclick="Generator.clearReference()" style="display:none;">Remove</button>
+        </div>
+      </div>
+    </div>
+    <div id="gen-target-check" class="photo-check" aria-live="polite"></div>
+    <template id="gen-target-empty">
+      <span class="gen-empty"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><b>Your photo</b><small>Whole face and hair, good light</small></span>
+    </template>
+    <template id="gen-ref-empty">
+      <span class="gen-empty"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.5"/></svg><b>Reference</b><small>Optional: a photo of a style you like</small></span>
+    </template>
+    <input id="camera-capture" type="file" accept="image/*" capture="user" style="display:none;" onchange="handleTargetInput(event)">
+    <input id="person-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleTargetInput(event)">
+    <input id="reference-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="Generator.onReferenceInput(event)">
+
+    <div class="card mb-12">
+      <div class="row mb-4">
+        <h3>Your look</h3>
+        <button type="button" class="btn-link" onclick="Styles.openCategory('Overall beauty look')">Start from a complete look</button>
+      </div>
+      <p class="caption mb-8">Choose a style for any area. Everything you don’t choose stays as in your photo.</p>
+      <div id="look-rows"></div>
+    </div>
+
+    <div id="ref-areas" class="card mb-12" style="display:none;">
+      <h3 class="mb-4">Use the reference photo for</h3>
+      <p class="caption mb-12">Only areas without a chosen style.</p>
+      <div id="ref-chips" class="area-chips" role="group" aria-label="Use the reference photo for"></div>
     </div>
 
     <div class="card mb-12">
-      <h3 class="mb-12">1. Your Photo</h3>
-      <div class="g2 mb-8" style="gap:8px;">
-        <button class="btn btn-s btn-sm" onclick="$g('camera-capture').click()">Camera</button>
-        <button class="btn btn-s btn-sm" onclick="$g('person-file').click()">Upload</button>
+      <h3 class="mb-8">Intensity <span class="caption">for hair colour and makeup</span></h3>
+      <div class="seg" id="intensity" role="group" aria-label="Intensity">
+        <button type="button" data-v="subtle" onclick="Generator.setIntensity('subtle')">Subtle</button>
+        <button type="button" data-v="medium" onclick="Generator.setIntensity('medium')">Medium</button>
+        <button type="button" data-v="bold" onclick="Generator.setIntensity('bold')">Bold</button>
       </div>
-      <input id="camera-capture" type="file" accept="image/*" capture="user" style="display:none;" onchange="handleTargetInput(event)">
-      <input id="person-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleTargetInput(event)">
-      <p id="person-status" class="caption mb-12">No photo selected</p>
-      <button class="btn btn-s btn-sm" onclick="runFaceAnalysis()">Analyze Face</button>
-      <div id="face-analysis-panel" class="mt-12" style="display:none;padding-top:12px;border-top:1px solid var(--border);">
-        <p class="caption mb-8">Detected profile:</p>
-        <div style="display:flex;gap:8px;margin-bottom:8px;">
-          <span id="shape-tag" class="badge">Face: —</span>
-          <span id="tone-tag" class="badge">Tone: —</span>
-        </div>
-        <p id="shape-description" class="caption mb-12"></p>
-        <p class="caption mb-8">Recommended styles:</p>
-        <div id="recs-list"></div>
-      </div>
+      <label id="roots-row" class="check-row" style="display:none;"><input id="keep-roots" type="checkbox" onchange="Generator.setKeepRoots(this.checked)">Keep my natural roots</label>
+      <label for="custom-notes" class="caption" style="display:block;margin:16px 0 6px;">Notes (optional)</label>
+      <input id="custom-notes" placeholder="e.g. a little shorter, softer lip colour">
     </div>
 
-    <div class="card mb-12">
-      <h3 class="mb-12">2. Hair Color</h3>
-      <div class="swatches">
-        <div class="swatch-wrap" onclick="pickHairColor('Caramel Bronze','#C68642',this)"><div class="swatch" style="background:#C68642"></div><div class="swatch-label">Caramel</div></div>
-        <div class="swatch-wrap" onclick="pickHairColor('Honey Blonde','#E3A857',this)"><div class="swatch" style="background:#E3A857"></div><div class="swatch-label">Honey</div></div>
-        <div class="swatch-wrap" onclick="pickHairColor('Espresso','#2B1704',this)"><div class="swatch" style="background:#2B1704"></div><div class="swatch-label">Espresso</div></div>
-        <div class="swatch-wrap" onclick="pickHairColor('Rose Gold','#B76E79',this)"><div class="swatch" style="background:#B76E79"></div><div class="swatch-label">Rose</div></div>
-        <div class="swatch-wrap" onclick="pickHairColor('Platinum','#E5E4E2',this)"><div class="swatch" style="background:#E5E4E2"></div><div class="swatch-label">Platinum</div></div>
-        <div class="swatch-wrap" onclick="pickHairColor('Burgundy','#800020',this)"><div class="swatch" style="background:#800020"></div><div class="swatch-label">Burgundy</div></div>
-        <div class="swatch-wrap" onclick="pickHairColor('Jet Black','#0A0A0A',this)"><div class="swatch" style="background:#0A0A0A;border:1px solid #444"></div><div class="swatch-label">Black</div></div>
-        <div class="swatch-wrap" onclick="pickHairColor('Ash Brown','#604E43',this)"><div class="swatch" style="background:#604E43"></div><div class="swatch-label">Ash</div></div>
-      </div>
+    <div class="fa-inline mb-16">
+      <span class="caption">Not sure what suits you?</span>
+      <button type="button" class="btn btn-sm fa-outline" onclick="showScreen('screen-16')"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="5"/><path d="M4 21a8 8 0 0116 0"/><path d="M3 7V4h3M21 7V4h-3"/></svg>Analyse my face</button>
     </div>
 
-    <div class="card mb-12">
-      <h3 class="mb-12">3. Style Reference</h3>
-      <button class="btn btn-s mb-8" onclick="$g('reference-file').click()">Upload Reference Image</button>
-      <input id="reference-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;">
-      <p id="reference-status" class="caption">Or select from a gallery above</p>
-    </div>
-
-    <div class="card mb-16">
-      <h3 class="mb-12">4. Options</h3>
-      <div class="g2 mb-8" style="gap:8px;">
-        <div>
-          <label style="display:block;font-size:11px;color:var(--text2);margin-bottom:4px;">Category</label>
-          <select id="cat-select">
-            <option value="Hairstyle">Hairstyle</option>
-            <option value="Makeup">Makeup</option>
-            <option value="Nail art">Nail Art</option>
-            <option value="Overall beauty look">Full Look</option>
-          </select>
-        </div>
-        <div>
-          <label style="display:block;font-size:11px;color:var(--text2);margin-bottom:4px;">Style Name</label>
-          <input id="style-name" placeholder="e.g. Glamour Waves">
-        </div>
-      </div>
-      <label style="display:block;font-size:11px;color:var(--text2);margin-bottom:4px;">Notes</label>
-      <input id="custom-notes" placeholder="e.g. keep natural hair color">
-    </div>
-
-    <button id="generate-btn" class="btn btn-p" onclick="submitGeneration()">Generate</button>
-    <div id="gen-status" class="msg mt-12">Ready. Upload your photo and a style reference to begin.</div>
-  </div>
-
-  <!-- ════ SCREEN 8: MAKEUP ══════════════════════════════════ -->
-  <div id="screen-8" class="screen">
-    <div class="top-bar">
-      <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <h2>Makeup</h2>
-    </div>
-    <div class="chips mb-16"><div class="chip active">All</div><div class="chip">Natural</div><div class="chip">Glam</div><div class="chip">Editorial</div></div>
-    <div class="g3">
-      <div class="img-card" onclick="selectPreset('Makeup','Natural Glow')"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><p>Natural</p></div></div>
-      <div class="img-card" onclick="selectPreset('Makeup','Soft Glam')"><img src="sample_beach_waves.jpg"><div class="img-card-info"><p>Soft Glam</p></div></div>
-      <div class="img-card" onclick="selectPreset('Makeup','Smoky Eyes')"><img src="sample_short_bob.jpg"><div class="img-card-info"><p>Smoky</p></div></div>
-      <div class="img-card" onclick="selectPreset('Makeup','Bridal Velvet')"><img src="sample_braided_updo.jpg"><div class="img-card-info"><p>Bridal</p></div></div>
-      <div class="img-card" onclick="selectPreset('Makeup','Bold Lip')"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><p>Bold Lip</p></div></div>
-      <div class="img-card" onclick="selectPreset('Makeup','Party Bronze')"><img src="sample_beach_waves.jpg"><div class="img-card-info"><p>Bronze</p></div></div>
-    </div>
-  </div>
-
-  <!-- ════ SCREEN 9: NAIL ART ════════════════════════════════ -->
-  <div id="screen-9" class="screen">
-    <div class="top-bar">
-      <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <h2>Nail Art</h2>
-    </div>
-    <div class="chips mb-16"><div class="chip active">All</div><div class="chip">French</div><div class="chip">Chrome</div><div class="chip">Matte</div></div>
-    <div class="g3">
-      <div class="img-card" onclick="selectPreset('Nail art','French Ombre')"><img src="sample_beach_waves.jpg"><div class="img-card-info"><p>French</p></div></div>
-      <div class="img-card" onclick="selectPreset('Nail art','Rose Gold Chrome')"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><p>Rose Gold</p></div></div>
-      <div class="img-card" onclick="selectPreset('Nail art','Classic Nude')"><img src="sample_short_bob.jpg"><div class="img-card-info"><p>Classic</p></div></div>
-      <div class="img-card" onclick="selectPreset('Nail art','Marble')"><img src="sample_braided_updo.jpg"><div class="img-card-info"><p>Marble</p></div></div>
-    </div>
-  </div>
-
-  <!-- ════ SCREEN 10: FULL LOOKS ═════════════════════════════ -->
-  <div id="screen-10" class="screen">
-    <div class="top-bar">
-      <button class="back-btn" onclick="goBack()"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <h2>Full Looks</h2>
-    </div>
-    <p class="caption mb-16">Complete beauty transformations</p>
-    <div class="g2">
-      <div class="img-card" onclick="selectPreset('Overall beauty look','Red Carpet')"><img src="sample_glamour_waves.jpg"><div class="img-card-info"><p>Red Carpet</p></div></div>
-      <div class="img-card" onclick="selectPreset('Overall beauty look','Evening Gala')"><img src="sample_braided_updo.jpg"><div class="img-card-info"><p>Evening Gala</p></div></div>
-      <div class="img-card" onclick="selectPreset('Overall beauty look','Korean Glass Skin')"><img src="sample_beach_waves.jpg"><div class="img-card-info"><p>Glass Skin</p></div></div>
-      <div class="img-card" onclick="selectPreset('Overall beauty look','Bridal Luxe')"><img src="sample_short_bob.jpg"><div class="img-card-info"><p>Bridal Luxe</p></div></div>
-    </div>
+    <button id="generate-btn" class="btn btn-p" onclick="submitGeneration()" disabled>Generate</button>
+    <div id="gen-status" class="msg mt-12"></div>
   </div>
 
   <!-- ════ SCREEN 11: HISTORY ════════════════════════════════ -->
   <div id="screen-11" class="screen">
-    <div class="top-bar"><h2>My History</h2></div>
-    <div id="history-list"><p class="caption">Sign in to view your saved history.</p></div>
+    <div class="top-bar">
+      <button class="back-btn" onclick="goBack()" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <h2>My looks</h2>
+    </div>
+    <div id="history-list"><p class="caption">Sign in to see your saved looks.</p></div>
+  </div>
+
+  <!-- ════ SCREEN 17: FAVOURITES ═════════════════════════════ -->
+  <div id="screen-17" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goBack()" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <h2>Favourites</h2>
+    </div>
+    <p id="fav-empty" class="caption">Tap the heart on any style to save it here. Favourites are kept on this device.</p>
+    <div id="fav-grid" class="tpl-grid"></div>
   </div>
 
   <!-- ════ SCREEN 12: PROFILE & AUTH ═════════════════════════ -->
   <div id="screen-12" class="screen">
     <div class="top-bar"><h2>Profile</h2></div>
-
-    <div class="mode-sw mb-16">
-      <button id="pill-individual" class="mode-opt active" onclick="switchMode('individual')">Individual</button>
-      <button id="pill-salon" class="mode-opt" onclick="switchMode('salon')">Salon Pro</button>
-    </div>
-    <p id="mode-desc" class="caption mb-20" style="text-align:center;">Personal AI try-on and face analysis</p>
 
     <div id="auth-box" class="card">
       <h3 id="auth-heading" class="mb-4">Sign In</h3>
@@ -709,56 +864,153 @@
       <button id="auth-toggle" class="btn-link" onclick="flipAuthMode()" style="display:block;text-align:center;width:100%;padding:8px;">Need an account? Register</button>
       <div id="auth-msg" style="display:none;" class="msg mt-8"></div>
     </div>
-    <button class="btn btn-s mt-16" onclick="doLogout()">Log Out</button>
+    <button class="btn btn-s mt-16" onclick="showScreen('screen-11')">My looks</button>
+    <button class="btn btn-s mt-8" onclick="Styles.openFavourites()">Favourites</button>
+    <button class="btn btn-s mt-8" onclick="Consent.review()">Photo privacy</button>
+    <a id="admin-link" class="btn btn-s mt-8" href="/admin" style="display:none;text-decoration:none;">Manage catalogue</a>
   </div>
 
   <!-- ════ SCREEN 13: SALONS ═════════════════════════════════ -->
   <div id="screen-13" class="screen">
     <div class="top-bar">
-      <h2>Salons</h2>
+      <h2>Find a salon</h2>
       <div style="flex:1"></div>
-      <span class="badge">4 nearby</span>
+      <span id="salon-count" class="badge"></span>
     </div>
-
-    <div class="map-box mb-16">
-      <svg width="100%" height="100%" viewBox="0 0 448 200" style="background:#141414;">
-        <pattern id="mgrid" width="40" height="40" patternUnits="userSpaceOnUse">
-          <path d="M40 0L0 0 0 40" fill="none" stroke="#222" stroke-width=".5"/>
-        </pattern>
-        <rect width="100%" height="100%" fill="url(#mgrid)"/>
-        <path d="M0 100Q160 130 448 80" fill="none" stroke="#333" stroke-width="6" stroke-linecap="round"/>
-        <path d="M180 0Q200 100 160 200" fill="none" stroke="#333" stroke-width="6" stroke-linecap="round"/>
-        <circle cx="200" cy="105" r="8" fill="rgba(232,131,107,.2)"/><circle cx="200" cy="105" r="4" fill="var(--accent)"/>
-        <text x="200" y="124" fill="#888" font-size="9" font-weight="500" text-anchor="middle" font-family="Inter">You</text>
-        <circle cx="110" cy="65" r="5" fill="var(--accent)"/>
-        <text x="110" y="55" fill="#aaa" font-size="9" font-weight="500" text-anchor="middle" font-family="Inter">Maison</text>
-        <circle cx="300" cy="75" r="5" fill="var(--accent)"/>
-        <text x="300" y="65" fill="#aaa" font-size="9" font-weight="500" text-anchor="middle" font-family="Inter">The Parlor</text>
-        <circle cx="130" cy="162" r="5" fill="var(--accent)"/>
-        <text x="130" y="152" fill="#aaa" font-size="9" font-weight="500" text-anchor="middle" font-family="Inter">Aura</text>
-        <circle cx="340" cy="145" r="5" fill="var(--accent)"/>
-        <text x="340" y="135" fill="#aaa" font-size="9" font-weight="500" text-anchor="middle" font-family="Inter">EDIT Lab</text>
-      </svg>
+    <form class="search-row" onsubmit="Salons.searchPlace(event)">
+      <input id="salon-query" type="search" placeholder="City, area or postcode" aria-label="Search for a place" autocomplete="off">
+      <button class="btn btn-p btn-sm" type="submit">Search</button>
+    </form>
+    <button class="btn btn-s btn-sm" type="button" onclick="Salons.useMyLocation()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+      Use my location
+    </button>
+    <div class="map-wrap">
+      <div id="salon-map" role="region" aria-label="Map of salons"></div>
+      <button id="salon-area-btn" class="btn btn-p btn-sm" type="button" style="display:none;" onclick="Salons.searchThisArea()">Search this area</button>
     </div>
-
-    <div class="salon-row"><div class="salon-dot">M</div><div class="salon-detail"><div class="salon-name">Maison de Beaute</div><div class="salon-meta"><b>4.9</b> · 1.2k reviews · 0.4 mi</div></div><button class="btn btn-s btn-sm" onclick="openSalonBooking('Maison de Beaute')">Book</button></div>
-    <div class="salon-row"><div class="salon-dot">P</div><div class="salon-detail"><div class="salon-name">The Parlor Soho</div><div class="salon-meta"><b>4.8</b> · 950 reviews · 0.8 mi</div></div><button class="btn btn-s btn-sm" onclick="openSalonBooking('The Parlor Soho')">Book</button></div>
-    <div class="salon-row"><div class="salon-dot">A</div><div class="salon-detail"><div class="salon-name">Aura Luxury Lounge</div><div class="salon-meta"><b>4.9</b> · 820 reviews · 1.2 mi</div></div><button class="btn btn-s btn-sm" onclick="openSalonBooking('Aura Luxury Lounge')">Book</button></div>
-    <div class="salon-row"><div class="salon-dot">E</div><div class="salon-detail"><div class="salon-name">EDIT Beauty Lab</div><div class="salon-meta"><b>4.7</b> · 640 reviews · 1.8 mi</div></div><button class="btn btn-s btn-sm" onclick="openSalonBooking('EDIT Beauty Lab')">Book</button></div>
+    <div id="salon-filters" class="chips mb-12">
+      <button type="button" class="chip active" aria-pressed="true" onclick="Salons.setFilter('All', this)">All</button>
+      <button type="button" class="chip" aria-pressed="false" onclick="Salons.setFilter('Hair', this)">Hair</button>
+      <button type="button" class="chip" aria-pressed="false" onclick="Salons.setFilter('Beauty', this)">Beauty</button>
+      <button type="button" class="chip" aria-pressed="false" onclick="Salons.setFilter('Nails', this)">Nails</button>
+    </div>
+    <div id="salon-status" class="msg mb-12">Search for a place or use your location to see salons near you.</div>
+    <div id="salon-list"></div>
+    <p id="salon-credit" class="caption mt-12"></p>
   </div>
 
-  <!-- ════ SCREEN 14: STORE ══════════════════════════════════ -->
+  <!-- ════ SCREEN 14: SHOP ═══════════════════════════════════ -->
   <div id="screen-14" class="screen">
-    <div class="row mb-16">
-      <h2>Products</h2>
-      <button class="btn-link" id="cart-badge" onclick="viewCart()">Cart (<span id="cart-count">0</span>)</button>
+    <div class="top-bar">
+      <h2>Shop</h2>
+      <div style="flex:1"></div>
+      <button class="icon-btn" onclick="showScreen('screen-15')" aria-label="Shopping bag"><svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 016 0"/></svg><span class="bag-count" style="display:none">0</span></button>
     </div>
-    <div class="chips mb-16"><div class="chip active">All</div><div class="chip">Hair Care</div><div class="chip">Color</div><div class="chip">Tools</div></div>
-    <div class="g2">
-      <div class="prod-card"><img src="sample_glamour_waves.jpg"><div class="prod-card-body"><h3 class="mb-4">Gold Lust Repair Oil</h3><p class="caption">Oribe</p><div class="prod-price">$56</div><button class="prod-add" onclick="addToCart('Oribe Gold Lust Oil',56)">Add to bag</button></div></div>
-      <div class="prod-card"><img src="sample_beach_waves.jpg"><div class="prod-card-body"><h3 class="mb-4">Hair Rituel Serum</h3><p class="caption">Sisley Paris</p><div class="prod-price">$195</div><button class="prod-add" onclick="addToCart('Sisley Hair Serum',195)">Add to bag</button></div></div>
-      <div class="prod-card"><img src="sample_short_bob.jpg"><div class="prod-card-body"><h3 class="mb-4">Gloss+ Color Treatment</h3><p class="caption">dpHUE</p><div class="prod-price">$37</div><button class="prod-add" onclick="addToCart('dpHUE Gloss',37)">Add to bag</button></div></div>
-      <div class="prod-card"><img src="sample_braided_updo.jpg"><div class="prod-card-body"><h3 class="mb-4">Airwrap Multi-Styler</h3><p class="caption">Dyson</p><div class="prod-price">$499</div><button class="prod-add" onclick="addToCart('Dyson Airwrap',499)">Add to bag</button></div></div>
+    <div id="shop-filters" class="chips mb-16"></div>
+    <div id="shop-grid" class="g2"></div>
+  </div>
+
+  <!-- ════ SCREEN 15: BAG ════════════════════════════════════ -->
+  <div id="screen-15" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goBack()" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <h2>Your bag</h2>
+    </div>
+    <div id="bag-empty" class="card" style="text-align:center;padding:28px;">
+      <p class="caption mb-12">Your bag is empty.</p>
+      <button class="btn btn-s btn-sm" onclick="showScreen('screen-14')">Browse the shop</button>
+    </div>
+    <div id="bag-list"></div>
+    <div id="bag-summary" class="card" style="display:none;">
+      <div class="row mb-16"><span class="caption" style="font-size:14px;">Subtotal</span><span id="bag-subtotal" class="prod-price" style="margin:0;font-size:18px;"></span></div>
+      <button class="btn btn-p" onclick="Shop.checkout()">Checkout</button>
+      <div id="bag-msg" class="msg" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- ════ SCREEN 16: FACE ANALYSIS ══════════════════════════ -->
+  <div id="screen-16" class="screen">
+    <div class="top-bar">
+      <button class="back-btn" onclick="goBack()" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <h2>Analyse my face</h2>
+    </div>
+    <p class="caption mb-16" style="font-size:13px;">Get estimates of your face shape, undertone and visible hair, catalogue styles matched to them, and new ideas. Suggestions are optional.</p>
+    <div class="fa-photo mb-12">
+      <img id="fa-preview" alt="Your photo" style="display:none;">
+      <div id="fa-placeholder" class="fa-placeholder">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="5"/><path d="M4 21a8 8 0 0116 0"/></svg>
+        <span class="caption">Front-facing, good light, hair visible, no filters</span>
+      </div>
+    </div>
+    <div class="g2 mb-12" style="gap:8px;">
+      <button type="button" class="btn btn-s btn-sm" onclick="FaceAnalysis.openCamera()">Camera</button>
+      <button type="button" class="btn btn-s btn-sm" onclick="$g('fa-file').click()">Upload</button>
+    </div>
+    <div id="fa-check" class="photo-check mb-12" aria-live="polite"></div>
+    <div class="side-row mb-16">
+      <div id="fa-side-thumb" class="side-thumb"><svg viewBox="0 0 24 24"><path d="M9 4c4 0 7 3 7 7 0 1-.3 2-.8 2.8L17 16l-2 .5V19a2 2 0 01-2 2H9"/><path d="M9 4C6 4 5 7 5 9"/></svg></div>
+      <div style="flex:1;min-width:0;">
+        <b style="font-size:14px;">Side photo <span class="caption">(optional)</span></b>
+        <p id="fa-side-status" class="caption">A profile photo makes face shape and hair estimates more accurate.</p>
+      </div>
+      <div class="side-actions">
+        <button type="button" class="btn btn-s btn-sm" onclick="$g('fa-side-camera').click()">Take</button>
+        <button type="button" class="btn btn-s btn-sm" onclick="$g('fa-side-file').click()">Upload</button>
+        <button type="button" id="fa-side-remove" class="look-remove" onclick="FaceAnalysis.clearSide()" aria-label="Remove side photo" style="display:none;">×</button>
+      </div>
+    </div>
+    <input id="fa-side-camera" type="file" accept="image/*" capture="user" style="display:none;" onchange="FaceAnalysis.pickSide(event)">
+    <input id="fa-side-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="FaceAnalysis.pickSide(event)">
+    <input id="fa-camera" type="file" accept="image/*" capture="user" style="display:none;" onchange="FaceAnalysis.pick(event)">
+    <input id="fa-file" type="file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="FaceAnalysis.pick(event)">
+    <p class="caption mb-8">Suggest styles from</p>
+    <div id="fa-group" class="aud-toggle three" role="group" aria-label="Suggest styles from">
+      <button type="button" data-g="women" onclick="FaceAnalysis.setGroup('women')">Women’s</button>
+      <button type="button" data-g="men" onclick="FaceAnalysis.setGroup('men')">Men’s</button>
+      <button type="button" data-g="all" onclick="FaceAnalysis.setGroup('all')">All styles</button>
+    </div>
+    <button id="fa-run" type="button" class="btn btn-p" onclick="FaceAnalysis.run()" disabled>Analyse my face</button>
+    <p class="caption mt-8" style="text-align:center;">Your photo is sent to our AI provider for this analysis and is not saved. We never guess gender, age or ethnicity.</p>
+    <div id="fa-status" class="msg" style="display:none;"></div>
+    <div id="fa-results" class="mt-16"></div>
+  </div>
+
+  <!-- ════ GUIDED CAMERA ═════════════════════════════════════ -->
+  <div id="cam-modal" class="cam-modal" hidden role="dialog" aria-modal="true" aria-label="Take a photo">
+    <video id="cam-video" playsinline muted autoplay></video>
+    <svg class="cam-guide" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs><mask id="cam-hole"><rect width="300" height="400" fill="white"/><ellipse cx="150" cy="185" rx="92" ry="128" fill="black"/></mask></defs>
+      <rect width="300" height="400" fill="rgba(0,0,0,.55)" mask="url(#cam-hole)"/>
+      <ellipse cx="150" cy="185" rx="92" ry="128" fill="none" stroke="#D9B66F" stroke-width="2.5" stroke-dasharray="8 6"/>
+    </svg>
+    <div class="cam-top">
+      <p id="cam-live" class="cam-tip" aria-live="polite">Fit your whole face and hair inside the outline</p>
+      <p class="cam-sub">Face a window or light · Look straight ahead · No sunglasses or filters</p>
+      <button type="button" id="cam-auto" class="cam-chip" onclick="GuidedCamera.toggleAuto()">Auto-capture: On</button>
+    </div>
+    <div class="cam-bar">
+      <button type="button" class="cam-round" onclick="GuidedCamera.close()" aria-label="Close camera"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button type="button" class="cam-shutter" onclick="GuidedCamera.capture()" aria-label="Take photo"></button>
+      <button type="button" class="cam-round" onclick="GuidedCamera.flip()" aria-label="Switch camera"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><path d="M9 13a3 3 0 015-2.2M15 13a3 3 0 01-5 2.2"/></svg></button>
+    </div>
+    <button type="button" class="cam-alt" onclick="GuidedCamera.useDeviceCamera()">Use my phone’s camera app instead</button>
+    <p id="cam-error" class="cam-sub" hidden></p>
+  </div>
+
+  <!-- ════ PHOTO CONSENT ═══════════════════════════════════ -->
+  <div id="consent-modal" class="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="consent-title">
+    <div class="sheet-body">
+      <h2 id="consent-title">Before we use your photo</h2>
+      <ul>
+        <li>Your photo is sent to our AI provider to check it, estimate visible features (face shape, undertone, hair) and create previews.</li>
+        <li>It is not used to train AI models.</li>
+        <li>We never guess sensitive things like gender, age or ethnicity. You choose which styles to see.</li>
+        <li>Results are stored privately. Signed in, they’re in My looks until you delete them; otherwise they’re deleted after <b id="consent-retention">30</b> days. You can delete any result at any time.</li>
+        <li>Previews are AI-generated approximations and are labelled as such.</li>
+      </ul>
+      <button type="button" class="btn btn-p mb-8" onclick="Consent.accept()">I agree</button>
+      <button type="button" class="btn btn-s" onclick="Consent.decline()">Not now</button>
     </div>
   </div>
 
@@ -768,33 +1020,39 @@
       <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Home
     </button>
-    <button id="nav-styles" class="nav-btn" onclick="showScreen('screen-3')">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-      Styles
-    </button>
-    <button id="nav-tryon" class="nav-btn" onclick="showScreen('screen-7')">
-      <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-      Create
-    </button>
     <button id="nav-salons" class="nav-btn" onclick="showScreen('screen-13')">
       <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
       Salons
     </button>
-    <button id="nav-store" class="nav-btn" onclick="showScreen('screen-14')">
-      <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-      Store
+    <button id="nav-tryon" class="nav-btn nav-fab" onclick="showScreen('screen-7')">
+      <span class="fab"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>
+      Create
+    </button>
+    <button id="nav-shop" class="nav-btn" onclick="showScreen('screen-14')">
+      <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7z"/><path d="M9 7a3 3 0 016 0"/></svg>
+      Shop
+    </button>
+    <button id="nav-profile" class="nav-btn" onclick="showScreen('screen-12')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>
+      Profile
     </button>
   </nav>
 
 </div>
 
+<script src="shop-data.js"></script>
+<script src="shop.js"></script>
+<script src="consent.js"></script>
+<script src="photo-check.js"></script>
+<script src="styles.js"></script>
+<script src="generator.js"></script>
+<script src="salons.js"></script>
+<script src="face-analysis.js"></script>
 <script>
 const $g = id => document.getElementById(id);
 let screenStack = ['screen-2'];
 let authToken = localStorage.getItem('glow_auth_token') || null;
 let isRegMode = false;
-let appMode = 'individual';
-let cartItems = [];
 let resultDataUrl = null, targetDataUrl = null, selectedTargetFile = null;
 
 /* ── Navigation ───────────────────────────────────── */
@@ -806,15 +1064,19 @@ function showScreen(id) {
     screenStack.push(id);
     window.scrollTo(0, 0);
   }
-  const j = $g('screen-jump');
-  if (j) j.value = id;
+  document.body.classList.toggle('on-splash', id === 'screen-1');
 
   document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
-  const m = { 'screen-2':'nav-home','screen-3':'nav-styles','screen-4':'nav-styles','screen-8':'nav-styles','screen-9':'nav-styles','screen-10':'nav-styles','screen-5':'nav-tryon','screen-6':'nav-tryon','screen-7':'nav-tryon','screen-13':'nav-salons','screen-14':'nav-store' };
+  const m = { 'screen-2':'nav-home','screen-3':'nav-home','screen-4':'nav-home','screen-11':'nav-profile','screen-17':'nav-profile','screen-5':'nav-tryon','screen-6':'nav-tryon','screen-7':'nav-tryon','screen-12':'nav-profile','screen-13':'nav-salons','screen-14':'nav-shop','screen-15':'nav-shop','screen-16':'nav-home' };
   if (m[id]) $g(m[id]).classList.add('active');
 
   if (id === 'screen-11') loadHistory();
+  if (id === 'screen-13') Salons.open();
+  if (id === 'screen-14') Shop.openShop();
+  if (id === 'screen-15') Shop.openBag();
+  if (id === 'screen-6') Shop.showLook();
   if (id === 'screen-12') refreshAuthUI();
+  if (id === 'screen-16') FaceAnalysis.renderGroup();
 }
 
 function goBack() {
@@ -826,171 +1088,174 @@ function goBack() {
   } else { showScreen('screen-2'); }
 }
 
-/* ── Preset selection ─────────────────────────────── */
-async function selectPreset(category, name, imageUrl) {
-  $g('cat-select').value = category;
-  $g('style-name').value = name;
-  $g('detail-title').textContent = name;
-  if (imageUrl) {
-    $g('detail-hero-img').src = imageUrl;
-    autoAttachReference(imageUrl, name);
-  }
-  showScreen('screen-5');
-}
-
-async function autoAttachReference(url, name) {
-  try {
-    const res = await fetch(url);
-    const blob = await res.blob();
-    const file = new File([blob], url, { type: blob.type || 'image/jpeg' });
-    const dt = new DataTransfer();
-    dt.items.add(file);
-    const inp = $g('reference-file');
-    if (inp) {
-      inp.files = dt.files;
-      const st = $g('reference-status');
-      if (st) { st.textContent = 'Attached: ' + name + ' (' + (file.size/1048576).toFixed(2) + ' MB)'; st.style.color = 'var(--ok)'; }
-    }
-  } catch(e) { console.error('Auto-attach failed', e); }
-}
-
 /* ── Target photo ─────────────────────────────────── */
-function handleTargetInput(e) {
+async function handleTargetInput(e) {
   const file = e.target.files[0];
   if (!file) return;
+  if (!(await Generator.setTarget(file))) return;  // declined consent
   selectedTargetFile = file;
   const r = new FileReader();
   r.onload = ev => { targetDataUrl = ev.target.result; $g('compare-before-img').src = targetDataUrl; };
   r.readAsDataURL(file);
-  $g('person-status').textContent = 'Selected: ' + file.name + ' (' + (file.size/1048576).toFixed(2) + ' MB)';
-  $g('person-status').style.color = 'var(--ok)';
-  runFaceAnalysis();
 }
 
-/* ── Face analysis ────────────────────────────────── */
-async function runFaceAnalysis() {
-  const file = selectedTargetFile || ($g('person-file') && $g('person-file').files[0]) || ($g('camera-capture') && $g('camera-capture').files[0]);
-  if (!file) { alert('Select or capture your photo first.'); return; }
-  const panel = $g('face-analysis-panel');
-  panel.style.display = 'block';
-  $g('shape-tag').textContent = 'Analyzing...';
-  $g('tone-tag').textContent = 'Analyzing...';
-  $g('shape-description').textContent = '';
-
-  const fd = new FormData();
-  fd.append('face_image', file);
-  try {
-    const res = await fetch('/api/v1/analyze-face', { method: 'POST', body: fd });
-    if (!res.ok) throw new Error('Analysis failed');
-    const d = await res.json();
-    $g('shape-tag').textContent = 'Face: ' + d.face_shape;
-    $g('tone-tag').textContent = 'Tone: ' + d.skin_tone;
-    $g('shape-description').textContent = d.shape_description;
-    const list = $g('recs-list');
-    if (list) {
-      list.innerHTML = d.recommended_hairstyles.map(item => `
-        <div class="card card-click" style="margin-bottom:8px;padding:12px;" onclick="selectPreset('${item.category}','${item.name}','${item.image_url}')">
-          <div class="row"><div><p style="font-weight:500;">${item.name}</p><p class="caption">${item.reason}</p></div><span class="badge">${item.match_score}%</span></div>
-        </div>`).join('');
-    }
-  } catch(e) { $g('shape-tag').textContent = 'Error'; $g('tone-tag').textContent = e.message; }
-}
-
-/* ── Hair color ───────────────────────────────────── */
-function pickHairColor(name, hex, el) {
-  document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
-  const sw = el.querySelector('.swatch');
-  if (sw) sw.classList.add('active');
-  const n = $g('custom-notes');
-  if (n) { let c = n.value.replace(/\[Hair Color:[^\]]+\]/g,'').trim(); n.value = (c ? c+' ' : '') + '[Hair Color: '+name+']'; }
+/* Used by face analysis: reuse the analysed photo as the try-on photo. */
+function setTargetPhoto(file) {
+  const dt = new DataTransfer();
+  dt.items.add(file);
+  $g('person-file').files = dt.files;
+  $g('camera-capture').value = '';
+  handleTargetInput({ target: { files: [file] } });
 }
 
 /* ── Generation ───────────────────────────────────── */
+let currentResultId = null;
+let regenIntensity = 'medium';
+
 async function submitGeneration() {
   const personInp = $g('person-file');
   const camInp = $g('camera-capture');
-  const refInp = $g('reference-file');
   const person = (personInp && personInp.files[0]) || (camInp && camInp.files[0]);
-  const reference = refInp && refInp.files[0];
   const st = $g('gen-status');
-
-  if (!person || !reference) { st.className = 'msg err'; st.textContent = 'Upload both your photo and a style reference.'; return; }
-
-  const fd = new FormData();
-  fd.append('target_image', person);
-  fd.append('reference_image', reference);
-  fd.append('category', $g('cat-select').value);
-  fd.append('style', $g('style-name').value.trim());
-  fd.append('notes', $g('custom-notes').value.trim());
+  if (!person) { st.className = 'msg err'; st.textContent = 'Add your photo first.'; return; }
+  if (!Consent.version() && !(await Consent.ensure())) { st.className = 'msg err'; st.textContent = 'Agree to how your photo is used to continue.'; return; }
 
   const headers = {};
   if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
 
   const btn = $g('generate-btn');
-  btn.disabled = true; btn.textContent = 'Processing...';
+  btn.disabled = true; btn.dataset.busy = '1'; btn.textContent = 'Processing...';
   st.className = 'msg'; st.textContent = 'Uploading and queuing...';
 
   try {
-    const res = await fetch('/api/v1/generations', { method: 'POST', headers, body: fd });
+    const res = await fetch('/api/v1/generations', { method: 'POST', headers, body: Generator.form(person) });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || data.error?.message || 'Failed');
+    if (!res.ok) throw new Error(typeof data.detail === 'string' ? data.detail : (data.error?.message || 'Failed'));
 
     const statusUrl = data.status_url || ('/api/v1/generations/' + data.request_id);
     let attempts = 0, done = false;
-    while (attempts < 60 && !done) {
+    while (attempts < 180 && !done) {  // up to 6 minutes: retries and accuracy checks take time
       await new Promise(r => setTimeout(r, 2000)); attempts++;
       const pollRes = await fetch(statusUrl, { headers });
       if (!pollRes.ok) continue;
       const job = await pollRes.json();
       if (job.status === 'succeeded') {
         done = true;
-        resultDataUrl = 'data:image/png;base64,' + job.result_image_b64;
-        $g('compare-after-img').src = resultDataUrl;
-        if (targetDataUrl) $g('compare-before-img').src = targetDataUrl;
-        if (job.cost_formatted) { const cb = $g('cost-badge'); cb.style.display = 'block'; cb.querySelector('p').textContent = job.cost_formatted + ' (' + (job.model||'gpt-image-2.5-flare') + ')'; }
-        showScreen('screen-6');
+        showResult(job);
       } else if (job.status === 'failed') { done = true; throw new Error(job.error_message || 'Generation failed.'); }
-      else { st.textContent = 'Processing: ' + job.status + ' (' + (attempts*2) + 's)'; }
+      else { st.textContent = 'Creating your look and checking its accuracy… (' + (attempts*2) + 's)'; }
     }
+    if (!done) throw new Error('This is taking longer than usual. Check My looks in a few minutes.');
   } catch(e) { st.className = 'msg err'; st.textContent = 'Error: ' + e.message; }
-  finally { btn.disabled = false; btn.textContent = 'Generate'; }
+  finally { delete btn.dataset.busy; btn.textContent = 'Generate'; Generator.updateReady({ keepStatus: true }); }
+}
+
+function showResult(job) {
+  currentResultId = job.request_id;
+  resultDataUrl = 'data:image/png;base64,' + job.result_image_b64;
+  $g('compare-after-img').src = resultDataUrl;
+  if (targetDataUrl) $g('compare-before-img').src = targetDataUrl;
+  $g('demo-banner').style.display = (job.model || '').startsWith('demo') ? 'block' : 'none';
+  Generator.setResultSelections(job.selections);
+  $g('result-selections').replaceChildren(...(job.selections || []).map(sel => {
+    const c = document.createElement('span');
+    c.className = 'sel-chip';
+    const area = document.createElement('span');
+    area.textContent = Styles.short(sel.area) + ' · ';
+    c.append(area, document.createTextNode(sel.name || ''));
+    return c;
+  }));
+  pickRegenIntensity(job.intensity || Generator.intensity());
+  setCompareMode('compare');
+  showAccuracy(job);
+  showScreen('screen-6');
+}
+
+function setCompareMode(mode) {
+  document.querySelectorAll('#compare-mode button').forEach(b => {
+    const on = b.dataset.v === mode;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', on);
+  });
+  updateSlider(null, mode === 'original' ? 100 : mode === 'result' ? 0 : 50);
+}
+
+function pickRegenIntensity(v) {
+  regenIntensity = v;
+  document.querySelectorAll('#result-intensity button').forEach(b => {
+    const on = b.dataset.v === v;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', on);
+  });
+}
+
+/* Same look and photo again, at the chosen intensity. */
+async function regenerate() {
+  Generator.setIntensity(regenIntensity);
+  showScreen('screen-7');
+  await submitGeneration();
+}
+
+async function deleteCurrentResult() {
+  if (!currentResultId || !confirm('Delete this result and its photos?')) return;
+  const headers = authToken ? { 'Authorization': 'Bearer ' + authToken } : {};
+  try {
+    const r = await fetch('/api/v1/generations/' + currentResultId, { method: 'DELETE', headers });
+    if (!r.ok && r.status !== 404) throw new Error();
+    currentResultId = null; resultDataUrl = null;
+    showScreen('screen-7');
+    const st = $g('gen-status'); st.className = 'msg ok'; st.textContent = 'Result deleted.';
+  } catch (e) { alert('Couldn’t delete it. Please try again.'); }
+}
+
+async function shareResultImage() {
+  if (!resultDataUrl) return;
+  const blob = await (await fetch(resultDataUrl)).blob();
+  const file = new File([blob], 'beautiva-look.png', { type: 'image/png' });
+  try { await navigator.share({ files: [file], title: 'My Beautiva look' }); }
+  catch (e) { if (e.name !== 'AbortError') downloadResultImage(); }
 }
 
 function downloadResultImage() {
   if (!resultDataUrl) return;
-  const a = document.createElement('a'); a.href = resultDataUrl; a.download = 'glow-ai-result.png'; a.click();
+  const a = document.createElement('a'); a.href = resultDataUrl; a.download = 'beautiva-look.png'; a.click();
 }
 
-/* ── Mode switch ──────────────────────────────────── */
-function switchMode(mode) {
-  appMode = mode;
-  $g('pill-individual').classList.toggle('active', mode === 'individual');
-  $g('pill-salon').classList.toggle('active', mode === 'salon');
-  $g('mode-desc').textContent = mode === 'individual' ? 'Personal AI try-on and face analysis' : 'Client consultations and stylist tools';
-}
-
-/* ── Salon booking ────────────────────────────────── */
-function openSalonBooking(name) {
-  alert('Book at ' + name + '\n\n1. Haircut & Blow-dry\n2. Balayage & Highlights\n3. AI Consultation\n4. Bridal Package');
-}
-
-/* ── Cart ─────────────────────────────────────────── */
-function addToCart(name, price) {
-  cartItems.push({ name, price });
-  $g('cart-count').textContent = cartItems.length;
-}
-
-function viewCart() {
-  if (!cartItems.length) { alert('Cart is empty.'); return; }
-  const total = cartItems.reduce((a, b) => a + b.price, 0).toFixed(2);
-  alert('Cart\n\n' + cartItems.map(i => i.name + ' — $' + i.price.toFixed(2)).join('\n') + '\n\nTotal: $' + total);
+/* ── Accuracy badge on the result ─────────────────── */
+function showAccuracy(job) {
+  const box = $g('accuracy');
+  if (job.accuracy == null) { box.style.display = 'none'; return; }
+  box.open = false;
+  const summary = document.createElement('summary');
+  const tag = document.createElement('b');
+  tag.textContent = '✓ ' + job.accuracy + '% accurate';
+  const hint = document.createElement('span');
+  hint.className = 'caption';
+  hint.textContent = 'AI-checked · tap for details';
+  summary.append(tag, hint);
+  const rows = Object.entries(job.accuracy_breakdown || {}).map(([label, v]) => {
+    const r = document.createElement('div');
+    r.className = 'acc-row';
+    const l = document.createElement('span'); l.textContent = label;
+    const bar = document.createElement('span'); bar.className = 'acc-bar';
+    const fill = document.createElement('i'); fill.style.width = Math.max(0, Math.min(100, v)) + '%';
+    bar.append(fill);
+    const n = document.createElement('span'); n.textContent = v + '%';
+    r.append(l, bar, n);
+    return r;
+  });
+  const note = document.createElement('p');
+  note.className = 'caption acc-note';
+  note.textContent = 'Checked by AI before showing you the result' + (job.attempts > 1 ? ' (best of ' + job.attempts + ' attempts)' : '') + '. Overall accuracy is the lowest of these scores.';
+  box.replaceChildren(summary, ...rows, note);
+  box.style.display = 'block';
 }
 
 /* ── Auth ─────────────────────────────────────────── */
 function flipAuthMode() {
   isRegMode = !isRegMode;
   $g('auth-heading').textContent = isRegMode ? 'Create Account' : 'Sign In';
-  $g('auth-subhead').textContent = isRegMode ? 'Join Glow AI Beauty Studio' : 'Access your saved looks and history.';
+  $g('auth-subhead').textContent = isRegMode ? 'Join Beautiva' : 'Access your saved looks and history.';
   $g('auth-action-btn').textContent = isRegMode ? 'Create Account' : 'Sign In';
   $g('auth-toggle').textContent = isRegMode ? 'Already registered? Sign In' : 'Need an account? Register';
 }
@@ -998,6 +1263,10 @@ function flipAuthMode() {
 function refreshAuthUI() {
   if (authToken) {
     $g('auth-box').innerHTML = '<h3 class="mb-4">Signed In</h3><p class="caption mb-12">Active session</p><button class="btn btn-s" onclick="doLogout()">Sign Out</button>';
+    fetch('/api/v1/auth/me', { headers: { 'Authorization': 'Bearer ' + authToken } })
+      .then(r => r.ok ? r.json() : null)
+      .then(me => { $g('admin-link').style.display = me && me.role === 'admin' ? '' : 'none'; })
+      .catch(() => {});
   }
 }
 
@@ -1024,39 +1293,58 @@ function doLogout() { authToken = null; localStorage.removeItem('glow_auth_token
 /* ── History ──────────────────────────────────────── */
 async function loadHistory() {
   const c = $g('history-list');
-  if (!authToken) { c.innerHTML = '<div class="card" style="text-align:center;padding:24px;"><p class="caption mb-12">Sign in to view history</p><button class="btn btn-s btn-sm" onclick="showScreen(\'screen-12\')">Sign In</button></div>'; return; }
+  if (!authToken) { c.innerHTML = '<div class="card" style="text-align:center;padding:24px;"><p class="caption mb-12">Sign in to keep your looks</p><button class="btn btn-s btn-sm" onclick="showScreen(\'screen-12\')">Sign In</button></div>'; return; }
   c.textContent = 'Loading...';
   try {
     const res = await fetch('/api/v1/generations', { headers: { 'Authorization': 'Bearer ' + authToken } });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || 'Load failed');
-    if (!data.length) { c.textContent = 'No history yet.'; return; }
-    c.innerHTML = data.map(item => `
-      <div class="card" style="padding:12px;">
-        <div class="row"><div><p style="font-weight:500;font-size:13px;color:var(--accent);">${item.category}</p><p class="caption">${item.created_at.slice(0,19).replace('T',' ')} · ${item.status}</p></div>
-        <button class="btn btn-s btn-sm" onclick="deleteItem('${item.request_id}')">Delete</button></div>
-      </div>`).join('');
+    if (!data.length) { c.textContent = 'No looks yet.'; return; }
+    c.replaceChildren(...data.map(item => {
+      const card = document.createElement('div');
+      card.className = 'card hist-row';
+      const result = (item.assets || []).find(a => a.role === 'result');
+      const img = document.createElement(result ? 'img' : 'div');
+      img.className = 'hist-img';
+      if (result) { img.src = result.url; img.alt = 'AI-generated preview'; }
+      const info = document.createElement('div');
+      info.style.flex = '1';
+      const names = (item.selections || []).map(sel => sel.name).filter(Boolean).join(' + ') || item.category;
+      const title = document.createElement('p');
+      title.style.cssText = 'font-weight:700;font-size:14px;';
+      title.textContent = names;
+      const meta = document.createElement('p');
+      meta.className = 'caption';
+      meta.textContent = item.created_at.slice(0, 16).replace('T', ' ') + ' · ' + (item.status === 'succeeded' ? 'AI-generated preview' : item.status);
+      info.append(title, meta);
+      const del = document.createElement('button');
+      del.className = 'btn btn-s btn-sm';
+      del.textContent = 'Delete';
+      del.onclick = () => deleteItem(item.request_id);
+      card.append(img, info, del);
+      return card;
+    }));
   } catch(e) { c.textContent = 'Error: ' + e.message; }
 }
 
 async function deleteItem(id) {
-  if (!confirm('Delete this?')) return;
+  if (!confirm('Delete this look and its photos?')) return;
   try { await fetch('/api/v1/generations/' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + authToken } }); loadHistory(); }
   catch(e) { alert('Failed.'); }
 }
 
 /* ── Reference file listener ──────────────────────── */
-const refInp = $g('reference-file');
-if (refInp) { refInp.addEventListener('change', e => { const f = e.target.files[0]; if (f) { $g('reference-status').textContent = 'Attached: ' + f.name; $g('reference-status').style.color = 'var(--ok)'; } }); }
 
 /* ── Compare slider ───────────────────────────────── */
 const cBox = $g('compare-box'), cClip = $g('compare-before-clip'), cHandle = $g('compare-handle');
 let dragging = false;
-function updateSlider(x) {
+function updateSlider(x, setPct) {
   if (!cBox) return;
-  const rect = cBox.getBoundingClientRect();
-  let pct = ((x - rect.left) / rect.width) * 100;
-  pct = Math.max(2, Math.min(98, pct));
+  let pct = setPct;
+  if (pct == null) {
+    const rect = cBox.getBoundingClientRect();
+    pct = Math.max(2, Math.min(98, ((x - rect.left) / rect.width) * 100));
+  }
   if (cClip) cClip.style.width = pct + '%';
   if (cHandle) cHandle.style.left = pct + '%';
 }
@@ -1071,7 +1359,13 @@ if (cBox) {
 
 /* ── Init ─────────────────────────────────────────── */
 if (authToken) refreshAuthUI();
-showScreen('screen-2');
+Consent.init();
+Shop.init();
+Generator.init();
+Styles.load();
+if (!(navigator.canShare && navigator.canShare({ files: [new File([''], 'x.png', { type: 'image/png' })] }))) $g('share-btn').style.display = 'none';
+showScreen('screen-1');
+screenStack = [];
 </script>
 </body>
 </html>
