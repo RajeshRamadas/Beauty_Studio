@@ -17,7 +17,7 @@ class AIBeautyStudioApp extends StatelessWidget {
     final apiClient = ApiClient();
 
     return MaterialApp(
-      title: 'AI Beauty Studio',
+      title: 'Beautiva',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
       home: MainNavigationContainer(apiClient: apiClient),

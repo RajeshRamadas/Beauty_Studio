@@ -112,7 +112,7 @@ class _CreateLookScreenState extends State<CreateLookScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("AI Beauty Studio")),
+      appBar: AppBar(title: const Text("Beautiva")),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

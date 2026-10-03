@@ -1,4 +1,4 @@
-# AI Beauty Studio — Two-Image Style Reference Test
+# Beautiva — AI Beauty Studio
 
 Upload **your own photo** and a **style reference image**. The backend sends both to the image-edit API, instructing it to apply the reference's requested beauty style to your photo while preserving your identity and the target photo's scene as closely as possible.
 

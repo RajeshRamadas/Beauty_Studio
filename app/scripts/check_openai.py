@@ -102,7 +102,7 @@ def main():
     parser.add_argument("--test-vision", action="store_true", help="run one real face-analysis call")
     args = parser.parse_args()
 
-    print("Glow AI: OpenAI check\n")
+    print("Beautiva: OpenAI check\n")
     if settings.DEMO_MODE:
         line(BAD, "DEMO_MODE is on: the app blends photos locally and never calls OpenAI. Unset DEMO_MODE.")
     if not key_configured():
