@@ -149,6 +149,30 @@ def image_path(url: Optional[str]) -> Optional[str]:
     return path if os.path.isfile(path) else None
 
 
+def attach_image(db: Session, template_id: str, view: str, raw: bytes) -> Dict:
+    """Validate and store a reference photo for a template view (front, side or back); bumps the version."""
+    import os
+    import secrets
+    from app.services.catalog_seed import _slug
+    from app.services.image_processor import process_image
+    row = db.query(StyleTemplateModel).filter(StyleTemplateModel.id == template_id).first()
+    if not row:
+        raise KeyError(template_id)
+    data, _mime, ext, _size = process_image(raw, "The reference photo")
+    name = f"{_slug(template_id)}-{view}-{secrets.token_hex(4)}.{ext}"
+    os.makedirs(os.path.join("storage", "catalog"), exist_ok=True)
+    with open(os.path.join("storage", "catalog", name), "wb") as f:
+        f.write(data)
+    invalidate()
+    t = get(template_id, include_unpublished=True)
+    t["images"] = dict(t.get("images") or {}, **{view: CATALOG_IMAGE_PREFIX + name})
+    t["version"] += 1
+    row_from_dict(t, row)
+    db.commit()
+    invalidate()
+    return t
+
+
 def public_view(t: Dict) -> Dict:
     """What browsers get: no internal fields such as status, except the version kept on results."""
     keys = ("id", "category", "group", "audience", "name", "description", "image", "images", "tags", "face_shapes",

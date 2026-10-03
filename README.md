@@ -97,6 +97,14 @@ Nothing is hidden or called unsuitable: every template stays available. Limit: `
 - **Deletion:** deleting a result removes its source, reference and result images. Anonymous results are deleted after `RETENTION_DAYS` (default 30).
 - Photos are never used for training. Keys stay on the server.
 
+## Reference photos for the catalogue
+`docs/reference-photos.md` (and `.csv`) has a ready-to-use image prompt for every style: hairstyles (front, plus optional side and back), hair colours, makeup, beards, nails and looks, with the size and framing to use. Regenerate it after catalogue changes with `python -m app.scripts.reference_photos prompts`.
+
+- **Make the photos** in any image tool, or with `python -m app.scripts.reference_photos generate photos/ --limit 5`. This uses your OpenAI key and costs money; it asks before starting and skips photos that already exist.
+- **Attach them** with `python -m app.scripts.reference_photos import photos/`. Files must be named `<template id>-front.jpg`, `-side.jpg` or `-back.jpg`. You can also upload them one at a time in /admin.
+
+Once a style has a photo, its try-on sends that photo as a visual reference for the area it changes.
+
 ## Catalogue admin
 Set `ADMIN_EMAILS=you@example.com` and sign in at **/admin** (Profile shows **Manage catalogue** for admins). Admins can:
 - create templates (saved as drafts);

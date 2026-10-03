@@ -1,6 +1,4 @@
-import os
 import re
-import secrets
 from typing import Dict, List, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
@@ -14,7 +12,7 @@ from app.db.models import (GenerationRequestModel, GenerationSelectionModel, Sty
                            UserModel)
 from app.services import catalog
 from app.services.catalog_seed import ALL_SHAPES, _slug
-from app.services.image_processor import process_image, read_limited_image
+from app.services.image_processor import read_limited_image
 
 router = APIRouter()
 
@@ -180,19 +178,9 @@ async def admin_upload_image(template_id: str, view: str = Form("front"), image:
     """Upload a front, side or back reference photo. Only upload photos you have the rights to use."""
     if view not in ("front", "side", "back"):
         raise HTTPException(400, "view must be front, side or back.")
-    row = _row(db, template_id)
+    _row(db, template_id)
     raw = await read_limited_image(image, "The reference photo")
-    data, _mime, ext, _size = process_image(raw, "The reference photo")
-    name = f"{_slug(template_id)}-{view}-{secrets.token_hex(4)}.{ext}"
-    os.makedirs(os.path.join("storage", "catalog"), exist_ok=True)
-    with open(os.path.join("storage", "catalog", name), "wb") as f:
-        f.write(data)
-    t = catalog.get(template_id, include_unpublished=True)
-    t["images"] = dict(t.get("images") or {}, **{view: catalog.CATALOG_IMAGE_PREFIX + name})
-    t["version"] += 1
-    catalog.row_from_dict(t, row)
-    db.commit()
-    catalog.invalidate()
+    catalog.attach_image(db, template_id, view, raw)
     return _admin_view(catalog.get(template_id, include_unpublished=True))
 
 
